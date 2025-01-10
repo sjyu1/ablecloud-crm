@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { config } from '@/config';
 import { fetchWithAuth } from '@/utils/api';
 import { encryptBlob } from '@/utils/encryption';
 

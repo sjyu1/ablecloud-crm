@@ -52,7 +52,7 @@ export default function LicenseDetailPage({ params, }: {  params: Promise<{ id: 
     }
 
     try {
-      const response = await fetch(`/api/license/${params.id}`, {
+      const response = await fetch(`/api/license/${params.id}/download`, {
         method: 'GET',
       });
 
@@ -181,11 +181,11 @@ export default function LicenseDetailPage({ params, }: {  params: Promise<{ id: 
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">시작일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.issued_date.split('T')[0]}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.issued_date}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">만료일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.expiry_date.split('T')[0]}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.expiry_date}</p>
             </div>
           </div>
         </div>

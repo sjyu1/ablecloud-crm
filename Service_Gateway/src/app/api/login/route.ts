@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { config } from '@/config';
 
 /**
  * 로그인

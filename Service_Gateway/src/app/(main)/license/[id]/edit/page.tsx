@@ -150,7 +150,7 @@ export default function LicenseEditPage({ params }: { params: { id: string } }) 
               <input
                 type="date"
                 name="issued_date"
-                value={formData.issued_date.split('T')[0]}
+                value={formData.issued_date}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -164,7 +164,7 @@ export default function LicenseEditPage({ params }: { params: { id: string } }) 
               <input
                 type="date"
                 name="expiry_date"
-                value={formData.expiry_date.split('T')[0]}
+                value={formData.expiry_date}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
