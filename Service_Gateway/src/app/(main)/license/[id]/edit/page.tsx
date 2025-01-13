@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface LicenseForm {
@@ -13,7 +13,8 @@ interface LicenseForm {
   expiry_date: string;
 }
 
-export default function LicenseEditPage({ params }: { params: { id: string } }) {
+export default function LicenseEditPage() {
+  const params = useParams();
   const router = useRouter();
   const [formData, setFormData] = useState<LicenseForm | null>(null);
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ export default function LicenseEditPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     fetchLicenseDetail();
-  }, [params.id]);
+  }, []);
 
   const fetchLicenseDetail = async () => {
     try {

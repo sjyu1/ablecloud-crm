@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 interface License {
   id: number;
@@ -12,7 +12,8 @@ interface License {
   expiry_date: string;
 }
 
-export default function LicenseDetailPage({ params, }: {  params: Promise<{ id: string }>}) {
+export default function LicenseDetailPage() {
+  const params = useParams();
   const router = useRouter();
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
