@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
-import { encryptBlob } from '@/utils/encryption';
 
 /**
  * 라이센스 목록 조회
  * @returns 
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`);
+    const { searchParams } = new URL(request.url);
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 10;
+    const productId = searchParams.get('productId');
+
+    // 페이징 파라미터를 포함한 API 호출
+    const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
+    apiUrl.searchParams.set('page', page.toString());
+    apiUrl.searchParams.set('limit', limit.toString());
+    if (productId) {
+      apiUrl.searchParams.set('productId', productId);
+    }
+    const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
 
     if (!response.ok) {
@@ -21,19 +32,16 @@ export async function GET() {
       );
     }
 
-    // 데이터를 내림차순으로 정렬
-    const sortedData = Array.isArray(data) 
-      ? data.sort((a, b) => {
-          // created_at이나 id 기준으로 정렬
-          // return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          return b.id - a.id;
-        })
-      : data;
-
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: sortedData
+      data: data.items || [],
+      pagination: {
+        currentPage: page,
+        totalPages: data.totalPages || 1,
+        totalItems: data.totalItems || 0,
+        itemsPerPage: limit
+      }
     });
   } catch (error) {
     return NextResponse.json(
@@ -54,12 +62,6 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // blob 데이터가 있는 경우 암호화
-    if (body.blob) {
-      body.blob = await encryptBlob(body.blob);
-    }
-    
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`, {
       method: 'POST',
       body: JSON.stringify(body),

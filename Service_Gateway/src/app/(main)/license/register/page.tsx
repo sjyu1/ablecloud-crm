@@ -8,6 +8,8 @@ interface LicenseForm {
   // license_key: string;
   product_id: string;
   status: string;
+  type: string;
+  core: number;
   issued_date: string;
   expiry_date: string;
 }
@@ -18,6 +20,8 @@ export default function LicenseRegisterPage() {
     // license_key: '',
     product_id: '',
     status: 'active',
+    type: 'vm',
+    core: 0,
     issued_date: '',
     expiry_date: '',
   });
@@ -108,6 +112,36 @@ export default function LicenseRegisterPage() {
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품유형
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="vm">ABLESTACK VM</option>
+                <option value="hci">ABLESTACK HCI</option>
+                <option value="vm_beta">ABLESTACK VM - Beta</option>
+                <option value="hci_beta">ABLESTACK HCI - Beta</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                코어수
+              </label>
+              <input
+                type="number"
+                name="core"
+                value={formData.core}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
             <div>

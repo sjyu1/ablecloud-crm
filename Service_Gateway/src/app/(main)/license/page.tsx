@@ -8,6 +8,7 @@ interface License {
   id: number;
   license_key: string;
   product_id: string;
+  type: string;
 }
 
 interface Pagination {
@@ -47,7 +48,7 @@ export default function LicensePage() {
           alert(result.message);
           return;
         }
-        console.log('result === ', result);
+
         setLicenses(result.data);
         setPagination(result.pagination);
       } catch (error) {
@@ -148,6 +149,9 @@ export default function LicensePage() {
                 상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                제품유형
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 시작일
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -177,6 +181,9 @@ export default function LicensePage() {
                   }`}>
                     {license.status === 'active' ? '활성' : '비활성'}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {license.type === 'vm' ? ('ABLESTACK VM') : license.type === 'hci' ? ('ABLESTACK HCI') : license.type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.issued_date}
@@ -237,9 +244,9 @@ export default function LicensePage() {
       )}
 
       {/* 총 아이템 수 */}
-      <div className="text-center mt-2 text-gray-600">
+      {/* <div className="text-center mt-2 text-gray-600">
         총 {pagination.totalItems}개의 라이센스
-      </div>
+      </div> */}
     </div>
   );
 } 

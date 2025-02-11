@@ -8,6 +8,8 @@ interface License {
   license_key: string;
   product_id: string;
   status: string;
+  type: string;
+  core: string;
   issued_date: string;
   expiry_date: string;
 }
@@ -178,6 +180,18 @@ export default function LicenseDetailPage() {
                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                   {license.status}
                 </span>
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">제품유형</h3>
+              <p className="mt-1 text-lg text-gray-900">
+              {license.type === 'vm' ? ('ABLESTACK VM') : license.type === 'hci' ? ('ABLESTACK HCI') : license.type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">코어수</h3>
+              <p className="mt-1 text-lg text-gray-900">
+              {license.core}
               </p>
             </div>
             <div>

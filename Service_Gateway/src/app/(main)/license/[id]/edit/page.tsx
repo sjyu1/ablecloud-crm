@@ -9,6 +9,8 @@ interface LicenseForm {
   license_key: string;
   product_id: string;
   status: string;
+  type: string;
+  core: number;
   issued_date: string;
   expiry_date: string;
 }
@@ -47,12 +49,15 @@ export default function LicenseEditPage() {
     // setIsLoading(true);
 
     try {
+      let core = formData?.core
+      if(!formData?.core) core = 0
+      const updateFormData = { ...formData, core: core}
       const response = await fetch(`/api/license/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updateFormData),
       });
 
       if (!response.ok) {
@@ -69,6 +74,7 @@ export default function LicenseEditPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+      
     setFormData(prev => prev ? {
       ...prev,
       [name]: value
@@ -142,6 +148,36 @@ export default function LicenseEditPage() {
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품유형
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="vm">ABLESTACK VM</option>
+                <option value="hci">ABLESTACK HCI</option>
+                <option value="vm_beta">ABLESTACK VM - Beta</option>
+                <option value="hci_beta">ABLESTACK HCI - Beta</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                코어수
+              </label>
+              <input
+                type="number"
+                name="core"
+                value={formData.core}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
             <div>
