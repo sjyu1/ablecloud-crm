@@ -5,19 +5,8 @@ import { AppModule } from './app.module';
 
 const logger = new Logger('Main')
 
-const microServiceOptions = {
-  transport: Transport.TCP,
-  options: {
-    host: '10.10.254.23',
-    port : 3017
-  }
-}
-
 async function bootstrap() {
-
-  const app = await NestFactory.createMicroservice(AppModule, microServiceOptions)
-
-  app.listen()
-  
+  const app = await NestFactory.create(AppModule);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

@@ -29,4 +29,18 @@ export class License {
 
   @UpdateDateColumn()
   updated_at: string
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  type: string;
+
+  @Column({
+    type: 'int',
+    default: 0,
+    nullable: true
+  })
+  core: number;
 }

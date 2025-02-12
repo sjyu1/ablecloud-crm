@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { License } from './license.entity'
 import { v4 as uuidv4 } from 'uuid'
+import { CreateLicenseDto, UpdateLicenseDto } from './dto/license.dto'
 
 @Injectable()
 export class LicenseService {
@@ -25,15 +26,38 @@ export class LicenseService {
     return date.toISOString().replace(/\.\d{3}Z$/, 'Z')
   }
 
-  async getAllLicenses(): Promise<License[]> {
-    const licenses = await this.licenseRepository.find()
-    return licenses.map(license => ({
+  async getAllLicenses(
+    page: number = 1,
+    limit: number = 10,
+    productId?: string
+  ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
+    const query = this.licenseRepository.createQueryBuilder('license')
+                  .orderBy('license.created_at', 'DESC');
+
+    if (productId) {
+      query.where('license.product_id = :productId', { productId });
+    }
+
+    const total = await query.getCount();
+    const items = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    const formattedItems = items.map(license => ({
       ...license,
       issued_date: this.formatDateToYYYYMMDD(license.issued_date),
       expiry_date: this.formatDateToYYYYMMDD(license.expiry_date),
       created_at: this.removeMicrosecondsFromTimestamp(license.created_at),
       updated_at: this.removeMicrosecondsFromTimestamp(license.updated_at),
-    }))
+    }));
+
+    return {
+      items: formattedItems,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   async getLicenseById(id: number): Promise<License | null> {
@@ -82,5 +106,27 @@ export class LicenseService {
     const license = await this.licenseRepository.findOne({ where: { id } })
     if (!license) throw new Error(`License with ID ${id} not found`)
     await this.licenseRepository.delete(id)
+  }
+
+  async create(createLicenseDto: CreateLicenseDto) {
+    const license = new License();
+    // ... 기존 필드 설정 ...
+    license.type = createLicenseDto.type;
+    license.core = createLicenseDto.core;
+
+    return this.licenseRepository.save(license);
+  }
+
+  async update(id: number, updateLicenseDto: UpdateLicenseDto) {
+    const license = await this.licenseRepository.findOne({ where: { id } });
+    // ... 기존 필드 업데이트 ...
+    if (updateLicenseDto.type) {
+      license.type = updateLicenseDto.type;
+    }
+    if (updateLicenseDto.core !== undefined) {
+      license.core = updateLicenseDto.core;
+    }
+
+    return this.licenseRepository.save(license);
   }
 }

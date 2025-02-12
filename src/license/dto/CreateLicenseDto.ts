@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsDate } from 'class-validator'
+import { IsString, IsNotEmpty, IsDate, IsOptional } from 'class-validator'
 
 export class CreateLicenseDto {
   @IsString()
@@ -18,4 +18,11 @@ export class CreateLicenseDto {
   @IsString()
   @IsNotEmpty()
   status: 'active' | 'inactive' | 'expired';
+
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @IsOptional()
+  core: number;
 }

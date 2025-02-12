@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common'
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common'
 import { LicenseService } from './license.service'
 import { License } from './license.entity'
 import { AuthGuard } from '../auth/auth.guard'
@@ -9,8 +9,21 @@ export class LicenseController {
   constructor(private readonly licenseService: LicenseService) {}
 
   @Get()
-  async getLicenses(): Promise<License[]> {
-    return this.licenseService.getAllLicenses()
+  async getLicenses(
+    @Query() query: { page?: string; limit?: string; productId?: string },
+  ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
+    const page = query.page || '1';
+    const limit = query.limit || '10';
+    const productId = query.productId || '';
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    if (isNaN(pageNumber) || isNaN(limitNumber)) {
+      throw new Error('Invalid page or limit format');
+    }
+
+    return this.licenseService.getAllLicenses(pageNumber, limitNumber, productId);
   }
 
   @Get(':id')
