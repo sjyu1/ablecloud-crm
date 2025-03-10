@@ -2,13 +2,17 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } fro
 import { LicenseService } from './license.service'
 import { License } from './license.entity'
 import { AuthGuard } from '../auth/auth.guard'
+import { RolesGuard } from '../auth/role/role.guard'
+import { Roles } from 'src/auth/role/role.decorator';
 
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('license')
 @UseGuards(AuthGuard)
 export class LicenseController {
   constructor(private readonly licenseService: LicenseService) {}
 
   @Get()
+  @Roles('Admin', 'User')
   async getLicenses(
     @Query() query: { page?: string; limit?: string; productId?: string },
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
@@ -27,6 +31,7 @@ export class LicenseController {
   }
 
   @Get(':id')
+  @Roles('Admin', 'User')
   async getLicenseById(@Param('id') id: string): Promise<License> {
     const numericId = parseInt(id, 10)
     if (isNaN(numericId)) throw new Error('Invalid ID format')
@@ -34,11 +39,13 @@ export class LicenseController {
   }
 
   @Post()
+  @Roles('Admin')
   async createLicense(@Body() createData: Partial<License>): Promise<License> {
     return this.licenseService.createLicense(createData)
   }
 
   @Put(':id')
+  @Roles('Admin')
   async updateLicense(
     @Param('id') id: string,
     @Body() updateData: Partial<License>,
@@ -49,6 +56,7 @@ export class LicenseController {
   }
 
   @Delete(':id')
+  @Roles('Admin')
   async deleteLicense(@Param('id') id: string): Promise<void> {
     const numericId = parseInt(id, 10)
     if (isNaN(numericId)) throw new Error('Invalid ID format')

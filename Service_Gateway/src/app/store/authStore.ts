@@ -30,12 +30,22 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       const data = await response.json();
       set({ user: data.user });
-      
-      // 토큰과 username을 쿠키에 저장
+
+      // 쿠키에 토큰 저장
       document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=strict`;
-      // document.cookie = `refresh_token=${data.refresh_token}; path=/; max-age=604800; samesite=strict`;
+      // 쿠키에 username 저장
       document.cookie = `username=${data.user.username}; path=/; max-age=604800; samesite=strict`;
       
+      // 쿠키에 role 저장
+      const access_token_json = JSON.parse(Buffer.from(data.token.split('.')[1], 'base64').toString())
+      const role_arr = access_token_json.realm_access.roles
+
+      for ( const role in role_arr){
+        if(role_arr[role] === "Admin" || role_arr[role] === "User"){
+          document.cookie = `role=${role_arr[role]}; path=/; max-age=604800; samesite=strict`;
+        }
+      }
+
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -46,8 +56,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null });
     // 모든 인증 관련 쿠키 제거
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-    // document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     document.cookie = 'username=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = 'role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
   },
 }));
 

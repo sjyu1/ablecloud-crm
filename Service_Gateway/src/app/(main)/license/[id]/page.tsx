@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { getCookie } from '../../../store/authStore';
 
 interface License {
   id: number;
@@ -20,6 +21,7 @@ export default function LicenseDetailPage() {
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const role = getCookie('role');
 
   useEffect(() => {
     fetchLicenseDetail();
@@ -143,12 +145,14 @@ export default function LicenseDetailPage() {
           <button
             onClick={() => window.location.href = `/license/${license.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+            style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             삭제
           </button>

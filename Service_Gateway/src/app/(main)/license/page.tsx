@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
 
 interface License {
@@ -29,6 +30,7 @@ export default function LicensePage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
+  const role = getCookie('role');
 
   useEffect(() => {
     const fetchLicenses = async () => {
@@ -96,6 +98,7 @@ export default function LicensePage() {
         <Link
           href="/license/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           라이센스 등록
         </Link>
