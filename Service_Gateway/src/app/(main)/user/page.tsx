@@ -1,0 +1,183 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getCookie } from '../../store/authStore';
+import Link from 'next/link';
+
+interface User {
+  id: string,
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+export default function UserPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [productId, setProductId] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const role = getCookie('role');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        let url = `/api/user`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (!result.success) {
+          alert(result.message);
+          return;
+        }
+        setUsers(result.data);
+      } catch (error) {
+        alert('사용자 목록 조회에 실패했습니다.');
+      }
+    };
+
+    fetchUsers();
+  }, [searchParams]);
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearchClick = () => {
+    try {
+      const params = new URLSearchParams();
+      if (productId.trim()) {  // 공백 제거 후 체크
+        params.set('productId', productId.trim());
+      }
+      params.set('page', '1');
+
+      // URL 업데이트
+      router.push(`/user?${params.toString()}`);
+    } catch (error) {
+      // alert('검색 중 오류가 발생했습니다.');
+      alert(error);
+    }
+  };
+
+  // 초기화 버튼 클릭 핸들러
+  const handleResetClick = () => {
+    setProductId('');
+    router.push('/user?page=1');
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage.toString());
+    router.push(`/user?${params.toString()}`);
+  };
+
+  return (
+    <div className="space-y-6">
+      
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">사용자 관리</h1>
+        <Link
+          href="/user/register"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          style={{ display: role === 'Admin' ? '' : 'none' }}
+        >
+          사용자 등록
+        </Link>
+      </div>
+
+      {/* 검색 필터 */}
+      {/* <div className="mb-4 flex gap-2">
+        <input
+          type="text"
+          value={productId}
+          onChange={(e) => setProductId(e.target.value)}
+          placeholder="제품 ID로 검색"
+          className="px-3 py-2 border rounded-md"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSearchClick();
+            }
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleSearchClick}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          검색
+        </button>
+        {searchParams.get('productId') && (
+          <button
+            type="button"
+            onClick={handleResetClick}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+          >
+            초기화
+          </button>
+        )}
+      </div> */}
+
+      {/* 사용자 목록 */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                사용자 이름
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                이메일
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                이름
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                성
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                role
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {user.username}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.firstName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.lastName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.role}
+                </td>
+              </tr>
+            ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  사용자 정보가 없습니다.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+
+      {/* 총 아이템 수 */}
+      {/* <div className="text-center mt-2 text-gray-600">
+        총 {pagination.totalItems}개의 사용자
+      </div> */}
+    </div>
+  );
+} 

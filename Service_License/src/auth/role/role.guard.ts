@@ -23,7 +23,7 @@ export class RolesGuard implements CanActivate {
       const role_arr = access_token_json.realm_access.roles
       for ( const role in role_arr){
         if(role_arr[role] === "Admin" || role_arr[role] === "User"){
-          console.log('requiredRole : '+requiredRole+' ||| role : '+role_arr[role])
+          //console.log('requiredRole : '+requiredRole+' ||| role : '+role_arr[role])
 
           return requiredRole.includes(role_arr[role])
         }

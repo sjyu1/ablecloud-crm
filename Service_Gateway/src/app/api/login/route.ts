@@ -7,8 +7,6 @@ import { NextResponse } from 'next/server';
  */ 
 export async function POST(request: Request) {
   try {
-    console.log('--------------------------------');
-    console.log(process.env.CLIENT_SECRET);
     const body = await request.json();
     const { username, password } = body;
     const submitData = {

@@ -23,7 +23,7 @@ export default function MainLayout({
   const menuItems = [
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
     { name: '라이센스', path: '/license', icon: '🔑' },
-    // { name: '제품', path: '/product', icon: '🗄️' },
+    { name: '사용자', path: '/user', icon: '🗄️' },
     // { name: '납품업체', path: '/company', icon: '🏢' },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
