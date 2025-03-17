@@ -5,43 +5,26 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
 
-interface License {
-  id: number;
-  license_key: string;
-  product_id: string;
-  type: string;
+interface User {
+  id: string,
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
 }
 
-interface Pagination {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-}
-
-export default function LicensePage() {
-  const [licenses, setLicenses] = useState<License[]>([]);
+export default function UserPage() {
+  const [users, setUsers] = useState<User[]>([]);
   const [productId, setProductId] = useState('');
-  const [pagination, setPagination] = useState<Pagination>({
-    currentPage: 1,
-    totalPages: 1,
-    totalItems: 0,
-    itemsPerPage: 10
-  });
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = getCookie('role');
 
   useEffect(() => {
-    const fetchLicenses = async () => {
+    const fetchUsers = async () => {
       try {
-        const page = searchParams.get('page') || '1';
-        const currentProductId = searchParams.get('productId');
-        
-        let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentProductId) {
-          url += `&productId=${currentProductId}`;
-        }
+        let url = `/api/user`;
 
         const response = await fetch(url);
         const result = await response.json();
@@ -50,16 +33,14 @@ export default function LicensePage() {
           alert(result.message);
           return;
         }
-
-        setLicenses(result.data);
-        setPagination(result.pagination);
+        setUsers(result.data);
       } catch (error) {
-        alert('라이센스 목록 조회에 실패했습니다.');
+        alert('사용자 목록 조회에 실패했습니다.');
       }
     };
 
-    fetchLicenses();
-  }, [searchParams, pagination.itemsPerPage]);
+    fetchUsers();
+  }, [searchParams]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
@@ -71,7 +52,7 @@ export default function LicensePage() {
       params.set('page', '1');
 
       // URL 업데이트
-      router.push(`/license?${params.toString()}`);
+      router.push(`/user?${params.toString()}`);
     } catch (error) {
       // alert('검색 중 오류가 발생했습니다.');
       alert(error);
@@ -81,31 +62,31 @@ export default function LicensePage() {
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
     setProductId('');
-    router.push('/license?page=1');
+    router.push('/user?page=1');
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    router.push(`/license?${params.toString()}`);
+    router.push(`/user?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">사용자 관리</h1>
         <Link
-          href="/license/register"
+          href="/user/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           style={{ display: role === 'Admin' ? '' : 'none' }}
         >
-          라이센스 등록
+          사용자 등록
         </Link>
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2">
+      {/* <div className="mb-4 flex gap-2">
         <input
           type="text"
           value={productId}
@@ -135,85 +116,56 @@ export default function LicensePage() {
             초기화
           </button>
         )}
-      </div>
+      </div> */}
 
-      {/* 라이센스 목록 */}
+      {/* 사용자 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                라이센스 키
+                사용자 이름
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품 ID
+                이메일
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                상태
+                이름
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품유형
+                성
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                시작일
+                role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                만료일
-              </th>
-              {/* <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                관리
-              </th> */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {licenses.map((license) => (
-              <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}`}>
+            {users.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
-                    {license.license_key}
+                    {user.username}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.product_id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    license.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {license.status === 'active' ? '활성' : '비활성'}
-                  </span>
+                  {user.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {license.type === 'vm' ? ('ABLESTACK VM') : license.type === 'hci' ? ('ABLESTACK HCI') : license.type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                  {user.firstName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.issued_date}
+                  {user.lastName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.expiry_date}
+                  {user.role}
                 </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/license/${license.id}`}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    상세
-                  </Link>
-                  <button
-                    onClick={() => {}}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    삭제
-                  </button>
-                </td> */}
               </tr>
             ))}
-            {licenses.length === 0 && (
+            {users.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                  라이센스 정보가 없습니다.
+                  사용자 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -221,34 +173,10 @@ export default function LicensePage() {
         </table>
       </div>
 
-      {/* 페이지네이션 */}
-      {pagination.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2">
-          <button
-            onClick={() => handlePageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1}
-            className="px-4 py-2 border rounded disabled:opacity-50"
-          >
-            이전
-          </button>
-
-          <span className="px-4">
-            {pagination.currentPage} / {pagination.totalPages} 페이지
-          </span>
-
-          <button
-            onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={pagination.currentPage === pagination.totalPages}
-            className="px-4 py-2 border rounded disabled:opacity-50"
-          >
-            다음
-          </button>
-        </div>
-      )}
 
       {/* 총 아이템 수 */}
       {/* <div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 라이센스
+        총 {pagination.totalItems}개의 사용자
       </div> */}
     </div>
   );

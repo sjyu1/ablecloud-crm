@@ -23,7 +23,7 @@ export default function MainLayout({
   const menuItems = [
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
     { name: '라이센스', path: '/license', icon: '🔑' },
-    // { name: '제품', path: '/product', icon: '🗄️' },
+    { name: '사용자', path: '/user', icon: '🗄️' },
     // { name: '납품업체', path: '/company', icon: '🏢' },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
@@ -34,7 +34,7 @@ export default function MainLayout({
       <header className="bg-white shadow fixed w-full z-10">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex justify-between items-center">
-            <h1 className="text-xl font-bold text-gray-800">라이센스 관리 시스템</h1>
+            <h1 className="text-xl font-bold text-gray-800">ABLECLOUD CRM</h1>
             <div className="flex items-center gap-4">
               <span className="text-gray-600">
                 {/* <strong>{user?.username}</strong>님 환영합니다 */}
@@ -84,7 +84,7 @@ export default function MainLayout({
       <footer className="bg-white border-t ml-64">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © 2024 라이센스 관리 시스템. All rights reserved.
+            © 2024 ABLECLOUD CRM 관리 시스템. All rights reserved.
           </p>
         </div>
       </footer>
