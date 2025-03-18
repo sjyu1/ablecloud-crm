@@ -17,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
       const request = context.switchToHttp().getRequest()
       const { authorization } = request.headers
       console.log(authorization+"authorization");
-      console.log('User info fetched successfully:1')
+      // console.log('User info fetched successfully:1')
       if (!authorization || authorization.trim() === '') {
         throw new UnauthorizedException('Please provide a valid token')
       }
@@ -38,13 +38,13 @@ import { firstValueFrom } from 'rxjs';
   private async getUserInfo(accessToken: string): Promise<UserInfoResponse> {
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(`http://10.10.254.208:8080/realms/test/protocol/openid-connect/userinfo`, {
+        this.httpService.get(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/userinfo`, {
           headers: {
             Authorization: accessToken,
           },
         }),
       )
-      console.log('User info fetched successfully:', data)
+      // console.log('User info fetched successfully:', data)
       return data
     } catch (error) {
       console.error('Error fetching user info:', error.message || error)
