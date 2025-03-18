@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchWithAuth } from '@/utils/api';
+import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
 
 /**
  * 사용자 목록 조회
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       grant_type: 'client_credentials',
     }
 
-    const res_token = await fetch(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
+    const res_token = await fetchWithAuthValid(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -74,13 +74,24 @@ export async function GET(request: Request) {
       data: data_user || []
     });
   } catch (error) {
-    return NextResponse.json(
-      { 
-        success: false,
-        message: '서버 오류가 발생했습니다.'
-      },
-      { status: 500 }
-    );
+    if (error instanceof Error){ 
+      return NextResponse.json(
+        { 
+          success: false,
+          message: error.message
+        },
+        { status: 500 }
+      );
+    } else {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: '서버 오류가 발생했습니다.'
+        },
+        { status: 500 }
+      );
+    }
+
   }
 }
 

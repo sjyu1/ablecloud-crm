@@ -3,7 +3,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Related file information
 
 - package.json : 포트변경(기본포트 3000)
-- src/.env.local : 환경변수
+- .env.local : 환경변수
 
 ## File structure
 

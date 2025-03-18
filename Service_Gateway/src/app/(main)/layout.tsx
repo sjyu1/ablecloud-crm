@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { getCookie, useAuthStore } from '../store/authStore';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { TbLicense } from "react-icons/tb";
+import { FaUser } from "react-icons/fa";
 
 export default function MainLayout({
   children,
@@ -22,8 +24,8 @@ export default function MainLayout({
 
   const menuItems = [
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
-    { name: '라이센스', path: '/license', icon: '🔑' },
-    { name: '사용자', path: '/user', icon: '🗄️' },
+    { name: '라이센스', path: '/license', icon: <TbLicense /> },
+    { name: '사용자', path: '/user', icon: <FaUser /> },
     // { name: '납품업체', path: '/company', icon: '🏢' },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
@@ -90,4 +92,4 @@ export default function MainLayout({
       </footer>
     </div>
   );
-} 
+}
