@@ -79,3 +79,64 @@ export async function GET(
     );
   }
 }
+
+/**
+ * 사용자 삭제
+ * 1. client_credentials token 가져오기
+ * 2. 사용자 삭제
+ * @param request 
+ * @param params 
+ * @returns 
+ */ 
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // 1. client_credentials token 가져오기
+    const submitData_token = {
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      scope: process.env.SCOPE,
+      grant_type: 'client_credentials',
+    }
+
+    const res_token = await fetch(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(submitData_token).toString()
+    });
+
+    const client_token = await res_token.json();
+
+    // 2. 사용자 삭제
+    const response = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${params.id}`,{
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${client_token.access_token}`,
+      },
+    });
+
+    if (!response) {
+      return NextResponse.json(
+        { message: '사용자를 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+
+    // licenses = licenses.filter(l => l.id !== parseInt(params.id));
+
+    return NextResponse.json({ 
+      status: 200,
+      message: '사용자가 삭제되었습니다.' 
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: '사용자 삭제 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}

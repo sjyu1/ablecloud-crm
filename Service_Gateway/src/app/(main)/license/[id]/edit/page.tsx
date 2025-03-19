@@ -60,7 +60,9 @@ export default function LicenseEditPage() {
         body: JSON.stringify(updateFormData),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('라이센스가 수정되었습니다.');
+      } else {
         throw new Error('라이센스 수정에 실패했습니다.');
       }
 

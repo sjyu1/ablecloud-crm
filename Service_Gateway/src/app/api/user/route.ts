@@ -129,7 +129,11 @@ export async function POST(request: Request) {
 
     // 2. 사용자 생성
     const body = await request.json();
-    const { username, password, firstName, lastName, email, role} = body;
+    const { username, password, firstName, lastName, email, telnum, role, type} = body;
+    const attributes = {
+      telnum,
+      type
+    }
     const submitData = {
       username,
       credentials: [{"type": "password", "value": password, "temporary": false}],
@@ -138,6 +142,7 @@ export async function POST(request: Request) {
       email,
       enabled: true,
       emailVerified: false,
+      attributes
     }
 
     const res_createuser = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`, {
@@ -151,7 +156,8 @@ export async function POST(request: Request) {
 
     if(res_createuser && !res_createuser.ok) {
       const data_createuser = await res_createuser.json();
-      if (data_createuser) throw new Error(data_createuser.errorMessage)
+      if (data_createuser && !data_createuser.errors) throw new Error(data_createuser.errorMessage || data_createuser.error)
+      if (data_createuser.errors) throw new Error(data_createuser.errors[0].errorMessage)
     }
 
     // 3. 사용자 토큰 가져오기
@@ -184,7 +190,9 @@ export async function POST(request: Request) {
     });
 
     const data_user = await res_user.json();
-    
+    // console.log('------------data_user: ')
+    // console.log(data_user)
+
     // 5. role id 가져오기
     const res_role = await fetchWithAuth(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/roles/${role}`);
     const data_role = await res_role.json();
@@ -205,6 +213,8 @@ export async function POST(request: Request) {
       body: JSON.stringify(data_userRole)
     });
 
+    // console.log('------------res: ')
+    // console.log(res)
     if (res.status != 204) {
       const data = await res.json();
       return NextResponse.json(

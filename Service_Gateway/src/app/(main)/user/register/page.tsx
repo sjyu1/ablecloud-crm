@@ -11,7 +11,9 @@ interface UserForm {
   firstName: string;
   lastName: string;
   email: string;
+  telnum: string;
   role: string;
+  type: string;
 }
 
 export default function UserRegisterPage() {
@@ -23,7 +25,9 @@ export default function UserRegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
+    telnum: '',
     role: 'User',
+    type: 'Vendor',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +51,9 @@ export default function UserRegisterPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('사용자가 등록되었습니다.');
+      } else {
         const err = await response.json();
         throw new Error(err.message);
       }
@@ -152,9 +158,23 @@ export default function UserRegisterPage() {
                 이메일
               </label>
               <input
-                type="email"
+                type="text"
                 name="email"
                 value={formData.email}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                전화번호
+              </label>
+              <input
+                type="text"
+                name="telnum"
+                value={formData.telnum}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -173,6 +193,22 @@ export default function UserRegisterPage() {
               >
                 <option value="Admin">Admin</option>
                 <option value="User">User</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                type
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Vendor">Vendor</option>
+                <option value="Partner">Partner</option>
+                <option value="Customer">Customer</option>
               </select>
             </div>
           </div>

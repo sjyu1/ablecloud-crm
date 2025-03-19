@@ -97,7 +97,9 @@ export default function LicenseDetailPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('라이센스가 삭제되었습니다.');
+      } else {
         throw new Error('라이센스 삭제에 실패했습니다.');
       }
 

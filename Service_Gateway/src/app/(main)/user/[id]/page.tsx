@@ -59,7 +59,9 @@ export default function UserDetailPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('사용자가 삭제되었습니다.');
+      } else {
         throw new Error('사용자 삭제에 실패했습니다.');
       }
 
@@ -104,14 +106,14 @@ export default function UserDetailPage() {
             style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             수정
-          </button>
+          </button>*/}
           <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
             style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             삭제
-          </button> */}
+          </button> 
           <button
             onClick={() => window.location.href = `/user`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"

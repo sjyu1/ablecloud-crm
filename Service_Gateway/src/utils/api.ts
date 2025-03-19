@@ -36,6 +36,20 @@ export async function fetchWithAuthValid(url: string, options: RequestInit = {})
     'authorization': `Bearer ${token}`,
   };
 
+  // const headers = options?.headers ? new Headers(options.headers) : new Headers();
+  // let headerData = {}
+  // let defaultHeaders = {
+  //   // 'Content-Type': 'application/json',
+  //   'Content-Type': headers.get("Content-Type"),
+  //   'authorization': `Bearer ${token}`,
+  // };
+
+  // if (!headers.has("Authorization")) {
+  //   headerData = defaultHeaders
+  // } else {
+  //   headerData = { ...options?.headers }
+  // }
+
   return fetch(url, {
     ...options,
     headers: {

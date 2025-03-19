@@ -11,6 +11,7 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  type: string;
   role: string;
 }
 
@@ -136,6 +137,9 @@ export default function UserPage() {
                 성
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                타입
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 role
               </th>
             </tr>
@@ -156,6 +160,9 @@ export default function UserPage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.lastName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.type}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.role}
