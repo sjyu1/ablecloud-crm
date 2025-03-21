@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsDate, IsOptional } from 'class-validator'
+import { IsString, IsNotEmpty, IsDate, IsOptional, IsEnum, IsNumber, Min } from 'class-validator'
 
 export class CreateLicenseDto {
   @IsString()
@@ -10,19 +10,42 @@ export class CreateLicenseDto {
   product_id: string;
 
   @IsDate()
-  issued_date: Date;
+  issued: Date;
 
   @IsDate()
-  expiry_date: Date;
+  expired: Date;
 
-  @IsString()
+  @IsEnum(['active', 'inactive', 'expired'])
   @IsNotEmpty()
   status: 'active' | 'inactive' | 'expired';
 
   @IsString()
-  @IsNotEmpty()
-  type: string;
-
   @IsOptional()
-  core: number;
+  product_type: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  cpu_core: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  product_cnt: number;
+
+  @IsEnum(['POC', 'BMT', 'TEMP'])
+  @IsOptional()
+  business_type: 'POC' | 'BMT' | 'TEMP';
+
+  @IsString()
+  @IsOptional()
+  business_name: string;
+
+  @IsString()
+  @IsOptional()
+  user_type: string;
+
+  @IsNumber()
+  @IsOptional()
+  company_id: number;
 }

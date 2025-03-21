@@ -1,10 +1,23 @@
 export class CreateLicenseDto {
   product_id: string;
-  issued_date?: string;
-  expiry_date?: string;
+  issued?: string;
+  expired?: string;
   status?: 'active' | 'inactive' | 'expired';
-  type?: string;
-  core?: number;
+  product_type?: string;
+  cpu_core?: number;
+  product_cnt?: number;
+  business_type?: 'POC' | 'BMT' | 'TEMP';
+  business_name?: string;
+  user_type?: string;
+  company_id?: number;
 }
 
-export class UpdateLicenseDto extends CreateLicenseDto {}
+export class UpdateLicenseDto extends CreateLicenseDto {
+  product_type?: string;
+  cpu_core?: number;
+  product_cnt?: number;
+  business_type?: 'POC' | 'BMT' | 'TEMP';
+  business_name?: string;
+  user_type?: string;
+  company_id?: number;
+}

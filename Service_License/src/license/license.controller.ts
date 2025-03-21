@@ -14,11 +14,23 @@ export class LicenseController {
   @Get()
   @Roles('Admin', 'User')
   async getLicenses(
-    @Query() query: { page?: string; limit?: string; productId?: string },
+    @Query() query: { 
+      page?: string; 
+      limit?: string; 
+      productId?: string;
+      productType?: string;
+      businessType?: string;
+      companyId?: string;
+    },
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
     const page = query.page || '1';
     const limit = query.limit || '10';
-    const productId = query.productId || '';
+    const filters = {
+      productId: query.productId || '',
+      productType: query.productType || '',
+      businessType: query.businessType || '',
+      companyId: query.companyId ? parseInt(query.companyId) : null
+    };
 
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
@@ -27,7 +39,7 @@ export class LicenseController {
       throw new Error('Invalid page or limit format');
     }
 
-    return this.licenseService.getAllLicenses(pageNumber, limitNumber, productId);
+    return this.licenseService.getAllLicenses(pageNumber, limitNumber, filters);
   }
 
   @Get(':id')
