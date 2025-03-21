@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { TbLicense } from "react-icons/tb";
 import { FaUser } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
+import { AiOutlineProduct } from "react-icons/ai";
+import { LuBriefcaseBusiness } from "react-icons/lu";
 
 export default function MainLayout({
   children,
@@ -26,7 +29,10 @@ export default function MainLayout({
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
     { name: '라이센스', path: '/license', icon: <TbLicense /> },
     { name: '사용자', path: '/user', icon: <FaUser /> },
-    // { name: '납품업체', path: '/company', icon: '🏢' },
+    { name: '파트너', path: '/partner', icon: <FaUsers /> },
+    { name: '고객', path: '/customer', icon: <FaUsers /> },
+    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
+    { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
 

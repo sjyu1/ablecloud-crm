@@ -4,35 +4,36 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface LicenseForm {
-  id: number;
-  license_key: string;
-  product_id: string;
-  status: string;
+interface UserForm {
+  id: string,
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
   type: string;
-  core: number;
-  issued: string;
-  expired: string;
+  telnum:string;
+  role: string;
+  company_id: string;
 }
 
-export default function LicenseEditPage() {
+export default function UserEditPage() {
   const params = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState<LicenseForm | null>(null);
+  const [formData, setFormData] = useState<UserForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchLicenseDetail();
+    fetchUserDetail();
   }, []);
 
-  const fetchLicenseDetail = async () => {
+  const fetchUserDetail = async () => {
     try {
-      const response = await fetch(`/api/license/${params.id}`);
+      const response = await fetch(`/api/user/${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || '라이센스 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '사용자 정보를 불러올 수 없습니다.');
       }
 
       setFormData(result.data);
@@ -49,14 +50,8 @@ export default function LicenseEditPage() {
     // setIsLoading(true);
 
     try {
-      if((formData?.issued && formData?.expired) && formData?.issued > formData?.expired){
-        throw new Error('시작일이 종료일보다 클 수 없습니다.');
-      }
-
-      let core = formData?.core
-      if(!formData?.core) core = 0
-      const updateFormData = { ...formData, core: core}
-      const response = await fetch(`/api/license/${params.id}`, {
+      const updateFormData = { ...formData}
+      const response = await fetch(`/api/user/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -65,12 +60,12 @@ export default function LicenseEditPage() {
       });
 
       if (response.ok) {
-        alert('라이센스가 수정되었습니다.');
+        alert('사용자가 수정되었습니다.');
       } else {
-        throw new Error('라이센스 수정에 실패했습니다.');
+        throw new Error('사용자 수정에 실패했습니다.');
       }
 
-      router.push(`/license/${params.id}`);
+      router.push(`/user/${params.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -96,13 +91,13 @@ export default function LicenseEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4">라이센스 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4">사용자 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 수정</h1>
+        <h1 className="text-2xl font-bold text-gray-800">사용자 수정</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -110,30 +105,12 @@ export default function LicenseEditPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                라이센스 키
-              </label>
-              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-gray-900">
-                  {formData.license_key}
-                </span>
-              </div>
-              {/* <input
-                type="text"
-                name="license_key"
-                value={formData.license_key}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              /> */}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ID
+                이름
               </label>
               <input
                 type="text"
-                name="product_id"
-                value={formData.product_id}
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -141,54 +118,12 @@ export default function LicenseEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                상태
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">활성</option>
-                <option value="inactive">비활성</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품유형
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="vm">ABLESTACK VM</option>
-                <option value="hci">ABLESTACK HCI</option>
-                <option value="vm_beta">ABLESTACK VM - Beta</option>
-                <option value="hci_beta">ABLESTACK HCI - Beta</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                코어수
+                성
               </label>
               <input
-                type="number"
-                name="core"
-                value={formData.core}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                시작일
-              </label>
-              <input
-                type="date"
-                name="issued"
-                value={formData.issued}
+                type="text"
+                name="lastName"
+                value={formData.lastName}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -196,12 +131,25 @@ export default function LicenseEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                만료일
+                이메일
               </label>
               <input
-                type="date"
-                name="expired"
-                value={formData.expired}
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                전화번호
+              </label>
+              <input
+                type="text"
+                name="telnum"
+                value={formData.telnum}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -217,7 +165,7 @@ export default function LicenseEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/license/${params.id}`}
+              href={`/user/${params.id}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

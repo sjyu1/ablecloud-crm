@@ -11,8 +11,8 @@ interface License {
   status: string;
   type: string;
   core: string;
-  issued_date: string;
-  expiry_date: string;
+  issued: string;
+  expired: string;
 }
 
 export default function LicenseDetailPage() {
@@ -202,11 +202,11 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">시작일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.issued_date}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.issued}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">만료일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.expiry_date}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.expired}</p>
             </div>
           </div>
         </div>
