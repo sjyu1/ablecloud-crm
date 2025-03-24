@@ -10,8 +10,8 @@ interface LicenseForm {
   status: string;
   type: string;
   core: number;
-  issued_date: string;
-  expiry_date: string;
+  issued: string;
+  expired: string;
 }
 
 export default function LicenseRegisterPage() {
@@ -22,8 +22,8 @@ export default function LicenseRegisterPage() {
     status: 'active',
     type: 'vm',
     core: 0,
-    issued_date: '',
-    expiry_date: '',
+    issued: '',
+    expired: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +31,13 @@ export default function LicenseRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
-
+    
     try {
+      if (formData.issued > formData.expired){
+        throw new Error('시작일이 종료일보다 클 수 없습니다.');
+      }
+
+      setIsLoading(true);
       const response = await fetch('/api/license', {
         method: 'POST',
         headers: {
@@ -42,7 +46,9 @@ export default function LicenseRegisterPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('라이센스가 등록되었습니다.');
+      } else {
         throw new Error('라이센스 등록에 실패했습니다.');
       }
 
@@ -84,7 +90,6 @@ export default function LicenseRegisterPage() {
                 required
               />
             </div> */}
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품 ID
@@ -98,7 +103,6 @@ export default function LicenseRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 상태
@@ -113,7 +117,6 @@ export default function LicenseRegisterPage() {
                 <option value="inactive">비활성</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품유형
@@ -130,7 +133,6 @@ export default function LicenseRegisterPage() {
                 <option value="hci_beta">ABLESTACK HCI - Beta</option>
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 코어수
@@ -143,29 +145,27 @@ export default function LicenseRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 시작일
               </label>
               <input
                 type="date"
-                name="issued_date"
-                value={formData.issued_date}
+                name="issued"
+                value={formData.issued}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 만료일
               </label>
               <input
                 type="date"
-                name="expiry_date"
-                value={formData.expiry_date}
+                name="expired"
+                value={formData.expired}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required

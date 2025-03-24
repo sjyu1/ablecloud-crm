@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -11,7 +11,20 @@ interface UserForm {
   firstName: string;
   lastName: string;
   email: string;
+  telnum: string;
   role: string;
+  type: string;
+  company_id: string;
+}
+
+interface Partner {
+  id: number;
+  name: string;
+}
+
+interface Role {
+  id: string;
+  name: string;
 }
 
 export default function UserRegisterPage() {
@@ -23,10 +36,38 @@ export default function UserRegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
+    telnum: '',
     role: 'User',
+    type: '',
+    company_id: '',
   });
+
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [partners, setPartners] = useState<Partner[]>([]);
+  // const [roles, setRoles] = useState<Partner[]>([]);
+
+  // useEffect(() => {
+  //   const fetchRoles = async () => {
+  //     try {
+  //       let url = `/api/user/role`;
+
+  //       const response = await fetch(url);
+  //       const result = await response.json();
+
+  //       if (!result.success) {
+  //         alert(result.message);
+  //         return;
+  //       }
+
+  //       setRoles(result.data);
+  //     } catch (error) {
+  //       alert('사용자 목록 조회에 실패했습니다.');
+  //     }
+  //   };
+
+  //   fetchRoles();
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +88,9 @@ export default function UserRegisterPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        alert('사용자가 등록되었습니다.');
+      } else {
         const err = await response.json();
         throw new Error(err.message);
       }
@@ -66,6 +109,52 @@ export default function UserRegisterPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    //type에 따른 company 목록조회
+    if (e.target.value == 'partner') {
+      fetchPartnerDetail(e.target.value);
+    } else if (e.target.value == 'customer') {
+
+    } else {
+      const test: Partner = {
+        id: 1,
+        name: "ABLECLOUD"
+      };
+      setPartners([test]);
+    }
+  };
+
+  const fetchPartnerDetail = async (type: string) => {
+    try {
+        const response = await fetch(`/api/partner`);
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
+        }
+
+        if (result.data.error) {
+          setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+          // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+        }
+
+        setPartners(result.data);
+    } catch (err) {
+      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      return;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -90,7 +179,6 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 비밀번호
@@ -104,7 +192,6 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 비밀번호 확인
@@ -118,7 +205,6 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 이름
@@ -132,7 +218,6 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 성
@@ -146,13 +231,12 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 이메일
               </label>
               <input
-                type="email"
+                type="text"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
@@ -160,7 +244,19 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                전화번호
+              </label>
+              <input
+                type="text"
+                name="telnum"
+                value={formData.telnum}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role
@@ -173,6 +269,40 @@ export default function UserRegisterPage() {
               >
                 <option value="Admin">Admin</option>
                 <option value="User">User</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                type
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleSelectChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">선택하세요</option>
+                <option value="vendor">vendor</option>
+                <option value="partner">partner</option>
+                <option value="customer">customer</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                company
+              </label>
+              <select
+                name="company_id"
+                value={formData.company_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">선택하세요</option>
+                {partners.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

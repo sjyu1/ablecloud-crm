@@ -11,7 +11,9 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  type: string;
   role: string;
+  company: string;
 }
 
 export default function UserPage() {
@@ -28,11 +30,12 @@ export default function UserPage() {
 
         const response = await fetch(url);
         const result = await response.json();
-        
+
         if (!result.success) {
           alert(result.message);
           return;
         }
+
         setUsers(result.data);
       } catch (error) {
         alert('사용자 목록 조회에 실패했습니다.');
@@ -136,7 +139,13 @@ export default function UserPage() {
                 성
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                타입
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 role
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                company
               </th>
             </tr>
           </thead>
@@ -158,13 +167,19 @@ export default function UserPage() {
                   {user.lastName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.type}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.role}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.company}
                 </td>
               </tr>
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                   사용자 정보가 없습니다.
                 </td>
               </tr>
