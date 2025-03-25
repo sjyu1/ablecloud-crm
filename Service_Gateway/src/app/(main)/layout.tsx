@@ -40,7 +40,7 @@ export default function MainLayout({
     <div className="min-h-screen flex flex-col">
       {/* 헤더 */}
       <header className="bg-white shadow fixed w-full z-10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="px-4 py-4">
           <nav className="flex justify-between items-center">
             <h1 className="text-xl font-bold text-gray-800">ABLECLOUD CRM</h1>
             <div className="flex items-center gap-4">

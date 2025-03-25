@@ -8,8 +8,8 @@ import { format } from 'date-fns';
 interface Business {
   id: number;
   name: string;
-  period: string;
-  created: string;
+  issued: string;
+  expired: string;
 }
 
 export default function BusinessDetailPage() {
@@ -126,18 +126,20 @@ export default function BusinessDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">사업명</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {business.name}
+                {business.name}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">사업기간</h3>
+              <h3 className="text-sm font-medium text-gray-500">사업 시작일</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {business.period}
+                {format(business.issued, 'yyyy-MM-dd')}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-              <p className="mt-1 text-lg text-gray-900">{format(business.created, 'yyyy-MM-dd HH:mm:ss')}</p>
+              <h3 className="text-sm font-medium text-gray-500">사업 종료일</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {format(business.expired, 'yyyy-MM-dd')}
+              </p>
             </div>
           </div>
         </div>

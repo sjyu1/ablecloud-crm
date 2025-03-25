@@ -3,17 +3,20 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getCookie } from '../../../store/authStore';
+import { format } from 'date-fns';
 
 interface License {
   id: number;
   license_key: string;
   product_id: string;
+  product_name: string;
   status: string;
   product_type: string;
   cpu_core: string;
   issued: string;
   expired: string;
   issued_user: string;
+  company_name: string;
   created: string;
   approve_user: string;
   approved: string;
@@ -65,7 +68,6 @@ export default function LicenseDetailPage() {
         method: 'PUT',
       });
 
-      console.log(response)
       if (response.ok) {
         alert('라이센스가 승인되었습니다.');
       } else {
@@ -212,7 +214,7 @@ export default function LicenseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품명</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {license.product_id}
+              {license.product_name}
               </p>
             </div>
             <div>
@@ -253,8 +255,12 @@ export default function LicenseDetailPage() {
               <p className="mt-1 text-lg text-gray-900">{license.issued_user}</p>
             </div>
             <div>
+              <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.company_name? license.company_name : 'ABLECLOUD'}</p>
+            </div>
+            <div>
               <h3 className="text-sm font-medium text-gray-500">발급일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.created}</p>
+              <p className="mt-1 text-lg text-gray-900">{format(license.created, 'yyyy-MM-dd HH:mm:ss')}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인자</h3>
@@ -262,7 +268,7 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인일</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.approved}</p>
+              <p className="mt-1 text-lg text-gray-900">{format(license.approved, 'yyyy-MM-dd HH:mm:ss')}</p>
             </div>
           </div>
         </div>

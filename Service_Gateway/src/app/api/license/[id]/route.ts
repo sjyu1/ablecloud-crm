@@ -13,9 +13,9 @@ export async function GET(
 ) {
   try {
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`);
-
     const license = await response.json();
-    
+
+    console.log(license)
     if (!license) {
       return NextResponse.json(
         { message: '라이센스를 찾을 수 없습니다.' },

@@ -9,8 +9,8 @@ import { format } from 'date-fns';
 interface Business {
   id: number;
   name: string;
-  period: string;
-  created: string;
+  issued: string;
+  expired: string;
 }
 
 interface Pagination {
@@ -146,10 +146,10 @@ export default function BusinessPage() {
                 사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                사업기간
+                사업 시작일
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                생성일
+                사업 종료일
               </th>
               {/* <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 관리
@@ -163,10 +163,10 @@ export default function BusinessPage() {
                   {business.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.period}
+                  {format(business.issued, 'yyyy-MM-dd')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(business.created, 'yyyy-MM-dd HH:mm:ss')}
+                  {format(business.expired, 'yyyy-MM-dd')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link

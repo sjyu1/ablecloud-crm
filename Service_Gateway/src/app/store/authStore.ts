@@ -35,7 +35,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=strict`;
       // 쿠키에 username 저장
       document.cookie = `username=${data.user.username}; path=/; max-age=604800; samesite=strict`;
-      
       // 쿠키에 role 저장
       const access_token_json = JSON.parse(Buffer.from(data.token.split('.')[1], 'base64').toString())
       const role_arr = access_token_json.realm_access.roles

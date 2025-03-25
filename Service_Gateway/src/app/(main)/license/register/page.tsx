@@ -45,7 +45,7 @@ export default function LicenseRegisterPage() {
         const result = await response.json();
         
         if (!result.success) {
-          alert(result.message);
+          // alert(result.message);
           return;
         }
 
@@ -61,7 +61,7 @@ export default function LicenseRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+    console.log(formData)
     try {
       if (formData.issued > formData.expired){
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
@@ -122,7 +122,7 @@ export default function LicenseRegisterPage() {
             </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ID
+                제품명
               </label>
               <select
                 name="product_id"

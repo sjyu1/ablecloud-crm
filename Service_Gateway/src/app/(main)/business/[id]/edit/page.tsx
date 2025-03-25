@@ -7,7 +7,8 @@ import Link from 'next/link';
 interface BusinessForm {
   id: number;
   name: string;
-  period: string;
+  issued: string;
+  expired: string;
 }
 
 export default function BusinessEditPage() {
@@ -112,12 +113,25 @@ export default function BusinessEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업기간
+                사업 시작일
               </label>
               <input
-                type="text"
-                name="period"
-                value={formData.period}
+                type="date"
+                name="issued"
+                value={formData.issued}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업 시작일
+              </label>
+              <input
+                type="date"
+                name="expired"
+                value={formData.expired}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required

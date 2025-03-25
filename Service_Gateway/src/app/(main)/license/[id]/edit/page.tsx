@@ -8,6 +8,7 @@ interface LicenseForm {
   id: number;
   license_key: string;
   product_id: string;
+  product_name: string;
   // status: string;
   product_type: string;
   cpu_core: number;
@@ -15,15 +16,24 @@ interface LicenseForm {
   expired: string;
 }
 
+interface Product {
+  id: number;
+  name: string;
+  version: string;
+  created: string;
+}
+
 export default function LicenseEditPage() {
   const params = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState<LicenseForm | null>(null);
+  const [formData, setFormData] = useState<LicenseForm | null>();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     fetchLicenseDetail();
+    fetchProductDetail();
   }, []);
 
   const fetchLicenseDetail = async () => {
@@ -40,6 +50,23 @@ export default function LicenseEditPage() {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchProductDetail = async () => {
+    try {
+      let url = `/api/product`;
+      const response = await fetch(url);
+      const result = await response.json();
+      
+      if (!result.success) {
+        // alert(result.message);
+        return;
+      }
+
+      setProducts(result.data);
+    } catch (error) {
+      alert('제품 목록 조회에 실패했습니다.');
     }
   };
 
@@ -117,27 +144,16 @@ export default function LicenseEditPage() {
                   {formData.license_key}
                 </span>
               </div>
-              {/* <input
-                type="text"
-                name="license_key"
-                value={formData.license_key}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              /> */}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ID
+                제품명
               </label>
-              <input
-                type="text"
-                name="product_id"
-                value={formData.product_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-gray-900">
+                  {formData.product_name}
+                </span>
+              </div>
             </div>
             {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
