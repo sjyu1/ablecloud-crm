@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
-interface Partner {
+interface Business {
   id: number;
   name: string;
-  telnum: string;
-  level: string;
+  period: string;
   created: string;
 }
 
@@ -20,8 +20,8 @@ interface Pagination {
   itemsPerPage: number;
 }
 
-export default function PartnerPage() {
-  const [partners, setPartners] = useState<Partner[]>([]);
+export default function BusinessPage() {
+  const [businesses, setBusinesss] = useState<Business[]>([]);
   const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
@@ -34,12 +34,12 @@ export default function PartnerPage() {
   const role = getCookie('role');
 
   useEffect(() => {
-    const fetchPartners = async () => {
+    const fetchBusinesss = async () => {
       try {
         const page = searchParams.get('page') || '1';
         const currentName = searchParams.get('name');
         
-        let url = `/api/partner?page=${page}&limit=${pagination.itemsPerPage}`;
+        let url = `/api/business?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
         }
@@ -52,14 +52,14 @@ export default function PartnerPage() {
           return;
         }
 
-        setPartners(result.data);
+        setBusinesss(result.data);
         setPagination(result.pagination);
       } catch (error) {
-        alert('파트너 목록 조회에 실패했습니다.');
+        alert('사업 목록 조회에 실패했습니다.');
       }
     };
 
-    fetchPartners();
+    fetchBusinesss();
   }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
@@ -72,7 +72,7 @@ export default function PartnerPage() {
       params.set('page', '1');
 
       // URL 업데이트
-      router.push(`/partner?${params.toString()}`);
+      router.push(`/business?${params.toString()}`);
     } catch (error) {
       // alert('검색 중 오류가 발생했습니다.');
       alert(error);
@@ -82,25 +82,25 @@ export default function PartnerPage() {
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
     setName('');
-    router.push('/partner?page=1');
+    router.push('/business?page=1');
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    router.push(`/partner?${params.toString()}`);
+    router.push(`/business?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">사업 관리</h1>
         <Link
-          href="/partner/register"
+          href="/business/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
-          파트너 등록
+          사업 등록
         </Link>
       </div>
 
@@ -110,7 +110,7 @@ export default function PartnerPage() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="회사이름으로 검색"
+          placeholder="사업명으로 검색"
           className="px-3 py-2 border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -137,19 +137,16 @@ export default function PartnerPage() {
         )}
       </div>
 
-      {/* 파트너 목록 */}
+      {/* 사업 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                회사이름
+                사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                전화번호
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                등급
+                사업기간
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일
@@ -160,23 +157,20 @@ export default function PartnerPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {partners.map((partner) => (
-              <tr key={partner.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/partner/${partner.id}`}>
+            {businesses.map((business) => (
+              <tr key={business.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/business/${business.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.name}
+                  {business.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.telnum}
+                  {business.period}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.level}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.created}
+                  {format(business.created, 'yyyy-MM-dd HH:mm:ss')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={`/partner/${partner.id}`}
+                    href={`/business/${business.id}`}
                     className="text-blue-600 hover:text-blue-900 mr-4"
                   >
                     상세
@@ -190,10 +184,10 @@ export default function PartnerPage() {
                 </td> */}
               </tr>
             ))}
-            {partners.length === 0 && (
+            {businesses.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                  파트너 정보가 없습니다.
+                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                  사업 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -228,7 +222,7 @@ export default function PartnerPage() {
 
       {/* 총 아이템 수 */}
       {/* <div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 파트너
+        총 {pagination.totalItems}개의 사업
       </div> */}
     </div>
   );

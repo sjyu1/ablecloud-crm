@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
-import { cookies } from 'next/headers';
 
 /**
- * 라이센스 목록 조회
+ * 고객 목록 조회
  * @returns 
  */
 export async function GET(request: Request) {
@@ -11,14 +10,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const productId = searchParams.get('productId');
+    const name = searchParams.get('name');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
+    const apiUrl = new URL(`${process.env.PARTNER_API_URL}/customer`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (productId) {
-      apiUrl.searchParams.set('productId', productId);
+    if (name) {
+      apiUrl.searchParams.set('name', name);
     }
 
     const response = await fetchWithAuth(apiUrl.toString());
@@ -28,7 +27,7 @@ export async function GET(request: Request) {
       return NextResponse.json(
         { 
           success: false,
-          message: data.message || '라이센스 조회에 실패했습니다.'
+          message: data.message || '고객 조회에 실패했습니다.'
         },
         { status: response.status }
       );
@@ -37,7 +36,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.items || [],
+      data: data.data || [],
       pagination: {
         currentPage: page,
         totalPages: data.totalPages || 1,
@@ -57,26 +56,16 @@ export async function GET(request: Request) {
 }
 
 /**
- * 라이센스 생성
+ * 고객 생성
  * @param request 
  * @returns 
  */
 export async function POST(request: Request) {
   try {
-    const username = (await cookies()).get('username')?.value;
-    const role = (await cookies()).get('role')?.value;
-
-
     const body = await request.json();
-    const submitData = {
-      ...body,
-      issued_user: username,
-      status: role == 'Admin'? 'active' : 'inactive'
-    }
-    
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`, {
+    const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer`, {
       method: 'POST',
-      body: JSON.stringify(submitData),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();
@@ -85,7 +74,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { 
           success: false,
-          message: data.message || '라이센스 생성에 실패했습니다.'
+          message: data.message || '고객 생성에 실패했습니다.'
         },
         { status: response.status }
       );
@@ -100,7 +89,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: '라이센스 생성 중 오류가 발생했습니다.'
+        message: '고객 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

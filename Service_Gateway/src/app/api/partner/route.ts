@@ -10,15 +10,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const productId = searchParams.get('productId');
+    const name = searchParams.get('name');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.PARTNER_API_URL}/partner`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (productId) {
-      apiUrl.searchParams.set('productId', productId);
+    if (name) {
+      apiUrl.searchParams.set('name', name);
     }
+
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
 

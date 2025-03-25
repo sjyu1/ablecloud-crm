@@ -9,7 +9,7 @@ interface License {
   id: number;
   license_key: string;
   product_id: string;
-  type: string;
+  product_type: string;
   status: string;
   issued: string;
   expired: string;
@@ -101,7 +101,6 @@ export default function LicensePage() {
         <Link
           href="/license/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-          style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           라이센스 등록
         </Link>
@@ -189,7 +188,7 @@ export default function LicensePage() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {license.type === 'vm' ? ('ABLESTACK VM') : license.type === 'hci' ? ('ABLESTACK HCI') : license.type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                    {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.issued}

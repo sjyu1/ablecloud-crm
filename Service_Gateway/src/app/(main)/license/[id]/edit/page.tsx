@@ -8,9 +8,9 @@ interface LicenseForm {
   id: number;
   license_key: string;
   product_id: string;
-  status: string;
-  type: string;
-  core: number;
+  // status: string;
+  product_type: string;
+  cpu_core: number;
   issued: string;
   expired: string;
 }
@@ -53,9 +53,9 @@ export default function LicenseEditPage() {
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
       }
 
-      let core = formData?.core
-      if(!formData?.core) core = 0
-      const updateFormData = { ...formData, core: core}
+      let cpu_core = formData?.cpu_core
+      if(!formData?.cpu_core) cpu_core = 0
+      const updateFormData = { ...formData, cpu_core: cpu_core}
       const response = await fetch(`/api/license/${params.id}`, {
         method: 'PUT',
         headers: {
@@ -139,7 +139,7 @@ export default function LicenseEditPage() {
                 required
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 상태
               </label>
@@ -152,16 +152,17 @@ export default function LicenseEditPage() {
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
               </select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품유형
               </label>
               <select
                 name="type"
-                value={formData.type}
+                value={formData.product_type}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="vm">ABLESTACK VM</option>
                 <option value="hci">ABLESTACK HCI</option>
@@ -175,10 +176,11 @@ export default function LicenseEditPage() {
               </label>
               <input
                 type="number"
-                name="core"
-                value={formData.core}
+                name="cpu_core"
+                value={formData.cpu_core}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>

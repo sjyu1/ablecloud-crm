@@ -6,10 +6,10 @@ import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
-interface Product {
+interface Customer {
   id: number;
   name: string;
-  version: string;
+  telnum: string;
   created: string;
 }
 
@@ -20,8 +20,8 @@ interface Pagination {
   itemsPerPage: number;
 }
 
-export default function ProductPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function CustomerPage() {
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
@@ -34,32 +34,32 @@ export default function ProductPage() {
   const role = getCookie('role');
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchCustomers = async () => {
       try {
         const page = searchParams.get('page') || '1';
         const currentName = searchParams.get('name');
         
-        let url = `/api/product?page=${page}&limit=${pagination.itemsPerPage}`;
+        let url = `/api/customer?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
         }
 
         const response = await fetch(url);
         const result = await response.json();
-        
+
         if (!result.success) {
           alert(result.message);
           return;
         }
 
-        setProducts(result.data);
+        setCustomers(result.data);
         setPagination(result.pagination);
       } catch (error) {
-        alert('제품 목록 조회에 실패했습니다.');
+        alert('고객 목록 조회에 실패했습니다.');
       }
     };
 
-    fetchProducts();
+    fetchCustomers();
   }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
@@ -72,7 +72,7 @@ export default function ProductPage() {
       params.set('page', '1');
 
       // URL 업데이트
-      router.push(`/product?${params.toString()}`);
+      router.push(`/customer?${params.toString()}`);
     } catch (error) {
       // alert('검색 중 오류가 발생했습니다.');
       alert(error);
@@ -82,25 +82,25 @@ export default function ProductPage() {
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
     setName('');
-    router.push('/product?page=1');
+    router.push('/customer?page=1');
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    router.push(`/product?${params.toString()}`);
+    router.push(`/customer?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">제품 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">고객 관리</h1>
         <Link
-          href="/product/register"
+          href="/customer/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
-          제품 등록
+          고객 등록
         </Link>
       </div>
 
@@ -110,7 +110,7 @@ export default function ProductPage() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="제품명으로 검색"
+          placeholder="회사이름으로 검색"
           className="px-3 py-2 border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -137,16 +137,16 @@ export default function ProductPage() {
         )}
       </div>
 
-      {/* 제품 목록 */}
+      {/* 고객 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품명
+                회사이름
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품버전
+                전화번호
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일
@@ -157,20 +157,20 @@ export default function ProductPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/product/${product.id}`}>
+            {customers.map((customer) => (
+              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.name}
+                  {customer.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.version}
+                  {customer.telnum}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
+                  {format(customer.created, 'yyyy-MM-dd HH:mm:ss')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={`/product/${product.id}`}
+                    href={`/customer/${customer.id}`}
                     className="text-blue-600 hover:text-blue-900 mr-4"
                   >
                     상세
@@ -184,10 +184,10 @@ export default function ProductPage() {
                 </td> */}
               </tr>
             ))}
-            {products.length === 0 && (
+            {customers.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
-                  제품 정보가 없습니다.
+                  고객 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -222,7 +222,7 @@ export default function ProductPage() {
 
       {/* 총 아이템 수 */}
       {/* <div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 제품
+        총 {pagination.totalItems}개의 고객
       </div> */}
     </div>
   );

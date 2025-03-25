@@ -9,10 +9,14 @@ interface License {
   license_key: string;
   product_id: string;
   status: string;
-  type: string;
-  core: string;
+  product_type: string;
+  cpu_core: string;
   issued: string;
   expired: string;
+  issued_user: string;
+  created: string;
+  approve_user: string;
+  approved: string;
 }
 
 export default function LicenseDetailPage() {
@@ -48,6 +52,29 @@ export default function LicenseDetailPage() {
       return;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!confirm('정말 이 라이센스를 승인하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/license/${params.id}/approve`, {
+        method: 'PUT',
+      });
+
+      console.log(response)
+      if (response.ok) {
+        alert('라이센스가 승인되었습니다.');
+      } else {
+        throw new Error('라이센스 승인에 실패했습니다.');
+      }
+
+      router.push(`/license`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
   };
 
@@ -139,8 +166,16 @@ export default function LicenseDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">라이센스 상세정보</h1>
         <div className="space-x-2">
           <button
+            onClick={handleApprove}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            style={{ display: role === 'Admin'&& license.status === 'inactive' ? '' : 'none' }}
+          >
+            승인
+          </button>
+          <button
             onClick={handleDownload}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            style={{ display: license.status === 'active' ? '' : 'none' }}
           >
             다운로드
           </button>
@@ -183,21 +218,26 @@ export default function LicenseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">상태</h3>
               <p className="mt-1">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                  {license.status}
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    license.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                {/* <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"> */}
+                  {license.status === 'active' ? '활성' : '비활성'}
                 </span>
               </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품유형</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {license.type === 'vm' ? ('ABLESTACK VM') : license.type === 'hci' ? ('ABLESTACK HCI') : license.type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+              {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
               </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">코어수</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {license.core}
+              {license.cpu_core}
               </p>
             </div>
             <div>
@@ -207,6 +247,22 @@ export default function LicenseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">만료일</h3>
               <p className="mt-1 text-lg text-gray-900">{license.expired}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">발급자</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.issued_user}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">발급일</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.created}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">승인자</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.approve_user}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">승인일</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.approved}</p>
             </div>
           </div>
         </div>

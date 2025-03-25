@@ -8,11 +8,10 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
-interface Partner {
+interface Customer {
   id: number;
   name: string;
   telnum: string;
-  level: string;
   created: string;
 }
 
@@ -56,10 +55,10 @@ function tabProps(index: number) {
   };
 }
 
-export default function PartnerDetailPage() {
+export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [partner, setPartner] = useState<Partner | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const role = getCookie('role');
@@ -72,24 +71,24 @@ export default function PartnerDetailPage() {
   };
 
   useEffect(() => {
-    fetchPartnerDetail();
-    fetchPartnerUserDetail();
+    fetchCustomerDetail();
+    fetchCustomerUserDetail();
   }, []);
 
-  const fetchPartnerDetail = async () => {
+  const fetchCustomerDetail = async () => {
     try {
-      const response = await fetch(`/api/partner/${params.id}`);
+      const response = await fetch(`/api/customer/${params.id}`);
       const result = await response.json();
       // console.log(response);
       if (!response.ok) {
-        throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '고객 정보를 불러올 수 없습니다.');
       }
 
       if (result.data.error) {
         setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
         // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
       }
-      setPartner(result.data);
+      setCustomer(result.data);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -100,9 +99,9 @@ export default function PartnerDetailPage() {
     }
   };
 
-  const fetchPartnerUserDetail = async () => {
+  const fetchCustomerUserDetail = async () => {
     try {
-      const response = await fetch(`/api/user?type=partner&company_id=${params.id}`);
+      const response = await fetch(`/api/user?type=customer&company_id=${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -126,22 +125,22 @@ export default function PartnerDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('정말 이 파트너를 삭제하시겠습니까?')) {
+    if (!confirm('정말 이 고객을 삭제하시겠습니까?')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/partner/${params.id}`, {
+      const response = await fetch(`/api/customer/${params.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        alert('파트너가 삭제되었습니다.');
+        alert('고객이 삭제되었습니다.');
       } else {
-        throw new Error('파트너 삭제에 실패했습니다.');
+        throw new Error('고객 삭제에 실패했습니다.');
       }
 
-      router.push('/partner');
+      router.push('/customer');
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -163,10 +162,10 @@ export default function PartnerDetailPage() {
     );
   }
 
-  if (!partner) {
+  if (!customer) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">파트너를 찾을 수 없습니다.</div>
+        <div className="text-gray-500">고객을 찾을 수 없습니다.</div>
       </div>
     );
   }
@@ -174,10 +173,10 @@ export default function PartnerDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
+        <h1 className="text-2xl font-bold text-gray-800">고객 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href = `/partner/${partner.id}/edit`}
+            onClick={() => window.location.href = `/customer/${customer.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             수정
@@ -189,7 +188,7 @@ export default function PartnerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = `/partner`}
+            onClick={() => window.location.href = `/customer`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -211,24 +210,18 @@ export default function PartnerDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">회사이름</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                {partner.name}
+                {customer.name}
                 </p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">전화번호</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                {partner.telnum}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">등급</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.level}
+                {customer.telnum}
                 </p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-                <p className="mt-1 text-lg text-gray-900">{format(partner.created, 'yyyy-MM-dd HH:mm:ss')}</p>
+                <p className="mt-1 text-lg text-gray-900">{format(customer.created, 'yyyy-MM-dd HH:mm:ss')}</p>
               </div>
             </div>
           </div>
@@ -289,6 +282,7 @@ export default function PartnerDetailPage() {
         </CustomTabPanel>
       </Box>
 
+      
     </div>
   );
 } 

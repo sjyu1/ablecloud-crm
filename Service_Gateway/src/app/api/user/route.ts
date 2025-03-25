@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const company_id = searchParams.get('company_id');
-    // const type = searchParams.get('type');
+    const type = searchParams.get('type');
 
     // 1. client_credentials token 가져오기
     const submitData_token = {
@@ -45,6 +45,7 @@ export async function GET(request: Request) {
 
     // 3. 사용자 데이터에 role 추가
     let data_user_com = []
+    let company_type = null
     for(var idx in data_user){
       // json 항목 담기(attributes: { type: [ 'Vendor' ], telnum: [ '02-000-0000' ] })
       data_user[idx].type = data_user[idx].attributes.type
@@ -65,25 +66,26 @@ export async function GET(request: Request) {
         }
       }
 
-      // 파트너/고객 메뉴에서 담당자 목록 조회
-      if (company_id && (company_id == data_user[idx].attributes.company_id)){
-        data_user_com.push(data_user[idx])
-      }
+      // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
+      if (type) {
+        if (type == data_user[idx].type && company_id == data_user[idx].company_id) {
+          const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${type}/${data_user[idx].company_id}`);
+          const company = await response.json();
+          data_user[idx].company = company.name
 
-      // 파트너/고객 id를 통해 회사이름 가져오기
-      if (data_user[idx].type == 'partner') {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${data_user[idx].company_id}`);
-        const partner = await response.json();
-        data_user[idx].company = partner.name
-      } else if (data_user[idx].type == 'customer') {
-        // const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${data_user[idx].company_id}`);
-        // const partner = await response.json();
-        // console.log('--------customer')
-        // console.log(partner)
-        // data_user[idx].company = partner.name
+          data_user_com.push(data_user[idx])
+        }
+
+      // 사용자 메뉴 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
       } else {
         if (data_user[idx].type == 'vendor') {
           data_user[idx].company = 'ABLECLOUD'
+        } else {
+          const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
+          const company = await response.json();
+          data_user[idx].company = company.name
+  
+          data_user_com.push(data_user[idx])
         }
       }
 
