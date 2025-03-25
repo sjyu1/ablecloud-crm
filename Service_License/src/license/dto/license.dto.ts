@@ -10,6 +10,10 @@ export class CreateLicenseDto {
   business_name?: string;
   user_type?: string;
   company_id?: number;
+  partner_id?: number;
+  issued_user?: string;
+  approve_user?: string;
+  approved?: Date;
 }
 
 export class UpdateLicenseDto extends CreateLicenseDto {
@@ -20,4 +24,7 @@ export class UpdateLicenseDto extends CreateLicenseDto {
   business_name?: string;
   user_type?: string;
   company_id?: number;
+  issued_user?: string;
+  approve_user?: string;
+  approved?: Date;
 }

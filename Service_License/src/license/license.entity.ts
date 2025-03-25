@@ -72,6 +72,32 @@ export class License {
   })
   company_id: number;
 
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  issued_user: string;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  approve_user: string;
+
+  @Column({
+    type: 'datetime',
+    nullable: true
+  })
+  approved: string;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  partner_id: number;
+
   @CreateDateColumn()
   created: string
 
