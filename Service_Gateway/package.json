@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/react": "^19",
+    "@types/react": "19.0.12",
     "tailwindcss": "^3.4.1",
     "typescript": "5.7.2"
   }
