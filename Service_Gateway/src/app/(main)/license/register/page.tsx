@@ -79,7 +79,7 @@ export default function LicenseRegisterPage() {
       if (response.ok) {
         alert('라이센스가 등록되었습니다.');
       } else {
-        throw new Error('라이센스 등록에 실패했습니다.');
+        throw new Error('라이센스 생성에 실패했습니다.');
       }
 
       router.push('/license');
@@ -101,7 +101,7 @@ export default function LicenseRegisterPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 등록</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이센스 생성</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -229,7 +229,7 @@ export default function LicenseRegisterPage() {
                 isLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isLoading ? '처리 중...' : '등록'}
+              {isLoading ? '처리 중...' : '생성'}
             </button>
           </div>
         </form>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getCookie } from '../../../store/authStore';
+import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 
 interface License {
@@ -94,22 +95,16 @@ export default function LicenseDetailPage() {
         throw new Error('라이센스 다운로드에 실패했습니다.');
       }
 
-      // 응답을 blob으로 변환
-      const blob = await response.blob();
-      
-      // 다운로드 링크 생성
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `license_${license?.license_key}.lic`; // 파일명 설정
-      
-      // 링크 클릭하여 다운로드 실행
-      document.body.appendChild(a);
-      a.click();
-      
-      // cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // 파일명을 위한 UUID 생성
+      const uniqueId = uuidv4();
+
+      // 확장자 없이 파일생성
+      const blob = new Blob([await response.blob()], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `${uniqueId}_${license?.expired}`;
+      link.click();
 
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');

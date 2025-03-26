@@ -107,7 +107,7 @@ export default function LicensePage() {
           href="/license/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
-          라이센스 등록
+          라이센스 생성
         </Link>
       </div>
 
