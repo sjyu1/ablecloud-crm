@@ -8,22 +8,32 @@ interface LicenseForm {
   id: number;
   license_key: string;
   product_id: string;
-  status: string;
-  type: string;
-  core: number;
+  product_name: string;
+  // status: string;
+  product_type: string;
+  cpu_core: number;
   issued: string;
   expired: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  version: string;
+  created: string;
 }
 
 export default function LicenseEditPage() {
   const params = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState<LicenseForm | null>(null);
+  const [formData, setFormData] = useState<LicenseForm | null>();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     fetchLicenseDetail();
+    fetchProductDetail();
   }, []);
 
   const fetchLicenseDetail = async () => {
@@ -43,6 +53,23 @@ export default function LicenseEditPage() {
     }
   };
 
+  const fetchProductDetail = async () => {
+    try {
+      let url = `/api/product`;
+      const response = await fetch(url);
+      const result = await response.json();
+      
+      if (!result.success) {
+        // alert(result.message);
+        return;
+      }
+
+      setProducts(result.data);
+    } catch (error) {
+      alert('제품 목록 조회에 실패했습니다.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -53,9 +80,9 @@ export default function LicenseEditPage() {
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
       }
 
-      let core = formData?.core
-      if(!formData?.core) core = 0
-      const updateFormData = { ...formData, core: core}
+      let cpu_core = formData?.cpu_core
+      if(!formData?.cpu_core) cpu_core = 0
+      const updateFormData = { ...formData, cpu_core: cpu_core}
       const response = await fetch(`/api/license/${params.id}`, {
         method: 'PUT',
         headers: {
@@ -117,29 +144,18 @@ export default function LicenseEditPage() {
                   {formData.license_key}
                 </span>
               </div>
-              {/* <input
-                type="text"
-                name="license_key"
-                value={formData.license_key}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              /> */}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ID
+                제품명
               </label>
-              <input
-                type="text"
-                name="product_id"
-                value={formData.product_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-gray-900">
+                  {formData.product_name}
+                </span>
+              </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 상태
               </label>
@@ -152,16 +168,17 @@ export default function LicenseEditPage() {
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
               </select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품유형
               </label>
               <select
                 name="type"
-                value={formData.type}
+                value={formData.product_type}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="vm">ABLESTACK VM</option>
                 <option value="hci">ABLESTACK HCI</option>
@@ -175,10 +192,11 @@ export default function LicenseEditPage() {
               </label>
               <input
                 type="number"
-                name="core"
-                value={formData.core}
+                name="cpu_core"
+                value={formData.cpu_core}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>

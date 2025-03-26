@@ -3,41 +3,41 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getCookie } from '../../../store/authStore';
+import { format } from 'date-fns';
 
-interface Partner {
+interface Product {
   id: number;
   name: string;
-  telnum: string;
-  level: string;
+  version: string;
   created: string;
 }
 
-export default function PartnerDetailPage() {
+export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [partner, setPartner] = useState<Partner | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const role = getCookie('role');
 
   useEffect(() => {
-    fetchPartnerDetail();
+    fetchProductDetail();
   }, []);
 
-  const fetchPartnerDetail = async () => {
+  const fetchProductDetail = async () => {
     try {
-      const response = await fetch(`/api/partner/${params.id}`);
+      const response = await fetch(`/api/product/${params.id}`);
       const result = await response.json();
       // console.log(response);
       if (!response.ok) {
-        throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '제품 정보를 불러올 수 없습니다.');
       }
 
       if (result.data.error) {
         setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
         // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
       }
-      setPartner(result.data);
+      setProduct(result.data);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -49,22 +49,22 @@ export default function PartnerDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('정말 이 파트너를 삭제하시겠습니까?')) {
+    if (!confirm('정말 이 제품을 삭제하시겠습니까?')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/partner/${params.id}`, {
+      const response = await fetch(`/api/product/${params.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        alert('파트너가 삭제되었습니다.');
+        alert('제품이 삭제되었습니다.');
       } else {
-        throw new Error('파트너 삭제에 실패했습니다.');
+        throw new Error('제품 삭제에 실패했습니다.');
       }
 
-      router.push('/partner');
+      router.push('/product');
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -86,10 +86,10 @@ export default function PartnerDetailPage() {
     );
   }
 
-  if (!partner) {
+  if (!product) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">파트너를 찾을 수 없습니다.</div>
+        <div className="text-gray-500">제품을 찾을 수 없습니다.</div>
       </div>
     );
   }
@@ -97,10 +97,10 @@ export default function PartnerDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
+        <h1 className="text-2xl font-bold text-gray-800">제품 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href = `/partner/${partner.id}/edit`}
+            onClick={() => window.location.href = `/product/${product.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             수정
@@ -112,7 +112,7 @@ export default function PartnerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = `/partner`}
+            onClick={() => window.location.href = `/product`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -124,26 +124,20 @@ export default function PartnerDetailPage() {
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">회사이름</h3>
+              <h3 className="text-sm font-medium text-gray-500">제품명</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {partner.name}
+              {product.name}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">전화번호</h3>
+              <h3 className="text-sm font-medium text-gray-500">제품버전</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {partner.telnum}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">등급</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {partner.level}
+              {product.version}
               </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-              <p className="mt-1 text-lg text-gray-900">{partner.created}</p>
+              <p className="mt-1 text-lg text-gray-900">{format(product.created, 'yyyy-MM-dd HH:mm:ss')}</p>
             </div>
           </div>
         </div>

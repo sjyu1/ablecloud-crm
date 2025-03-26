@@ -17,7 +17,7 @@ interface UserForm {
   company_id: string;
 }
 
-interface Partner {
+interface Company {
   id: number;
   name: string;
 }
@@ -44,8 +44,8 @@ export default function UserRegisterPage() {
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [partners, setPartners] = useState<Partner[]>([]);
-  // const [roles, setRoles] = useState<Partner[]>([]);
+  const [company, setCompany] = useState<Company[]>([]);
+  // const [roles, setRoles] = useState<company[]>([]);
 
   // useEffect(() => {
   //   const fetchRoles = async () => {
@@ -119,26 +119,24 @@ export default function UserRegisterPage() {
     }));
 
     //type에 따른 company 목록조회
-    if (e.target.value == 'partner') {
-      fetchPartnerDetail(e.target.value);
-    } else if (e.target.value == 'customer') {
-
+    if (e.target.value == 'partner' || e.target.value == 'customer') {
+      fetchCompanyDetail(e.target.value);
     } else {
-      const test: Partner = {
+      const test: Company = {
         id: 1,
         name: "ABLECLOUD"
       };
-      setPartners([test]);
+      setCompany([test]);
     }
   };
 
-  const fetchPartnerDetail = async (type: string) => {
+  const fetchCompanyDetail = async (type: string) => {
     try {
-        const response = await fetch(`/api/partner`);
+        const response = await fetch(`/api/${type}`);
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
+          throw new Error(result.message || type+' 정보를 불러올 수 없습니다.');
         }
 
         if (result.data.error) {
@@ -146,7 +144,7 @@ export default function UserRegisterPage() {
           // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
         }
 
-        setPartners(result.data);
+        setCompany(result.data);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -266,6 +264,7 @@ export default function UserRegisterPage() {
                 value={formData.role}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="Admin">Admin</option>
                 <option value="User">User</option>
@@ -280,6 +279,7 @@ export default function UserRegisterPage() {
                 value={formData.type}
                 onChange={handleSelectChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="">선택하세요</option>
                 <option value="vendor">vendor</option>
@@ -296,9 +296,10 @@ export default function UserRegisterPage() {
                 value={formData.company_id}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
                 <option value="">선택하세요</option>
-                {partners.map(item => (
+                {company.map(item => (
                   <option key={item.id} value={item.id.toString()}>
                     {item.name}
                   </option>

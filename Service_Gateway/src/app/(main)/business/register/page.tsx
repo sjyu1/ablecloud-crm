@@ -4,18 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-interface PartnerForm {
+interface BusinessForm {
   name: string;
-  telnum: string;
-  level: string;
+  issued: string;
+  expired: string;
 }
 
-export default function PartnerRegisterPage() {
+export default function BusinessRegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<PartnerForm>({
+  const [formData, setFormData] = useState<BusinessForm>({
     name: '',
-    telnum: '',
-    level: 'platinum',
+    issued: '',
+    expired: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function PartnerRegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/partner', {
+      const response = await fetch('/api/business', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,12 +35,12 @@ export default function PartnerRegisterPage() {
       });
 
       if (response.ok) {
-        alert('파트너가 등록되었습니다.');
+        alert('사업이 등록되었습니다.');
       } else {
-        throw new Error('파트너 등록에 실패했습니다.');
+        throw new Error('사업 등록에 실패했습니다.');
       }
 
-      router.push('/partner');
+      router.push('/business');
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -59,7 +59,7 @@ export default function PartnerRegisterPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 등록</h1>
+        <h1 className="text-2xl font-bold text-gray-800">사업 등록</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -67,7 +67,7 @@ export default function PartnerRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사이름
+                사업명
               </label>
               <input
                 type="text"
@@ -80,12 +80,12 @@ export default function PartnerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                사업 시작일
               </label>
               <input
-                type="text"
-                name="telnum"
-                value={formData.telnum}
+                type="date"
+                name="issued"
+                value={formData.issued}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -93,19 +93,16 @@ export default function PartnerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                등급
+                사업 종료일
               </label>
-              <select
-                name="level"
-                value={formData.level}
+              <input
+                type="date"
+                name="expired"
+                value={formData.expired}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
-              >
-                <option value="PLATINUM">PLATINUM</option>
-                <option value="GOLD">GOLD</option>
-                <option value="VAD">VAD</option>
-              </select>
+              />
             </div>
           </div>
 
@@ -117,7 +114,7 @@ export default function PartnerRegisterPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href="/partner"
+              href="/business"
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
 interface Partner {
   id: number;
@@ -172,7 +173,7 @@ export default function PartnerPage() {
                   {partner.level}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.created}
+                  {format(partner.created, 'yyyy-MM-dd HH:mm:ss')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link

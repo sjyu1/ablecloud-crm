@@ -50,20 +50,12 @@ export async function GET(
     data_user.company_id = data_user.attributes.company_id[0]
 
     // 파트너/고객 id를 통해 회사이름 가져오기
-    if (data_user.type == 'partner') {
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${data_user.company_id}`);
-      const partner = await response.json();
-      data_user.company = partner.name
-    } else if (data_user.type == 'customer') {
-      // const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${data_user[idx].company_id}`);
-      // const partner = await response.json();
-      // console.log('--------customer')
-      // console.log(partner)
-      // data_user[idx].company = partner.name
+    if (data_user.type == 'vendor') {
+      data_user.company = 'ABLECLOUD'
     } else {
-      if (data_user.type == 'vendor') {
-        data_user.company = 'ABLECLOUD'
-      }
+      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user.type}/${data_user.company_id}`);
+      const company = await response.json();
+      data_user.company = company.name
     }
 
     // 3. 사용자 정보에 role 추가
@@ -137,7 +129,7 @@ export async function PUT(
     const body = await request.json();
     const { firstName, lastName, email, telnum, type, company_id} = body;
     const attributes = {
-      telnum : [telnum],
+      telnum : telnum,
       type,
       company_id : [company_id]
     }
@@ -175,15 +167,13 @@ export async function PUT(
       );
     }
 
-    console.log(response)
-
     return NextResponse.json({ 
       status: 200,
-      message: '사용자가 삭제되었습니다.' 
+      message: '사용자가 수정되었습니다.' 
     });
   } catch (error) {
     return NextResponse.json(
-      { message: '사용자 삭제 중 오류가 발생했습니다.' },
+      { message: '사용자 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

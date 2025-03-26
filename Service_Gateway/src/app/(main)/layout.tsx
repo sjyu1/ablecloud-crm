@@ -4,11 +4,13 @@ import { useRouter } from 'next/navigation';
 import { getCookie, useAuthStore } from '../store/authStore';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { TbLicense } from "react-icons/tb";
-import { FaUser } from "react-icons/fa";
-import { FaUsers } from "react-icons/fa6";
+import { PiCertificate } from "react-icons/pi";
+import { LuUserRound } from "react-icons/lu";
+import { LiaUserFriendsSolid } from "react-icons/lia";
+import { HiUsers } from "react-icons/hi";
 import { AiOutlineProduct } from "react-icons/ai";
 import { LuBriefcaseBusiness } from "react-icons/lu";
+import Image from 'next/image';
 
 export default function MainLayout({
   children,
@@ -27,10 +29,10 @@ export default function MainLayout({
 
   const menuItems = [
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
-    { name: '라이센스', path: '/license', icon: <TbLicense /> },
-    { name: '사용자', path: '/user', icon: <FaUser /> },
-    { name: '파트너', path: '/partner', icon: <FaUsers /> },
-    { name: '고객', path: '/customer', icon: <FaUsers /> },
+    { name: '라이센스', path: '/license', icon: <PiCertificate /> },
+    { name: '사용자', path: '/user', icon: <LuUserRound /> },
+    { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
+    { name: '고객', path: '/customer', icon: <HiUsers /> },
     { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
     { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
     // { name: '설정', path: '/settings', icon: '⚙️' },
@@ -40,9 +42,15 @@ export default function MainLayout({
     <div className="min-h-screen flex flex-col">
       {/* 헤더 */}
       <header className="bg-white shadow fixed w-full z-10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="px-4 py-4">
           <nav className="flex justify-between items-center">
-            <h1 className="text-xl font-bold text-gray-800">ABLECLOUD CRM</h1>
+            {/* <h1 className="text-xl font-bold text-gray-800">ABLECLOUD CRM</h1> */}
+            <Image
+              src="/images/ablestack-logo.png"  // public 폴더의 경로
+              alt="My PNG Image"
+              width={200}  // 이미지의 너비
+              height={100} // 이미지의 높이
+            />
             <div className="flex items-center gap-4">
               <span className="text-gray-600">
                 {/* <strong>{user?.username}</strong>님 환영합니다 */}
@@ -92,7 +100,7 @@ export default function MainLayout({
       <footer className="bg-white border-t ml-64">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © 2024 ABLECLOUD CRM 관리 시스템. All rights reserved.
+            © 2024 ABLECLOUD 라이센스 관리 시스템. All rights reserved.
           </p>
         </div>
       </footer>

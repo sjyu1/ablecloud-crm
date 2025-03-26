@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 
 /**
- * 파트너 목록 조회
+ * 사업 목록 조회
  * @returns 
  */
 export async function GET(request: Request) {
@@ -13,13 +13,12 @@ export async function GET(request: Request) {
     const name = searchParams.get('name');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.PARTNER_API_URL}/partner`);
+    const apiUrl = new URL(`${process.env.BUSINESS_API_URL}/business`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
     if (name) {
       apiUrl.searchParams.set('name', name);
     }
-
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
 
@@ -27,7 +26,7 @@ export async function GET(request: Request) {
       return NextResponse.json(
         { 
           success: false,
-          message: data.message || '파트너 조회에 실패했습니다.'
+          message: data.message || '사업 조회에 실패했습니다.'
         },
         { status: response.status }
       );
@@ -36,7 +35,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.partners || [],
+      data: data.data || [],
       pagination: {
         currentPage: page,
         totalPages: data.totalPages || 1,
@@ -56,14 +55,14 @@ export async function GET(request: Request) {
 }
 
 /**
- * 파트너 생성
+ * 사업 생성
  * @param request 
  * @returns 
  */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner`, {
+    const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business`, {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -74,7 +73,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { 
           success: false,
-          message: data.message || '파트너 생성에 실패했습니다.'
+          message: data.message || '사업 생성에 실패했습니다.'
         },
         { status: response.status }
       );
@@ -89,7 +88,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: '파트너 생성 중 오류가 발생했습니다.'
+        message: '사업 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

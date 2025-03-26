@@ -1,46 +1,66 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface PartnerForm {
+interface ProductForm {
+  id: number;
   name: string;
-  telnum: string;
+  version: string;
   level: string;
 }
 
-export default function PartnerRegisterPage() {
+export default function ProductEditPage() {
+  const params = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState<PartnerForm>({
-    name: '',
-    telnum: '',
-    level: 'platinum',
-  });
+  const [formData, setFormData] = useState<ProductForm | null>(null);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProductDetail();
+  }, []);
+
+  const fetchProductDetail = async () => {
+    try {
+      const response = await fetch(`/api/product/${params.id}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || '제품 정보를 불러올 수 없습니다.');
+      }
+
+      setFormData(result.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    // setIsLoading(true);
 
     try {
-      const response = await fetch('/api/partner', {
-        method: 'POST',
+      const updateFormData = { ...formData}
+      const response = await fetch(`/api/product/${params.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updateFormData),
       });
 
       if (response.ok) {
-        alert('파트너가 등록되었습니다.');
+        alert('제품이 수정되었습니다.');
       } else {
-        throw new Error('파트너 등록에 실패했습니다.');
+        throw new Error('제품 수정에 실패했습니다.');
       }
 
-      router.push('/partner');
+      router.push(`/product/${params.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -50,16 +70,29 @@ export default function PartnerRegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+      
+    setFormData(prev => prev ? {
       ...prev,
       [name]: value
-    }));
+    } : null);
   };
+
+  if (isLoading) {
+    return <div className="text-center py-4">로딩 중...</div>;
+  }
+
+  // if (error) {
+  //   return <div className="text-center text-red-500 py-4">{error}</div>;
+  // }
+
+  if (!formData) {
+    return <div className="text-center py-4">제품 정보를 찾을 수 없습니다.</div>;
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 등록</h1>
+        <h1 className="text-2xl font-bold text-gray-800">제품 수정</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -67,7 +100,7 @@ export default function PartnerRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사이름
+                제품명
               </label>
               <input
                 type="text"
@@ -80,32 +113,16 @@ export default function PartnerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                제품번호
               </label>
               <input
                 type="text"
-                name="telnum"
-                value={formData.telnum}
+                name="version"
+                value={formData.version}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                등급
-              </label>
-              <select
-                name="level"
-                value={formData.level}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="PLATINUM">PLATINUM</option>
-                <option value="GOLD">GOLD</option>
-                <option value="VAD">VAD</option>
-              </select>
             </div>
           </div>
 
@@ -117,7 +134,7 @@ export default function PartnerRegisterPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href="/partner"
+              href={`/product/${params.id}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
@@ -129,7 +146,7 @@ export default function PartnerRegisterPage() {
                 isLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isLoading ? '처리 중...' : '등록'}
+              {isLoading ? '처리 중...' : '수정'}
             </button>
           </div>
         </form>

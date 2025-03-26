@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
 interface Product {
   id: number;
@@ -21,7 +22,7 @@ interface Pagination {
 
 export default function ProductPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [productId, setProductId] = useState('');
+  const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -36,11 +37,11 @@ export default function ProductPage() {
     const fetchProducts = async () => {
       try {
         const page = searchParams.get('page') || '1';
-        const currentProductId = searchParams.get('productId');
+        const currentName = searchParams.get('name');
         
         let url = `/api/product?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentProductId) {
-          url += `&productId=${currentProductId}`;
+        if (currentName) {
+          url += `&name=${currentName}`;
         }
 
         const response = await fetch(url);
@@ -65,8 +66,8 @@ export default function ProductPage() {
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (productId.trim()) {  // 공백 제거 후 체크
-        params.set('productId', productId.trim());
+      if (name.trim()) {  // 공백 제거 후 체크
+        params.set('name', name.trim());
       }
       params.set('page', '1');
 
@@ -80,7 +81,7 @@ export default function ProductPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setProductId('');
+    setName('');
     router.push('/product?page=1');
   };
 
@@ -107,9 +108,9 @@ export default function ProductPage() {
       <div className="mb-4 flex gap-2">
         <input
           type="text"
-          value={productId}
-          onChange={(e) => setProductId(e.target.value)}
-          placeholder="제품 ID로 검색"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="제품명으로 검색"
           className="px-3 py-2 border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -125,7 +126,7 @@ export default function ProductPage() {
         >
           검색
         </button>
-        {searchParams.get('productId') && (
+        {searchParams.get('name') && (
           <button
             type="button"
             onClick={handleResetClick}
@@ -145,7 +146,7 @@ export default function ProductPage() {
                 제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품번호
+                제품버전
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일
@@ -165,7 +166,7 @@ export default function ProductPage() {
                   {product.version}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.created}
+                  {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link

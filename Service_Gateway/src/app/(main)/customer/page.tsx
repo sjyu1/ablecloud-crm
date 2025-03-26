@@ -4,17 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie } from '../../store/authStore';
 import Link from 'next/link';
+import { format } from 'date-fns';
 
-interface License {
+interface Customer {
   id: number;
-  license_key: string;
-  product_id: string;
-  product_name: string;
-  product_type: string;
-  issued_user: string;
-  status: string;
-  issued: string;
-  expired: string;
+  name: string;
+  telnum: string;
+  created: string;
 }
 
 interface Pagination {
@@ -24,9 +20,9 @@ interface Pagination {
   itemsPerPage: number;
 }
 
-export default function LicensePage() {
-  const [licenses, setLicenses] = useState<License[]>([]);
-  const [productName, setProductName] = useState('');
+export default function CustomerPage() {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -36,19 +32,16 @@ export default function LicensePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = getCookie('role');
-  const username = getCookie('username');
 
   useEffect(() => {
-    const fetchLicenses = async () => {
+    const fetchCustomers = async () => {
       try {
         const page = searchParams.get('page') || '1';
-        const currentProductName = searchParams.get('productName');
+        const currentName = searchParams.get('name');
         
-        let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentProductName) {
-          url += `&productName=${currentProductName}`;
-        } else if (role == 'User') {
-          url += `&role=User`;
+        let url = `/api/customer?page=${page}&limit=${pagination.itemsPerPage}`;
+        if (currentName) {
+          url += `&name=${currentName}`;
         }
 
         const response = await fetch(url);
@@ -59,27 +52,27 @@ export default function LicensePage() {
           return;
         }
 
-        setLicenses(result.data);
+        setCustomers(result.data);
         setPagination(result.pagination);
       } catch (error) {
-        alert('라이센스 목록 조회에 실패했습니다.');
+        alert('고객 목록 조회에 실패했습니다.');
       }
     };
 
-    fetchLicenses();
+    fetchCustomers();
   }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (productName.trim()) {  // 공백 제거 후 체크
-        params.set('productName', productName.trim());
+      if (name.trim()) {  // 공백 제거 후 체크
+        params.set('name', name.trim());
       }
       params.set('page', '1');
 
       // URL 업데이트
-      router.push(`/license?${params.toString()}`);
+      router.push(`/customer?${params.toString()}`);
     } catch (error) {
       // alert('검색 중 오류가 발생했습니다.');
       alert(error);
@@ -88,26 +81,26 @@ export default function LicensePage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setProductName('');
-    router.push('/license?page=1');
+    setName('');
+    router.push('/customer?page=1');
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    router.push(`/license?${params.toString()}`);
+    router.push(`/customer?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">고객 관리</h1>
         <Link
-          href="/license/register"
+          href="/customer/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
-          라이센스 생성
+          고객 등록
         </Link>
       </div>
 
@@ -115,9 +108,9 @@ export default function LicensePage() {
       <div className="mb-4 flex gap-2">
         <input
           type="text"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
-          placeholder="제품명으로 검색"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="회사이름으로 검색"
           className="px-3 py-2 border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -133,7 +126,7 @@ export default function LicensePage() {
         >
           검색
         </button>
-        {searchParams.get('productName') && (
+        {searchParams.get('name') && (
           <button
             type="button"
             onClick={handleResetClick}
@@ -144,31 +137,19 @@ export default function LicensePage() {
         )}
       </div>
 
-      {/* 라이센스 목록 */}
+      {/* 고객 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                라이센스 키
+                회사이름
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품명
+                전화번호
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                상태
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품유형
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                발급자
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                시작일
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                만료일
+                생성일
               </th>
               {/* <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 관리
@@ -176,40 +157,20 @@ export default function LicensePage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {licenses.map((license) => (
-              <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}`}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {license.license_key}
-                  </div>
+            {customers.map((customer) => (
+              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {customer.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.product_name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    license.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {license.status === 'active' ? '활성' : '비활성'}
-                  </span>
+                  {customer.telnum}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.issued_user}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.issued}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.expired}
+                  {format(customer.created, 'yyyy-MM-dd HH:mm:ss')}
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={`/license/${license.id}`}
+                    href={`/customer/${customer.id}`}
                     className="text-blue-600 hover:text-blue-900 mr-4"
                   >
                     상세
@@ -223,10 +184,10 @@ export default function LicensePage() {
                 </td> */}
               </tr>
             ))}
-            {licenses.length === 0 && (
+            {customers.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                  라이센스 정보가 없습니다.
+                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                  고객 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -261,7 +222,7 @@ export default function LicensePage() {
 
       {/* 총 아이템 수 */}
       {/* <div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 라이센스
+        총 {pagination.totalItems}개의 고객
       </div> */}
     </div>
   );

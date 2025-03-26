@@ -1,17 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface LicenseForm {
   // license_key: string;
   product_id: string;
-  status: string;
-  type: string;
-  core: number;
+  // status: string;
+  product_type: string;
+  cpu_core: number;
   issued: string;
   expired: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  version: string;
+  created: string;
 }
 
 export default function LicenseRegisterPage() {
@@ -19,19 +26,42 @@ export default function LicenseRegisterPage() {
   const [formData, setFormData] = useState<LicenseForm>({
     // license_key: '',
     product_id: '',
-    status: 'active',
-    type: 'vm',
-    core: 0,
+    // status: 'active',
+    product_type: 'vm',
+    cpu_core: 0,
     issued: '',
     expired: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        let url = `/api/product`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (!result.success) {
+          // alert(result.message);
+          return;
+        }
+
+        setProducts(result.data);
+      } catch (error) {
+        alert('제품 목록 조회에 실패했습니다.');
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+    console.log(formData)
     try {
       if (formData.issued > formData.expired){
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
@@ -49,7 +79,7 @@ export default function LicenseRegisterPage() {
       if (response.ok) {
         alert('라이센스가 등록되었습니다.');
       } else {
-        throw new Error('라이센스 등록에 실패했습니다.');
+        throw new Error('라이센스 생성에 실패했습니다.');
       }
 
       router.push('/license');
@@ -71,7 +101,7 @@ export default function LicenseRegisterPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 등록</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이센스 생성</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -92,18 +122,24 @@ export default function LicenseRegisterPage() {
             </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ID
+                제품명
               </label>
-              <input
-                type="text"
+              <select
                 name="product_id"
                 value={formData.product_id}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
-              />
+              >
+                <option value="">선택하세요</option>
+                {products.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 상태
               </label>
@@ -116,14 +152,14 @@ export default function LicenseRegisterPage() {
                 <option value="active">활성</option>
                 <option value="inactive">비활성</option>
               </select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품유형
               </label>
               <select
                 name="type"
-                value={formData.type}
+                value={formData.product_type}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -139,8 +175,8 @@ export default function LicenseRegisterPage() {
               </label>
               <input
                 type="number"
-                name="core"
-                value={formData.core}
+                name="cpu_core"
+                value={formData.cpu_core}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -193,7 +229,7 @@ export default function LicenseRegisterPage() {
                 isLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isLoading ? '처리 중...' : '등록'}
+              {isLoading ? '처리 중...' : '생성'}
             </button>
           </div>
         </form>

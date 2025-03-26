@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../store/authStore';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,7 +38,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">로그인</h2>
+        {/* <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">로그인</h2> */}
+        <Image
+              src="/images/ablestack-logo.png"  // public 폴더의 경로
+              alt="My PNG Image"
+              width={500}  // 이미지의 너비
+              height={300} // 이미지의 높이
+            />
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
