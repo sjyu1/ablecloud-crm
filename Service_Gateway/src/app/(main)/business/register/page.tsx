@@ -1,31 +1,72 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface BusinessForm {
   name: string;
+  status: string;
   issued: string;
   expired: string;
+  customer_id: string;
+  node_cnt: number;
+  core_cnt: number;
+}
+
+interface Customer {
+  id: number;
+  name: string;
+  telnum: string;
 }
 
 export default function BusinessRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<BusinessForm>({
     name: '',
+    status: 'standby',
     issued: '',
     expired: '',
+    customer_id: '',
+    core_cnt: 0,
+    node_cnt: 0
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        let url = `/api/customer`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (!result.success) {
+          // alert(result.message);
+          return;
+        }
+
+        setCustomers(result.data);
+      } catch (error) {
+        alert('고객 목록 조회에 실패했습니다.');
+      }
+    };
+
+    fetchCustomers();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
+      if (formData.issued > formData.expired){
+        throw new Error('시작일이 종료일보다 클 수 없습니다.');
+      }
+
+      setIsLoading(true);
       const response = await fetch('/api/business', {
         method: 'POST',
         headers: {
@@ -76,6 +117,69 @@ export default function BusinessRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                고객회사
+              </label>
+              <select
+                name="customer_id"
+                value={formData.customer_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {customers.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업 상태
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="standby">대기 중</option>
+                <option value="meeting">고객 미팅</option>
+                <option value="poc">PoC</option>
+                <option value="bmt">BMT</option>
+                <option value="ordering">발주</option>
+                <option value="proposal">제안</option>
+                <option value="ordersuccess">수주 성공</option>
+                <option value="cancel">취소</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                노드수
+              </label>
+              <input
+                type="number"
+                name="node_cnt"
+                value={formData.node_cnt}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                코어수
+              </label>
+              <input
+                type="number"
+                name="core_cnt"
+                value={formData.core_cnt}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>

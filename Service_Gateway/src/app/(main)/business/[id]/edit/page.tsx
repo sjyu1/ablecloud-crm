@@ -7,6 +7,9 @@ import Link from 'next/link';
 interface BusinessForm {
   id: number;
   name: string;
+  status: string;
+  node_cnt: number;
+  core_cnt: number;
   issued: string;
   expired: string;
 }
@@ -109,6 +112,50 @@ export default function BusinessEditPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업 상태
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="standby">대기 중</option>
+                <option value="meeting">고객 미팅</option>
+                <option value="poc">PoC</option>
+                <option value="bmt">BMT</option>
+                <option value="ordering">발주</option>
+                <option value="proposal">제안</option>
+                <option value="ordersuccess">수주 성공</option>
+                <option value="cancel">취소</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                노드수
+              </label>
+              <input
+                type="number"
+                name="node_cnt"
+                value={formData.node_cnt}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                코어수
+              </label>
+              <input
+                type="number"
+                name="core_cnt"
+                value={formData.core_cnt}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>

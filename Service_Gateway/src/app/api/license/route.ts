@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       ...body,
       issued_user: username,
       status: role == 'Admin'? 'active' : 'inactive',
-      company_id: role == 'User'? company_id : ''
+      company_id: role == 'User'? company_id : null
     }
 
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`, {
@@ -91,13 +91,33 @@ export async function POST(request: Request) {
       body: JSON.stringify(submitData),
     });
 
-    // console.log(response)
     const data = await response.json();
+
     if (!response.ok) {
       return NextResponse.json(
         { 
           success: false,
           message: data.message || '라이센스 생성에 실패했습니다.'
+        },
+        { status: response.status }
+      );
+    }
+
+    //라이센스 등록 후 사업에 license_id 등록
+    const submitData_business = {
+      license_id: data.id,
+    }
+
+    const response_business = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${data.business_id}/registerLicense`, {
+      method: 'PUT',
+      body: JSON.stringify(submitData_business),
+    });
+
+    if (!response_business.ok) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: data.message || '사업에 라이센스 아이드 등록을 실패했습니다.'
         },
         { status: response.status }
       );

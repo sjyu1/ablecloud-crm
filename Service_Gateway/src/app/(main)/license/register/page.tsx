@@ -9,7 +9,8 @@ interface LicenseForm {
   product_id: string;
   // status: string;
   product_type: string;
-  cpu_core: number;
+  // cpu_core: number;
+  business_id: string;
   issued: string;
   expired: string;
 }
@@ -21,6 +22,11 @@ interface Product {
   created: string;
 }
 
+interface Business {
+  id: number;
+  name: string;
+}
+
 export default function LicenseRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<LicenseForm>({
@@ -28,13 +34,16 @@ export default function LicenseRegisterPage() {
     product_id: '',
     // status: 'active',
     product_type: 'vm',
-    cpu_core: 0,
+    business_id: '',
+    // cpu_core: 0,
     issued: '',
     expired: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [business, setBusiness] = useState<Business[]>([]);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,13 +64,32 @@ export default function LicenseRegisterPage() {
       }
     };
 
+    const fetchBusiness = async () => {
+      try {
+        let url = `/api/business?available=true`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (!result.success) {
+          // alert(result.message);
+          return;
+        }
+
+        setBusiness(result.data);
+      } catch (error) {
+        alert('제품 목록 조회에 실패했습니다.');
+      }
+    };
+
     fetchProducts();
+    fetchBusiness();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    console.log(formData)
+
     try {
       if (formData.issued > formData.expired){
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
@@ -96,6 +124,16 @@ export default function LicenseRegisterPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  //영구 라이센스 체크
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
+    if (event.target.checked) {
+      formData.expired = '9999-12-31'
+    } else {
+      formData.expired = ''
+    }
   };
 
   return (
@@ -169,7 +207,7 @@ export default function LicenseRegisterPage() {
                 <option value="hci_beta">ABLESTACK HCI - Beta</option>
               </select>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 코어수
               </label>
@@ -180,6 +218,25 @@ export default function LicenseRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div> */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업명
+              </label>
+              <select
+                name="business_id"
+                value={formData.business_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {business.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -204,8 +261,19 @@ export default function LicenseRegisterPage() {
                 value={formData.expired}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isChecked}
                 required
               />
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{marginLeft: '10px'}}
+              />
+              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
+                영구 라이센스
+              </label>
             </div>
           </div>
 

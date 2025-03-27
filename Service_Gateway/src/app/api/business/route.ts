@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const available = searchParams.get('available');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.BUSINESS_API_URL}/business`);
@@ -18,6 +19,9 @@ export async function GET(request: Request) {
     apiUrl.searchParams.set('limit', limit.toString());
     if (name) {
       apiUrl.searchParams.set('name', name);
+    }
+    if (available) {
+      apiUrl.searchParams.set('available', available);
     }
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
@@ -35,7 +39,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.data || [],
+      data: data.items || [],
       pagination: {
         currentPage: page,
         totalPages: data.totalPages || 1,

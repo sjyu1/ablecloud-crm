@@ -11,6 +11,7 @@ interface License {
   product_id: string;
   product_name: string;
   product_type: string;
+  business_name: string;
   issued_user: string;
   status: string;
   issued: string;
@@ -156,10 +157,13 @@ export default function LicensePage() {
                 제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                상태
+                제품유형
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품유형
+                사업명
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 발급자
@@ -186,6 +190,12 @@ export default function LicensePage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.product_name}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {license.business_name}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     license.status === 'active' 
@@ -194,9 +204,6 @@ export default function LicensePage() {
                   }`}>
                     {license.status === 'active' ? '활성' : '비활성'}
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.issued_user}
@@ -225,7 +232,7 @@ export default function LicensePage() {
             ))}
             {licenses.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
                   라이센스 정보가 없습니다.
                 </td>
               </tr>

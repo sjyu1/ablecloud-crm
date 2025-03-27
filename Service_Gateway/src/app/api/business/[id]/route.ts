@@ -25,7 +25,7 @@ export async function GET(
 
     return NextResponse.json({ 
       status: 200,
-      data: business 
+      data: business
     });
   } catch (error) {
     return NextResponse.json(
@@ -47,7 +47,6 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
@@ -62,7 +61,7 @@ export async function PUT(
     //   );
     // }
 
-    // businesss[index] = { ...businesss[index], ...body };
+    // business[index] = { ...business[index], ...body };
 
     return NextResponse.json({ 
       status: 200,

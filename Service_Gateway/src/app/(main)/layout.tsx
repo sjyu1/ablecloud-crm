@@ -100,7 +100,7 @@ export default function MainLayout({
       <footer className="bg-white border-t ml-64">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © 2024 ABLECLOUD 라이센스 관리 시스템. All rights reserved.
+            © 2025 ABLECLOUD 라이센스 관리 시스템. All rights reserved.
           </p>
         </div>
       </footer>

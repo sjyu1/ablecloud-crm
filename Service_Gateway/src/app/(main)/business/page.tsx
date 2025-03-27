@@ -11,6 +11,8 @@ interface Business {
   name: string;
   issued: string;
   expired: string;
+  customer_name: string;
+  status: string;
 }
 
 interface Pagination {
@@ -21,7 +23,7 @@ interface Pagination {
 }
 
 export default function BusinessPage() {
-  const [businesses, setBusinesss] = useState<Business[]>([]);
+  const [businesses, setBusiness] = useState<Business[]>([]);
   const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
@@ -34,7 +36,7 @@ export default function BusinessPage() {
   const role = getCookie('role');
 
   useEffect(() => {
-    const fetchBusinesss = async () => {
+    const fetchBusiness = async () => {
       try {
         const page = searchParams.get('page') || '1';
         const currentName = searchParams.get('name');
@@ -46,20 +48,20 @@ export default function BusinessPage() {
 
         const response = await fetch(url);
         const result = await response.json();
-        
+
         if (!result.success) {
           alert(result.message);
           return;
         }
 
-        setBusinesss(result.data);
+        setBusiness(result.data);
         setPagination(result.pagination);
       } catch (error) {
         alert('사업 목록 조회에 실패했습니다.');
       }
     };
 
-    fetchBusinesss();
+    fetchBusiness();
   }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
@@ -146,6 +148,12 @@ export default function BusinessPage() {
                 사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                고객회사
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                사업 상태
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업 시작일
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -161,6 +169,12 @@ export default function BusinessPage() {
               <tr key={business.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/business/${business.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {business.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.customer_name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {format(business.issued, 'yyyy-MM-dd')}
@@ -186,7 +200,7 @@ export default function BusinessPage() {
             ))}
             {businesses.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                   사업 정보가 없습니다.
                 </td>
               </tr>
