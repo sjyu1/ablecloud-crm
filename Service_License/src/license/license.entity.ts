@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity('license')
 export class License {
@@ -12,10 +12,10 @@ export class License {
   product_id: string
 
   @Column()
-  issued_date: string
+  issued: string
 
   @Column()
-  expiry_date: string
+  expired: string
 
   @Column({
     type: 'enum',
@@ -24,23 +24,86 @@ export class License {
   })
   status: 'active' | 'inactive' | 'expired'
 
-  @CreateDateColumn()
-  created_at: string
-
-  @UpdateDateColumn()
-  updated_at: string
-
   @Column({
     type: 'varchar',
     length: 50,
     nullable: true
   })
-  type: string;
+  product_type: string;
 
   @Column({
     type: 'int',
     default: 0,
     nullable: true
   })
-  core: number;
+  cpu_core: number;
+
+  @Column({
+    type: 'int',
+    default: 1,
+    nullable: true
+  })
+  product_cnt: number;
+
+  @Column({
+    type: 'enum',
+    enum: ['POC', 'BMT', 'TEMP'],
+    nullable: true
+  })
+  business_type: 'POC' | 'BMT' | 'TEMP';
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: true
+  })
+  business_name: string;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  user_type: string;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  company_id: number;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  issued_user: string;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true
+  })
+  approve_user: string;
+
+  @Column({
+    type: 'datetime',
+    nullable: true
+  })
+  approved: string;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  partner_id: number;
+
+  @CreateDateColumn()
+  created: string
+
+  @UpdateDateColumn()
+  updated: string
+
+  @DeleteDateColumn()
+  removed: string
 }
