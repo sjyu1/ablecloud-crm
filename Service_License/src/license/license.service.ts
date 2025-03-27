@@ -40,11 +40,13 @@ export class LicenseService {
     const query = this.licenseRepository.createQueryBuilder('license')
                   .leftJoin('product', 'product', 'license.product_id = product.id')
                   .leftJoin('partner', 'partner', 'license.partner_id = partner.id')
+                  .leftJoin('business', 'business', 'license.business_id = business.id')
                   .select([
                     'license.*',
                     'product.name as product_name',
                     'partner.name as partner_name',
-                    'license.approved as approved'
+                    'license.approved as approved',
+                    'business.name as business_name'
                   ])
                   .orderBy('license.created', 'DESC')
                   .where('license.removed IS NULL');
@@ -102,6 +104,7 @@ export class LicenseService {
       .leftJoin('product', 'product', 'license.product_id = product.id')
       .leftJoinAndSelect('partner', 'company', 'license.company_id = company.id')
       .leftJoinAndSelect('partner', 'issuer', 'license.issued_user = issuer.id')
+      .leftJoinAndSelect('business', 'business', 'license.business_id = business.id')
       .select([
         'license.*',
         'product.name as product_name',
@@ -110,7 +113,8 @@ export class LicenseService {
         'company.level as company_level',
         'issuer.name as issuer_company_name',
         'issuer.telnum as issuer_company_telnum',
-        'issuer.level as issuer_company_level'
+        'issuer.level as issuer_company_level',
+        'business.name as business_name'
       ])
       .where('license.id = :id', { id });
 
@@ -178,8 +182,7 @@ export class LicenseService {
   async create(createLicenseDto: CreateLicenseDto) {
     const license = new License();
     license.product_type = createLicenseDto.product_type;
-    license.cpu_core = createLicenseDto.cpu_core;
-    license.product_cnt = createLicenseDto.product_cnt;
+    // license.cpu_core = createLicenseDto.cpu_core;
     license.business_type = createLicenseDto.business_type;
     license.business_name = createLicenseDto.business_name;
     license.user_type = createLicenseDto.user_type;
@@ -213,12 +216,9 @@ export class LicenseService {
     if (updateLicenseDto.product_type) {
       license.product_type = updateLicenseDto.product_type;
     }
-    if (updateLicenseDto.cpu_core !== undefined) {
-      license.cpu_core = updateLicenseDto.cpu_core;
-    }
-    if (updateLicenseDto.product_cnt !== undefined) {
-      license.product_cnt = updateLicenseDto.product_cnt;
-    }
+    // if (updateLicenseDto.cpu_core !== undefined) {
+    //   license.cpu_core = updateLicenseDto.cpu_core;
+    // }
     if (updateLicenseDto.business_type) {
       license.business_type = updateLicenseDto.business_type as "POC" | "BMT" | "TEMP";
     }

@@ -37,6 +37,34 @@ export class CustomerService {
     return { customers, total };
   }
 
+  async getCustomerById(id: number): Promise<Customer | null> {
+    const query = this.customerRepository.createQueryBuilder('customer')
+      .leftJoin('business', 'business', 'customer.id = business.customer_id')
+      .select([
+        'customer.*',
+        'business.name as business_name',
+        'business.status as business_status',
+        'business.node_cnt as business_node_cnt',
+        'business.core_cnt as business_core_cnt',
+        'business.issued as business_issued',
+        'business.expired as business_expired',
+      ])
+      .where('customer.id = :id', { id });
+
+    const customer = await query.getRawOne();
+    if (!customer) return null;
+
+    return {
+      ...customer,
+      business_name: customer.business_name,
+      business_status: customer.business_status,
+      business_node_cnt: customer.business_node_cnt,
+      business_core_cnt: customer.business_core_cnt,
+      business_issued: customer.business_issued,
+      business_expired: customer.business_expired,
+    };
+  }
+
   async findOne(id: number): Promise<Customer> {
     const customer = await this.customerRepository.findOne({
       where: { id },

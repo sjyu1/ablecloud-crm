@@ -31,19 +31,12 @@ export class License {
   })
   product_type: string;
 
-  @Column({
-    type: 'int',
-    default: 0,
-    nullable: true
-  })
-  cpu_core: number;
-
-  @Column({
-    type: 'int',
-    default: 1,
-    nullable: true
-  })
-  product_cnt: number;
+  // @Column({
+  //   type: 'int',
+  //   default: 0,
+  //   nullable: true
+  // })
+  // cpu_core: number;
 
   @Column({
     type: 'enum',
@@ -97,6 +90,12 @@ export class License {
     nullable: true
   })
   partner_id: number;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  business_id: string;
 
   @CreateDateColumn()
   created: string

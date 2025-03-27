@@ -22,32 +22,31 @@ export class BusinessController {
   async findAll(
     @Query('page') page = '1',
     @Query('limit') limit = '10',
-    @Query('name') name?: string
+    @Query('name') name?: string,
+    @Query('available') available?: string,
   ) {
     const parsedPage = parseInt(page, 10);
     const parsedLimit = parseInt(limit, 10);
-
-    const { businesses, total } = await this.businessService.findAll(
-      parsedPage,
-      parsedLimit,
-      name
-    );
-
-    return {
-      data: businesses,
-      meta: {
-        total,
-        page: parsedPage,
-        limit: parsedLimit,
-        totalPages: Math.ceil(total / parsedLimit)
-      }
+  
+    const filters = {
+      name: name || '',
+      available: available || ''
     };
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    if (isNaN(pageNumber) || isNaN(limitNumber)) {
+      throw new Error('Invalid page or limit format');
+    }
+
+    return this.businessService.findAll(parsedPage, parsedLimit, filters);
   }
 
   @Get(':id')
   // @Roles('Admin')
   async findOne(@Param('id') id: string): Promise<Business> {
-    return this.businessService.findOne(parseInt(id, 10));
+    return this.businessService.getBusinessById(parseInt(id, 10));
   }
 
   @Put(':id')
@@ -64,4 +63,17 @@ export class BusinessController {
   async remove(@Param('id') id: string): Promise<void> {
     return this.businessService.remove(parseInt(id, 10));
   }
+
+  @Put(':id/registerLicense')
+  // @Roles('Admin')
+  async registerLicense(
+    @Param('id') id: string,
+    @Body('license_id') license_id: string,
+  ): Promise<Business> {
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) throw new Error('Invalid ID format');
+    return this.businessService.registerLicense(numericId, license_id);
+  }
 }
+
+

@@ -3,8 +3,12 @@ export class CreateBusinessDto {
   issued: string;
   expired: string;
   history: string;
-  license_key: string;
+  license_id: string;
   product_version: string;
+  customer_id: number;
+  status: string;
+  core_cnt: number;
+  node_cnt: number;
 }
 
 export class UpdateBusinessDto {
@@ -12,6 +16,10 @@ export class UpdateBusinessDto {
   issued?: string;
   expired?: string;
   history?: string;
-  license_key?: string;
+  license_id?: string;
   product_version?: string;
-}
+  customer_id?: number;
+  status?: string;
+  core_cnt: number;
+  node_cnt: number;
+} 
