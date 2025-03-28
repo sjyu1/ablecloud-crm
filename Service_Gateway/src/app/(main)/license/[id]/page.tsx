@@ -22,6 +22,7 @@ interface License {
   approve_user: string;
   approved: string;
   business_name: string;
+  issued_name: string;
 }
 
 export default function LicenseDetailPage() {
@@ -254,7 +255,7 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.issued_user}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>

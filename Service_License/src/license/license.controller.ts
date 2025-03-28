@@ -14,9 +14,9 @@ export class LicenseController {
   @Get()
   // @Roles('Admin', 'User')
   async getLicenses(
-    @Query() query: {
-      page?: string;
-      limit?: string;
+    @Query() query: { 
+      page?: string; 
+      limit?: string; 
       productId?: string;
       productType?: string;
       businessType?: string;
@@ -26,7 +26,7 @@ export class LicenseController {
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
     const page = query.page || '1';
     const limit = query.limit || '10';
-
+    
     const partnerId = req.user?.partnerId;
 
     const filters = {

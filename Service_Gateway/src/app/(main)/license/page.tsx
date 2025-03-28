@@ -12,7 +12,7 @@ interface License {
   product_name: string;
   product_type: string;
   business_name: string;
-  issued_user: string;
+  issued_name: string;
   status: string;
   issued: string;
   expired: string;
@@ -205,7 +205,7 @@ export default function LicensePage() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.issued_user}
+                  {license.issued_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.issued}

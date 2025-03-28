@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo } from '@/utils/userinfo';
 import { cookies } from 'next/headers';
+import { userinfo_id } from '@/utils/userinfo';
 
 /**
  * 라이센스 목록 조회
@@ -28,6 +29,22 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+
+    // 라이센스 데이터에 발급자 정보 추가
+    for(var idx in data.items) {
+      const data_userinfo = await userinfo_id(data.items[idx].issued_id);
+      data.items[idx].issued_name = data_userinfo.username
+      data.items[idx].issued_type = data_userinfo.attributes.type[0]
+      data.items[idx].issued_company_id = data_userinfo.attributes.company_id[0]
+  
+      if (data.items[idx].issued_type == 'vendor') {
+        data.items[idx].issued_company = 'ABLECLOUD'
+      } else {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.items[idx].issued_type}/${data.items[idx].issued_company_id}`);
+        const company = await response.json();
+        data.items[idx].issued_company = company.name
+      }
+    }
 
     if (!response.ok) {
       return NextResponse.json(
@@ -71,10 +88,12 @@ export async function POST(request: Request) {
     const username = (await cookies()).get('username')?.value;
     const role = (await cookies()).get('role')?.value;
     let company_id;
+    let issued_id;
     
     // company_id 조회한 후 라이센스등록
     if (role == 'User'){
       const data_userinfo = await userinfo();
+      issued_id = data_userinfo.id;
       company_id = data_userinfo.attributes.company_id[0];
     }
     
@@ -83,7 +102,8 @@ export async function POST(request: Request) {
       ...body,
       issued_user: username,
       status: role == 'Admin'? 'active' : 'inactive',
-      company_id: role == 'User'? company_id : null
+      company_id: role == 'User'? company_id : null,
+      issued_id: issued_id
     }
 
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`, {
