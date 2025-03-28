@@ -45,14 +45,6 @@ export class Business {
   license_id: string;
 
   @Column({
-    type: 'varchar',
-    length: 50,
-    nullable: false,
-    default: ''
-  })
-  product_version: string;
-
-  @Column({
     type: 'int',
     nullable: false,
     default: ''
@@ -80,6 +72,14 @@ export class Business {
     default: ''
   })
   node_cnt: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  manager_id: string;
 
   @CreateDateColumn({
     type: 'timestamp',

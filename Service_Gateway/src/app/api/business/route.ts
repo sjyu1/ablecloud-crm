@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import { userinfo_id } from '@/utils/userinfo';
 
 /**
  * 사업 목록 조회
@@ -25,6 +26,22 @@ export async function GET(request: Request) {
     }
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+
+    // 사업 데이터에 사업담당자 정보 추가
+    for(var idx in data.items) {
+      const data_userinfo = await userinfo_id(data.items[idx].manager_id);
+      data.items[idx].manager_name = data_userinfo.username
+      data.items[idx].manager_type = data_userinfo.attributes.type[0]
+      data.items[idx].manager_company_id = data_userinfo.attributes.company_id[0]
+  
+      if (data.items[idx].manager_type == 'vendor') {
+        data.items[idx].manager_company = 'ABLECLOUD'
+      } else {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.items[idx].manager_type}/${data.items[idx].manager_company_id}`);
+        const company = await response.json();
+        data.items[idx].manager_company = company.name
+      }
+    }
 
     if (!response.ok) {
       return NextResponse.json(

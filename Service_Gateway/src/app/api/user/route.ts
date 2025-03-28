@@ -12,7 +12,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const company_id = searchParams.get('company_id');
-    const type = searchParams.get('type');
+    const type = searchParams.get('type');  //vendor, partner, customer
+    const manager = searchParams.get('manager');  //사업 담당자 목록조회(vendor, partner)
 
     // 1. client_credentials token 가져오기
     const submitData_token = {
@@ -45,9 +46,17 @@ export async function GET(request: Request) {
 
     // 3. 사용자 데이터에 role 추가
     let data_user_com = []
-    let company_type = null
+    let data_user_manager = []
     for(var idx in data_user){
-      // json 항목 담기(attributes: { type: [ 'Vendor' ], telnum: [ '02-000-0000' ] })
+      if (manager) {
+        if(data_user[idx].attributes.type == 'customer'){
+          continue;
+        } else {
+          data_user_manager.push(data_user[idx])
+        }
+      }
+
+      // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
       data_user[idx].type = data_user[idx].attributes.type
       data_user[idx].telnum = data_user[idx].attributes.telnum
       data_user[idx].company_id = data_user[idx].attributes.company_id
@@ -68,12 +77,14 @@ export async function GET(request: Request) {
 
       // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
       if (type) {
-        if (type == data_user[idx].type && company_id == data_user[idx].company_id) {
+        if (type !== 'vendor' && type == data_user[idx].type && company_id == data_user[idx].company_id) {
           const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${type}/${data_user[idx].company_id}`);
           const company = await response.json();
           data_user[idx].company = company.name
 
           data_user_com.push(data_user[idx])
+        } else {
+          data_user[idx].company = 'ABLECLOUD'
         }
 
       // 사용자 메뉴 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
@@ -99,6 +110,8 @@ export async function GET(request: Request) {
 
     if (company_id) {
       data_user = data_user_com
+    } else if (manager) {
+      data_user = data_user_manager
     }
 
     if (!res_user.ok) {

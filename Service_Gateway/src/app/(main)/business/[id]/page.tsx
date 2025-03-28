@@ -23,6 +23,9 @@ interface Business {
   // license_cpu_core: string;
   license_issued: string;
   license_expired: string;
+  manager_id: string;
+  manager_name: string;
+  manager_company: string;
 }
 
 interface TabPanelProps {
@@ -182,6 +185,12 @@ export default function BusinessDetailPage() {
                 <h3 className="text-sm font-medium text-gray-500">사업명</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {business.name}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 담당자</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.manager_name} ({business.manager_company})
                 </p>
               </div>
               <div>

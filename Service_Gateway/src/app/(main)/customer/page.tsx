@@ -31,7 +31,6 @@ export default function CustomerPage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
 
   useEffect(() => {
     const fetchCustomers = async () => {

@@ -37,7 +37,6 @@ export default function LicensePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = getCookie('role');
-  const username = getCookie('username');
 
   useEffect(() => {
     const fetchLicenses = async () => {

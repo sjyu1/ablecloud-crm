@@ -13,6 +13,10 @@ interface Business {
   expired: string;
   customer_name: string;
   status: string;
+  node_cnt: string;
+  core_cnt:string;
+  manager_name: string;
+  manager_company: string;
 }
 
 interface Pagination {
@@ -148,10 +152,19 @@ export default function BusinessPage() {
                 사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                사업 담당자 (회사)
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 고객회사
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업 상태
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                노드수
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                코어수
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업 시작일
@@ -171,10 +184,19 @@ export default function BusinessPage() {
                   {business.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.manager_name} ({business.manager_company})
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {business.customer_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.node_cnt}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.core_cnt}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {format(business.issued, 'yyyy-MM-dd')}
@@ -200,7 +222,7 @@ export default function BusinessPage() {
             ))}
             {businesses.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
                   사업 정보가 없습니다.
                 </td>
               </tr>

@@ -12,12 +12,19 @@ interface BusinessForm {
   customer_id: string;
   node_cnt: number;
   core_cnt: number;
+  manager_id: string;
 }
 
 interface Customer {
   id: number;
   name: string;
   telnum: string;
+}
+
+interface Manager {
+  id: number;
+  username: string;
+  company: string;
 }
 
 export default function BusinessRegisterPage() {
@@ -29,13 +36,33 @@ export default function BusinessRegisterPage() {
     expired: '',
     customer_id: '',
     core_cnt: 0,
-    node_cnt: 0
+    node_cnt: 0,
+    manager_id: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [managers, setManagers] = useState<Manager[]>([]);
 
   useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        let url = `/api/user?manager=true`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (!result.success) {
+          // alert(result.message);
+          return;
+        }
+
+        setManagers(result.data);
+      } catch (error) {
+        alert('사업담당자 목록 조회에 실패했습니다.');
+      }
+    };
+
     const fetchCustomers = async () => {
       try {
         let url = `/api/customer`;
@@ -54,6 +81,7 @@ export default function BusinessRegisterPage() {
       }
     };
 
+    fetchManagers();
     fetchCustomers();
   }, []);
 
@@ -118,6 +146,25 @@ export default function BusinessRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업 담당자
+              </label>
+              <select
+                name="manager_id"
+                value={formData.manager_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {managers.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.username} ({item.company})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
