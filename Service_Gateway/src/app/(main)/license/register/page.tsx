@@ -70,7 +70,7 @@ export default function LicenseRegisterPage() {
 
         const response = await fetch(url);
         const result = await response.json();
-console.log(result)
+
         if (!result.success) {
           // alert(result.message);
           return;
