@@ -31,6 +31,7 @@ export default function CustomerPage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
+  const role = getCookie('role');
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -42,7 +43,9 @@ export default function CustomerPage() {
         if (currentName) {
           url += `&name=${currentName}`;
         }
-
+        if (role == 'User') {
+          url += `&role=User`;
+        }
         const response = await fetch(url);
         const result = await response.json();
 

@@ -80,7 +80,7 @@ export default function PartnerDetailPage() {
     try {
       const response = await fetch(`/api/partner/${params.id}`);
       const result = await response.json();
-      // console.log(response);
+
       if (!response.ok) {
         throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
       }
@@ -102,7 +102,7 @@ export default function PartnerDetailPage() {
 
   const fetchPartnerUserDetail = async () => {
     try {
-      const response = await fetch(`/api/user?type=partner&company_id=${params.id}`);
+      const response = await fetch(`/api/user/forManager?type=partner&company_id=${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {

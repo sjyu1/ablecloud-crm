@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { getCookie } from '../../../../store/authStore';
 import Link from 'next/link';
 
 interface BusinessForm {
@@ -13,6 +14,7 @@ interface BusinessForm {
   issued: string;
   expired: string;
   manager_id: string;
+  product_type: string;
 }
 
 interface Manager {
@@ -28,6 +30,7 @@ export default function BusinessEditPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [managers, setManagers] = useState<Manager[]>([]);
+  const role = getCookie('role');
 
   useEffect(() => {
     fetchBusinessDetail();
@@ -53,7 +56,11 @@ export default function BusinessEditPage() {
 
   const fetchManagers = async () => {
     try {
-      let url = `/api/user?manager=true`;
+      let url = `/api/user/forCreateManager`;
+
+      if (role == 'User') {
+        url += `?role=User`;
+      }
 
       const response = await fetch(url);
       const result = await response.json();
@@ -178,6 +185,22 @@ export default function BusinessEditPage() {
                 <option value="proposal">제안</option>
                 <option value="ordersuccess">수주 성공</option>
                 <option value="cancel">취소</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업유형
+              </label>
+              <select
+                name="product_type"
+                value={formData.product_type}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="vm">ABLESTACK VM</option>
+                <option value="hci">ABLESTACK HCI</option>
+                <option value="vm_beta">ABLESTACK VM - Beta</option>
+                <option value="hci_beta">ABLESTACK HCI - Beta</option>
               </select>
             </div>
             <div>

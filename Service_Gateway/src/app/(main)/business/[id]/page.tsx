@@ -19,7 +19,7 @@ interface Business {
   core_cnt: number;
   license_key: string;
   license_status: string;
-  license_product_type: string;
+  product_type: string;
   // license_cpu_core: string;
   license_issued: string;
   license_expired: string;
@@ -200,6 +200,12 @@ export default function BusinessDetailPage() {
                 </p>
               </div>
               <div>
+                <h3 className="text-sm font-medium text-gray-500">사업유형</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {business.product_type === 'vm' ? ('ABLESTACK VM') : business.product_type === 'hci' ? ('ABLESTACK HCI') : business.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): business.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                </p>
+              </div>
+              <div>
                 <h3 className="text-sm font-medium text-gray-500">노드수</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {business.node_cnt}
@@ -255,12 +261,6 @@ export default function BusinessDetailPage() {
                   {/* <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"> */}
                     {business.license_status === 'active' ? '활성' : '비활성'}
                   </span>
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">제품유형</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {business.license_product_type === 'vm' ? ('ABLESTACK VM') : business.license_product_type === 'hci' ? ('ABLESTACK HCI') : business.license_product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): business.license_product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
                 </p>
               </div>
               {/* <div>

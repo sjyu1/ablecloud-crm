@@ -18,7 +18,6 @@ export class LicenseController {
       page?: string; 
       limit?: string; 
       productId?: string;
-      productType?: string;
       businessType?: string;
       company_id?: string;
     },
@@ -31,7 +30,6 @@ export class LicenseController {
 
     const filters = {
       productId: query.productId || '',
-      productType: query.productType || '',
       businessType: query.businessType || '',
       company_id: query.company_id || '',
       partnerId: partnerId

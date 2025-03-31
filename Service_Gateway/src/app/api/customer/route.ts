@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import { userinfo, userinfo_id } from '@/utils/userinfo';
 
 /**
  * 고객 목록 조회
@@ -11,6 +12,7 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const role = searchParams.get('role');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.PARTNER_API_URL}/customer`);
@@ -22,6 +24,41 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+
+    // role 파라미터가 존재하는경우, 로그인한 파트너의 정보만 조회(role이 user여도 type이 vendor일 경우 전체조회)
+    let data_user_com = []
+    let user_companytype
+    if (role) {
+      const data_userinfo = await userinfo();
+      user_companytype = data_userinfo.attributes.type[0]
+    }
+
+    // 고객 데이터에 사업담당자 정보 추가
+    for(var idx in data.data) {
+      const data_userinfo = await userinfo_id(data.data[idx].manager_id);
+      data.data[idx].manager_name = data_userinfo.username
+      data.data[idx].manager_type = data_userinfo.attributes.type[0]
+      data.data[idx].manager_company_id = data_userinfo.attributes.company_id[0]
+
+      if (data.data[idx].manager_type == 'vendor') {
+        data.data[idx].manager_company = 'ABLECLOUD'
+      } else {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.data[idx].manager_type}/${data.data[idx].manager_company_id}`);
+        const company = await response.json();
+        data.data[idx].manager_company = company.name
+      }
+
+      if (role && user_companytype !== 'vendor'){
+        const data_user = await userinfo();
+        if (data_user.attributes.type[0] == data.data[idx].manager_type && data_user.attributes.company_id[0] == data.data[idx].manager_company_id){
+          data_user_com.push(data.data[idx])
+        }
+      }
+    }
+
+    if (role && user_companytype !== 'vendor'){
+      data.data = data_user_com
+    }
 
     if (!response.ok) {
       return NextResponse.json(

@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     apiUrl.searchParams.set('limit', limit.toString());
     if (productName) {
       apiUrl.searchParams.set('productName', productName);
-    } else if (role) {
+    }
+    if (role) {
       const data_userinfo = await userinfo();
       apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
     }
@@ -91,11 +92,11 @@ export async function POST(request: Request) {
     let issued_id;
     
     // company_id 조회한 후 라이센스등록
-    if (role == 'User'){
-      const data_userinfo = await userinfo();
-      issued_id = data_userinfo.id;
-      company_id = data_userinfo.attributes.company_id[0];
-    }
+    // if (role == 'User'){
+    const data_userinfo = await userinfo();
+    issued_id = data_userinfo.id;
+    company_id = data_userinfo.attributes.company_id[0];
+    // }
     
     const body = await request.json();
     const submitData = {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCookie } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface BusinessForm {
@@ -13,6 +14,7 @@ interface BusinessForm {
   node_cnt: number;
   core_cnt: number;
   manager_id: string;
+  product_type: string;
 }
 
 interface Customer {
@@ -37,17 +39,23 @@ export default function BusinessRegisterPage() {
     customer_id: '',
     core_cnt: 0,
     node_cnt: 0,
-    manager_id: ''
+    manager_id: '',
+    product_type: 'vm'
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
+  const role = getCookie('role');
 
   useEffect(() => {
     const fetchManagers = async () => {
       try {
-        let url = `/api/user?manager=true`;
+        let url = `/api/user/forCreateManager`;
+
+        if (role == 'User') {
+          url += `?role=User`;
+        }
 
         const response = await fetch(url);
         const result = await response.json();
@@ -67,9 +75,13 @@ export default function BusinessRegisterPage() {
       try {
         let url = `/api/customer`;
 
+        if (role == 'User') {
+          url += `?role=User`;
+        }
+
         const response = await fetch(url);
         const result = await response.json();
-        
+
         if (!result.success) {
           // alert(result.message);
           return;
@@ -203,6 +215,22 @@ export default function BusinessRegisterPage() {
                 <option value="proposal">제안</option>
                 <option value="ordersuccess">수주 성공</option>
                 <option value="cancel">취소</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업유형
+              </label>
+              <select
+                name="type"
+                value={formData.product_type}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="vm">ABLESTACK VM</option>
+                <option value="hci">ABLESTACK HCI</option>
+                <option value="vm_beta">ABLESTACK VM - Beta</option>
+                <option value="hci_beta">ABLESTACK HCI - Beta</option>
               </select>
             </div>
             <div>

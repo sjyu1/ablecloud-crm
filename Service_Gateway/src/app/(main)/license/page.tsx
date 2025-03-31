@@ -47,7 +47,8 @@ export default function LicensePage() {
         let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentProductName) {
           url += `&productName=${currentProductName}`;
-        } else if (role == 'User') {
+        }
+        if (role == 'User') {
           url += `&role=User`;
         }
 
@@ -156,9 +157,6 @@ export default function LicensePage() {
                 제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품유형
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -188,9 +186,6 @@ export default function LicensePage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.product_name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.business_name}
@@ -231,7 +226,7 @@ export default function LicensePage() {
             ))}
             {licenses.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                   라이센스 정보가 없습니다.
                 </td>
               </tr>

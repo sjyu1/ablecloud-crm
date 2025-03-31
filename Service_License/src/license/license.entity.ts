@@ -25,13 +25,6 @@ export class License {
   status: 'active' | 'inactive' | 'expired'
 
   @Column({
-    type: 'varchar',
-    length: 50,
-    nullable: true
-  })
-  product_type: string;
-
-  @Column({
     type: 'int',
     nullable: true
   })

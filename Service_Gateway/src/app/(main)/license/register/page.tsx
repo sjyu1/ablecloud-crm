@@ -191,22 +191,6 @@ export default function LicenseRegisterPage() {
                 <option value="inactive">비활성</option>
               </select>
             </div> */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품유형
-              </label>
-              <select
-                name="type"
-                value={formData.product_type}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="vm">ABLESTACK VM</option>
-                <option value="hci">ABLESTACK HCI</option>
-                <option value="vm_beta">ABLESTACK VM - Beta</option>
-                <option value="hci_beta">ABLESTACK HCI - Beta</option>
-              </select>
-            </div>
             {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 코어수

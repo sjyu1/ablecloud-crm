@@ -227,12 +227,6 @@ export default function LicenseDetailPage() {
                 </span>
               </p>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">제품유형</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
-              </p>
-            </div>
             {/* <div>
               <h3 className="text-sm font-medium text-gray-500">코어수</h3>
               <p className="mt-1 text-lg text-gray-900">

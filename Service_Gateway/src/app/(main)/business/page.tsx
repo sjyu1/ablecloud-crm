@@ -17,6 +17,7 @@ interface Business {
   core_cnt:string;
   manager_name: string;
   manager_company: string;
+  product_type: string;
 }
 
 interface Pagination {
@@ -48,6 +49,9 @@ export default function BusinessPage() {
         let url = `/api/business?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
+        }
+        if (role == 'User') {
+          url += `&role=User`;
         }
 
         const response = await fetch(url);
@@ -161,6 +165,9 @@ export default function BusinessPage() {
                 사업 상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                제품 유형
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 노드수
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -193,6 +200,9 @@ export default function BusinessPage() {
                   {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {business.product_type}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {business.node_cnt}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -222,7 +232,7 @@ export default function BusinessPage() {
             ))}
             {businesses.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
                   사업 정보가 없습니다.
                 </td>
               </tr>

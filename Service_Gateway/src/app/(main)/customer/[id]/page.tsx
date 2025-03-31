@@ -114,7 +114,7 @@ export default function CustomerDetailPage() {
 
   const fetchCustomerUserDetail = async () => {
     try {
-      const response = await fetch(`/api/user?type=customer&company_id=${params.id}`);
+      const response = await fetch(`/api/user/forManager?type=customer&company_id=${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -139,6 +139,11 @@ export default function CustomerDetailPage() {
 
   const handleDelete = async () => {
     if (!confirm('정말 이 고객을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    if (users.length > 0) {
+      alert('고객 담당자가 존재합니다. 고객 담당자를 삭제하세요.');
       return;
     }
 

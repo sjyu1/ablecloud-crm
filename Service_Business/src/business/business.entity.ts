@@ -81,6 +81,13 @@ export class Business {
   })
   manager_id: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true
+  })
+  product_type: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

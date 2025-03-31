@@ -3,7 +3,6 @@ export class CreateLicenseDto {
   issued?: string;
   expired?: string;
   status?: 'active' | 'inactive' | 'expired';
-  product_type?: string;
   business_id?: string;
   company_id?: number;
   issued_id?: string;
@@ -12,7 +11,6 @@ export class CreateLicenseDto {
 }
 
 export class UpdateLicenseDto extends CreateLicenseDto {
-  product_type?: string;
   company_id?: number;
   issued_id?: string;
   approve_user?: string;

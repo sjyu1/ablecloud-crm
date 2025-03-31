@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
-import { userinfo_id } from '@/utils/userinfo';
+import { userinfo, userinfo_id } from '@/utils/userinfo';
 
 /**
  * 사업 목록 조회
@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
     const available = searchParams.get('available');
+    const role = searchParams.get('role');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.BUSINESS_API_URL}/business`);
@@ -27,6 +28,13 @@ export async function GET(request: Request) {
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
 
+    let data_user_com = []
+    let user_companytype
+    if (role) { //role 파라미터가 존재하는 경우, user type 조회(role이 user여도 type이 vendor일 경우 전체조회)
+      const data_userinfo = await userinfo();
+      user_companytype = data_userinfo.attributes.type[0]
+    }
+    
     // 사업 데이터에 사업담당자 정보 추가
     for(var idx in data.items) {
       const data_userinfo = await userinfo_id(data.items[idx].manager_id);
@@ -41,6 +49,17 @@ export async function GET(request: Request) {
         const company = await response.json();
         data.items[idx].manager_company = company.name
       }
+
+      if (role && user_companytype !== 'vendor'){
+        const data_user = await userinfo();
+        if (data_user.attributes.type[0] == data.items[idx].manager_type && data_user.attributes.company_id[0] == data.items[idx].manager_company_id){
+          data_user_com.push(data.items[idx])
+        }
+      }
+    }
+
+    if (role && user_companytype !== 'vendor'){
+      data.items = data_user_com
     }
 
     if (!response.ok) {
