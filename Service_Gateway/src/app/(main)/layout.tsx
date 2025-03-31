@@ -76,7 +76,8 @@ export default function MainLayout({
                 key={item.path}
                 href={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  pathname === item.path
+                  // pathname === item.path
+                  pathname.includes(item.path)
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
