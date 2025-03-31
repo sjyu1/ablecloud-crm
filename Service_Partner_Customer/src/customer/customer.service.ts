@@ -42,6 +42,7 @@ export class CustomerService {
       .leftJoin('business', 'business', 'customer.id = business.customer_id')
       .select([
         'customer.*',
+        'business.id as business_id',
         'business.name as business_name',
         'business.status as business_status',
         'business.node_cnt as business_node_cnt',
@@ -56,6 +57,7 @@ export class CustomerService {
 
     return {
       ...customer,
+      business_id: customer.business_id,
       business_name: customer.business_name,
       business_status: customer.business_status,
       business_node_cnt: customer.business_node_cnt,

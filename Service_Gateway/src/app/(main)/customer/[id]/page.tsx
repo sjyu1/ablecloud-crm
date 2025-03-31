@@ -13,6 +13,7 @@ interface Customer {
   name: string;
   telnum: string;
   created: string;
+  business_id: string;
   business_name: string;
   business_node_cnt: string;
   business_core_cnt: string;
@@ -300,8 +301,10 @@ export default function CustomerDetailPage() {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-500">사업명</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                  {customer.business_name}
+                <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
+                  <a href={`/business/${customer.business_id}`} target="_self" rel="noopener noreferrer">
+                    {customer.business_name}
+                  </a>
                 </p>
               </div>
               <div>
