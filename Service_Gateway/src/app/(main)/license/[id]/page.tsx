@@ -13,7 +13,7 @@ interface License {
   product_name: string;
   status: string;
   product_type: string;
-  cpu_core: string;
+  // cpu_core: string;
   issued: string;
   expired: string;
   issued_user: string;
@@ -21,6 +21,8 @@ interface License {
   created: string;
   approve_user: string;
   approved: string;
+  business_name: string;
+  issued_name: string;
 }
 
 export default function LicenseDetailPage() {
@@ -225,16 +227,16 @@ export default function LicenseDetailPage() {
                 </span>
               </p>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">제품유형</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
-              </p>
-            </div>
-            <div>
+            {/* <div>
               <h3 className="text-sm font-medium text-gray-500">코어수</h3>
               <p className="mt-1 text-lg text-gray-900">
               {license.cpu_core}
+              </p>
+            </div> */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+              <p className="mt-1 text-lg text-gray-900">
+              {license.business_name}
               </p>
             </div>
             <div>
@@ -247,7 +249,7 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.issued_user}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
@@ -259,7 +261,7 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인자</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.approve_user}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.approve_user? license.approve_user : '-'}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인일</h3>

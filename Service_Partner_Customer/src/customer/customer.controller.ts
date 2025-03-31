@@ -48,7 +48,7 @@ export class CustomerController {
   @Get(':id')
   // @Roles('Admin')
   async findOne(@Param('id') id: string): Promise<Customer> {
-    return this.customerService.findOne(parseInt(id, 10));
+    return this.customerService.getCustomerById(parseInt(id, 10));
   }
 
   @Put(':id')

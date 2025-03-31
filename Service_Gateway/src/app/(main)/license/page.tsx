@@ -11,7 +11,8 @@ interface License {
   product_id: string;
   product_name: string;
   product_type: string;
-  issued_user: string;
+  business_name: string;
+  issued_name: string;
   status: string;
   issued: string;
   expired: string;
@@ -36,7 +37,6 @@ export default function LicensePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = getCookie('role');
-  const username = getCookie('username');
 
   useEffect(() => {
     const fetchLicenses = async () => {
@@ -47,7 +47,8 @@ export default function LicensePage() {
         let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentProductName) {
           url += `&productName=${currentProductName}`;
-        } else if (role == 'User') {
+        }
+        if (role == 'User') {
           url += `&role=User`;
         }
 
@@ -156,10 +157,10 @@ export default function LicensePage() {
                 제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                상태
+                사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품유형
+                상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 발급자
@@ -186,6 +187,9 @@ export default function LicensePage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.product_name}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {license.business_name}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     license.status === 'active' 
@@ -196,10 +200,7 @@ export default function LicensePage() {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {license.product_type === 'vm' ? ('ABLESTACK VM') : license.product_type === 'hci' ? ('ABLESTACK HCI') : license.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): license.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.issued_user}
+                  {license.issued_name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.issued}

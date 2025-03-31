@@ -11,6 +11,14 @@ export class Customer {
   @Column()
   telnum: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  manager_id: string;
+
   @CreateDateColumn()
   created: Date;
 

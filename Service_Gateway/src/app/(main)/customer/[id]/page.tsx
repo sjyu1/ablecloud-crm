@@ -13,6 +13,19 @@ interface Customer {
   name: string;
   telnum: string;
   created: string;
+  business_id: string;
+  business_name: string;
+  business_node_cnt: string;
+  business_core_cnt: string;
+  business_status: string;
+  business_issued: string;
+  business_expired: string;
+  // license_key: string;
+  // license_status: string;
+  // license_product_type: string;
+  // license_cpu_core: string;
+  // license_issued: string;
+  // license_expired: string;
 }
 
 interface User {
@@ -79,7 +92,7 @@ export default function CustomerDetailPage() {
     try {
       const response = await fetch(`/api/customer/${params.id}`);
       const result = await response.json();
-      // console.log(response);
+
       if (!response.ok) {
         throw new Error(result.message || '고객 정보를 불러올 수 없습니다.');
       }
@@ -101,7 +114,7 @@ export default function CustomerDetailPage() {
 
   const fetchCustomerUserDetail = async () => {
     try {
-      const response = await fetch(`/api/user?type=customer&company_id=${params.id}`);
+      const response = await fetch(`/api/user/forManager?type=customer&company_id=${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -126,6 +139,11 @@ export default function CustomerDetailPage() {
 
   const handleDelete = async () => {
     if (!confirm('정말 이 고객을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    if (users.length > 0) {
+      alert('고객 담당자가 존재합니다. 고객 담당자를 삭제하세요.');
       return;
     }
 
@@ -201,6 +219,7 @@ export default function CustomerDetailPage() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
             <Tab label="담당자" {...tabProps(1)} />
+            <Tab label="사업정보" {...tabProps(2)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -279,6 +298,62 @@ export default function CustomerDetailPage() {
             )}
           </tbody>
         </table>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+        {customer.business_name ? (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+                <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
+                  <a href={`/business/${customer.business_id}`} target="_self" rel="noopener noreferrer">
+                    {customer.business_name}
+                  </a>
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업상태</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {customer.business_status === 'standby' ? ('대기 중') : customer.business_status === 'meeting' ? ('고객 미팅') : customer.business_status === 'poc' ? ('PoC') :customer.business_status === 'bmt' ? ('BMT') :customer.business_status === 'ordering' ? ('발주') :customer.business_status === 'proposal' ? ('제안') :customer.business_status === 'ordersuccess' ? ('수주 성공') :customer.business_status === 'cancel' ? ('취소') : ('Unknown Type')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">노드수</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {customer.business_node_cnt}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">코어수</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {customer.business_core_cnt}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 시작일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(customer.business_issued, 'yyyy-MM-dd')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 만료일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(customer.business_expired, 'yyyy-MM-dd')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-gray-500">사업 정보가 없습니다.</h3>
+            </div>
+          </div>
+        </div>
+        )}
         </CustomTabPanel>
       </Box>
 

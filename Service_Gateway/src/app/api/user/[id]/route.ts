@@ -44,7 +44,7 @@ export async function GET(
 
     const data_user = await res_user.json();
 
-    // json 항목 담기(attributes: { type: [ 'Vendor' ], telnum: [ '02-000-0000' ] })
+    // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
     data_user.type = data_user.attributes.type
     data_user.telnum = data_user.attributes.telnum
     data_user.company_id = data_user.attributes.company_id[0]

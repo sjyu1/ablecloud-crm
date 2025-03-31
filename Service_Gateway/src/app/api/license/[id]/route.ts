@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import { userinfo_id } from '@/utils/userinfo';
 
 /**
  * 라이센스 상세 조회
@@ -13,10 +14,24 @@ export async function GET(
 ) {
   try {
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`);
-    const license = await response.json();
+    const data = await response.json();
 
-    console.log(license)
-    if (!license) {
+    // 라이센스 데이터에 발급자 정보 추가
+    const data_userinfo = await userinfo_id(data.issued_id);
+
+    data.issued_name = data_userinfo.username
+    data.issued_type = data_userinfo.attributes.type[0]
+    data.issued_company_id = data_userinfo.attributes.company_id[0]
+
+    if (data.issued_type == 'vendor') {
+      data.issued_company = 'ABLECLOUD'
+    } else {
+      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.issued_type}/${data.issued_company_id}`);
+      const company = await response.json();
+      data.issued_company = company.name
+    }
+
+    if (!data) {
       return NextResponse.json(
         { message: '라이센스를 찾을 수 없습니다.' },
         { status: 404 }
@@ -25,7 +40,7 @@ export async function GET(
 
     return NextResponse.json({ 
       status: 200,
-      data: license 
+      data: data 
     });
   } catch (error) {
     return NextResponse.json(

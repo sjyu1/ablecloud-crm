@@ -7,6 +7,8 @@ import Link from 'next/link';
 interface ProductForm {
   name: string;
   version: string;
+  rpmFilePath: string;
+  isoFilePath: string;
 }
 
 export default function ProductRegisterPage() {
@@ -14,6 +16,8 @@ export default function ProductRegisterPage() {
   const [formData, setFormData] = useState<ProductForm>({
     name: '',
     version: '',
+    rpmFilePath: '',
+    isoFilePath: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +90,32 @@ export default function ProductRegisterPage() {
                 value={formData.version}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 ISO경로
+              </label>
+              <input
+                type="text"
+                name="isoFilePath"
+                value={formData.isoFilePath}
+                onChange={handleChange}
+                className="w-3/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 RPM경로
+              </label>
+              <input
+                type="text"
+                name="rpmFilePath"
+                value={formData.rpmFilePath}
+                onChange={handleChange}
+                className="w-3/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>

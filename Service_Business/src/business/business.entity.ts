@@ -42,15 +42,51 @@ export class Business {
     nullable: false,
     default: ''
   })
-  license_key: string;
+  license_id: string;
 
   @Column({
-    type: 'varchar',
-    length: 50,
+    type: 'int',
     nullable: false,
     default: ''
   })
-  product_version: string;
+  customer_id: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  status: string;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+    default: ''
+  })
+  core_cnt: number;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+    default: ''
+  })
+  node_cnt: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  manager_id: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true
+  })
+  product_type: string;
 
   @CreateDateColumn({
     type: 'timestamp',

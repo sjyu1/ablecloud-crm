@@ -4,12 +4,57 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getCookie } from '../../../store/authStore';
 import { format } from 'date-fns';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 
 interface Business {
   id: number;
   name: string;
+  status: string;
   issued: string;
   expired: string;
+  customer_name: string;
+  node_cnt: number;
+  core_cnt: number;
+  license_key: string;
+  license_status: string;
+  product_type: string;
+  // license_cpu_core: string;
+  license_issued: string;
+  license_expired: string;
+  manager_id: string;
+  manager_name: string;
+  manager_company: string;
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+function tabProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
 }
 
 export default function BusinessDetailPage() {
@@ -20,6 +65,11 @@ export default function BusinessDetailPage() {
   const [error, setError] = useState('');
   const role = getCookie('role');
 
+  const [value, setValue] = useState(0);
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
   useEffect(() => {
     fetchBusinessDetail();
   }, []);
@@ -28,7 +78,7 @@ export default function BusinessDetailPage() {
     try {
       const response = await fetch(`/api/business/${params.id}`);
       const result = await response.json();
-      // console.log(response);
+
       if (!response.ok) {
         throw new Error(result.message || '사업 정보를 불러올 수 없습니다.');
       }
@@ -120,30 +170,132 @@ export default function BusinessDetailPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-6 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">사업명</h3>
-              <p className="mt-1 text-lg text-gray-900">
-                {business.name}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">사업 시작일</h3>
-              <p className="mt-1 text-lg text-gray-900">
-                {format(business.issued, 'yyyy-MM-dd')}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">사업 종료일</h3>
-              <p className="mt-1 text-lg text-gray-900">
-                {format(business.expired, 'yyyy-MM-dd')}
-              </p>
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+            <Tab label="상세정보" {...tabProps(0)} />
+            <Tab label="라이센스 정보" {...tabProps(1)} />
+          </Tabs>
+        </Box>
+        <CustomTabPanel value={value} index={0}>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.name}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 담당자</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.manager_name} ({business.manager_company})
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">고객회사</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.customer_name}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업유형</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {business.product_type === 'vm' ? ('ABLESTACK VM') : business.product_type === 'hci' ? ('ABLESTACK HCI') : business.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): business.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">노드수</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.node_cnt}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">코어수</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.core_cnt}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 상태</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 시작일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(business.issued, 'yyyy-MM-dd')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사업 종료일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(business.expired, 'yyyy-MM-dd')}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+        {business.license_key ? (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">라이센스 키</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.license_key}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">상태</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      business.license_status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                  {/* <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"> */}
+                    {business.license_status === 'active' ? '활성' : '비활성'}
+                  </span>
+                </p>
+              </div>
+              {/* <div>
+                <h3 className="text-sm font-medium text-gray-500">코어수</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {business.license_cpu_core}
+                </p>
+              </div> */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">시작일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(business.license_issued, 'yyyy-MM-dd')}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">만료일</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(business.license_expired, 'yyyy-MM-dd')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-gray-500">라이센스 정보가 없습니다.</h3>
+            </div>
+          </div>
+        </div>
+        )}
+        </CustomTabPanel>
+      </Box>
+
     </div>
   );
 } 

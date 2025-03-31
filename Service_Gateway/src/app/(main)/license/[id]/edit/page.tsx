@@ -11,7 +11,8 @@ interface LicenseForm {
   product_name: string;
   // status: string;
   product_type: string;
-  cpu_core: number;
+  // cpu_core: number;
+  business_name: string;
   issued: string;
   expired: string;
 }
@@ -26,10 +27,21 @@ interface Product {
 export default function LicenseEditPage() {
   const params = useParams();
   const router = useRouter();
-  const [formData, setFormData] = useState<LicenseForm | null>();
+  const [formData, setFormData] = useState<LicenseForm | null>({
+    id: 0,
+    license_key: '',
+    product_id: '',
+    product_name: '',
+    product_type: '',
+    // cpu_core: 0,
+    business_name: '',
+    issued: '',
+    expired: '',
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
 
   useEffect(() => {
     fetchLicenseDetail();
@@ -70,6 +82,38 @@ export default function LicenseEditPage() {
     }
   };
 
+  //영구 라이센스 체크
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
+
+    if (event.target.checked) {
+      setFormData({
+        id: formData?.id?formData?.id:0,
+        license_key: formData?.license_key?formData?.license_key:'',
+        product_id: formData?.product_id?formData?.product_id:'',
+        product_name: formData?.product_name?formData?.product_name:'',
+        product_type: formData?.product_type?formData?.product_type:'',
+        // cpu_core: formData?.cpu_core?formData?.cpu_core:0,
+        business_name: formData?.business_name?formData?.business_name:'',
+        issued: formData?.issued?formData?.issued:'',
+        expired: '9999-12-31',
+      });
+    } else {
+      setFormData({
+        id: formData?.id?formData?.id:0,
+        license_key: formData?.license_key?formData?.license_key:'',
+        product_id: formData?.product_id?formData?.product_id:'',
+        product_name: formData?.product_name?formData?.product_name:'',
+        product_type: formData?.product_type?formData?.product_type:'',
+        // cpu_core: formData?.cpu_core?formData?.cpu_core:0,
+        business_name: formData?.business_name?formData?.business_name:'',
+        issued: formData?.issued?formData?.issued:'',
+        expired: formData?.expired?formData?.expired:'',
+
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -80,15 +124,15 @@ export default function LicenseEditPage() {
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
       }
 
-      let cpu_core = formData?.cpu_core
-      if(!formData?.cpu_core) cpu_core = 0
-      const updateFormData = { ...formData, cpu_core: cpu_core}
+      // let cpu_core = formData?.cpu_core
+      // if(!formData?.cpu_core) cpu_core = 0
+      // const updateFormData = { ...formData, cpu_core: cpu_core}
       const response = await fetch(`/api/license/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateFormData),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -169,24 +213,7 @@ export default function LicenseEditPage() {
                 <option value="inactive">비활성</option>
               </select>
             </div> */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품유형
-              </label>
-              <select
-                name="type"
-                value={formData.product_type}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="vm">ABLESTACK VM</option>
-                <option value="hci">ABLESTACK HCI</option>
-                <option value="vm_beta">ABLESTACK VM - Beta</option>
-                <option value="hci_beta">ABLESTACK HCI - Beta</option>
-              </select>
-            </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 코어수
               </label>
@@ -198,6 +225,16 @@ export default function LicenseEditPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+            </div> */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                사업명
+              </label>
+              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-gray-900">
+                  {formData.business_name}
+                </span>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -224,6 +261,16 @@ export default function LicenseEditPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              {/* <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{marginLeft: '10px'}}
+              />
+              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
+                영구 라이센스
+              </label> */}
             </div>
           </div>
 

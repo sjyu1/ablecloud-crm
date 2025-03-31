@@ -13,9 +13,8 @@ export async function GET(
 ) {
   try {
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer/${params.id}`);
-
     const customer = await response.json();
-    
+
     if (!customer) {
       return NextResponse.json(
         { message: '고객을 찾을 수 없습니다.' },
