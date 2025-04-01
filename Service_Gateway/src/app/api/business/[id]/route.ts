@@ -77,6 +77,16 @@ export async function PUT(
 
     // business[index] = { ...business[index], ...body };
 
+    if (!response.ok) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: business.message || '사업 수정 중 오류가 발생했습니다.'
+        },
+        { status: response.status }
+      );
+    }
+
     return NextResponse.json({ 
       status: 200,
       data: business.data 

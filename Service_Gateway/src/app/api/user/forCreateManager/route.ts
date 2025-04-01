@@ -76,8 +76,8 @@ export async function GET(request: Request) {
       });
 
       // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
-      if (data_user[idx].type !== 'vendor') {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
+      if (data_user[idx].type[0] !== 'vendor') {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type[0]}/${data_user[idx].company_id[0]}`);
         const company = await response.json();
         data_user[idx].company = company.name
       } else {

@@ -12,8 +12,8 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
-    const available = searchParams.get('available');
-    const role = searchParams.get('role');
+    const available = searchParams.get('available');  // 라이센스 없는 사업 조회
+    const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.BUSINESS_API_URL}/business`);
@@ -28,9 +28,10 @@ export async function GET(request: Request) {
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
 
+    // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
     let data_user_com = []
     let user_companytype
-    if (role) { //role 파라미터가 존재하는 경우, user type 조회(role이 user여도 type이 vendor일 경우 전체조회)
+    if (role) {
       const data_userinfo = await userinfo();
       user_companytype = data_userinfo.attributes.type[0]
     }

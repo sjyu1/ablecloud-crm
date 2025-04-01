@@ -5,11 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface LicenseForm {
-  // license_key: string;
   product_id: string;
-  // status: string;
   product_type: string;
-  // cpu_core: number;
   business_id: string;
   issued: string;
   expired: string;
@@ -30,12 +27,9 @@ interface Business {
 export default function LicenseRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<LicenseForm>({
-    // license_key: '',
     product_id: '',
-    // status: 'active',
     product_type: 'vm',
     business_id: '',
-    // cpu_core: 0,
     issued: '',
     expired: '',
   });
@@ -145,19 +139,6 @@ export default function LicenseRegisterPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6">
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                라이센스 키
-              </label>
-              <input
-                type="text"
-                name="license_key"
-                value={formData.license_key}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품명
@@ -177,32 +158,6 @@ export default function LicenseRegisterPage() {
                 ))}
               </select>
             </div>
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                상태
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">활성</option>
-                <option value="inactive">비활성</option>
-              </select>
-            </div> */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                코어수
-              </label>
-              <input
-                type="number"
-                name="cpu_core"
-                value={formData.cpu_core}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 사업명

@@ -32,7 +32,7 @@ export default function UserDetailPage() {
     try {
       const response = await fetch(`/api/user/${params.id}`);
       const result = await response.json();
-      // console.log(response);
+
       if (!response.ok) {
         throw new Error(result.message || '사용자 정보를 불러올 수 없습니다.');
       }

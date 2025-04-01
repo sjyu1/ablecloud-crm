@@ -20,7 +20,6 @@ interface Business {
   license_key: string;
   license_status: string;
   product_type: string;
-  // license_cpu_core: string;
   license_issued: string;
   license_expired: string;
   manager_id: string;

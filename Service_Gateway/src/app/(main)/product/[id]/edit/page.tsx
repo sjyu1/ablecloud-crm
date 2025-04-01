@@ -59,7 +59,7 @@ export default function ProductEditPage() {
       if (response.ok) {
         alert('제품이 수정되었습니다.');
       } else {
-        throw new Error('제품 수정에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 제품명입니다.' : '제품 수정에 실패했습니다.');
       }
 
       router.push(`/product/${params.id}`);

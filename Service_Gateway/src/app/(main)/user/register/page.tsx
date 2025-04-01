@@ -45,29 +45,6 @@ export default function UserRegisterPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [company, setCompany] = useState<Company[]>([]);
-  // const [roles, setRoles] = useState<company[]>([]);
-
-  // useEffect(() => {
-  //   const fetchRoles = async () => {
-  //     try {
-  //       let url = `/api/user/role`;
-
-  //       const response = await fetch(url);
-  //       const result = await response.json();
-
-  //       if (!result.success) {
-  //         alert(result.message);
-  //         return;
-  //       }
-
-  //       setRoles(result.data);
-  //     } catch (error) {
-  //       alert('사용자 목록 조회에 실패했습니다.');
-  //     }
-  //   };
-
-  //   fetchRoles();
-  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

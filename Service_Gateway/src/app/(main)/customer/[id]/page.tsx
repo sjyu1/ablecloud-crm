@@ -20,12 +20,8 @@ interface Customer {
   business_status: string;
   business_issued: string;
   business_expired: string;
-  // license_key: string;
-  // license_status: string;
-  // license_product_type: string;
-  // license_cpu_core: string;
-  // license_issued: string;
-  // license_expired: string;
+  manager_name: string;
+  manager_company: string;
 }
 
 interface User {
@@ -236,6 +232,12 @@ export default function CustomerDetailPage() {
                 <h3 className="text-sm font-medium text-gray-500">전화번호</h3>
                 <p className="mt-1 text-lg text-gray-900">
                 {customer.telnum}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">고객 관리 담당자</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                  {customer.manager_name} ({customer.manager_company})
                 </p>
               </div>
               <div>
