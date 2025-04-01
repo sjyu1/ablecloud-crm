@@ -11,6 +11,8 @@ interface Customer {
   name: string;
   telnum: string;
   created: string;
+  manager_name: string;
+  manager_company: string;
 }
 
 interface Pagination {
@@ -151,6 +153,9 @@ export default function CustomerPage() {
                 전화번호
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                고객 관리 파트너 (회사)
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일
               </th>
               {/* <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -166,6 +171,9 @@ export default function CustomerPage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {customer.telnum}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {customer.manager_name} ({customer.manager_company})
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {format(customer.created, 'yyyy-MM-dd HH:mm:ss')}
@@ -188,7 +196,7 @@ export default function CustomerPage() {
             ))}
             {customers.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
                   고객 정보가 없습니다.
                 </td>
               </tr>

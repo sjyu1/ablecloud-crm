@@ -57,7 +57,7 @@ export default function PartnerEditPage() {
       if (response.ok) {
         alert('파트너가 수정되었습니다.');
       } else {
-        throw new Error('파트너 수정에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 회사이름입니다.' : '파트너 수정에 실패했습니다.');
       }
 
       router.push(`/partner/${params.id}`);

@@ -64,6 +64,16 @@ export async function PUT(
 
     // products[index] = { ...products[index], ...body };
 
+    if (!response.ok) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: product.message || '제품 수정 중 오류가 발생했습니다.'
+        },
+        { status: response.status }
+      );
+    }
+
     return NextResponse.json({ 
       status: 200,
       data: product.data 

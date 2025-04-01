@@ -52,6 +52,7 @@ export async function GET(request: Request) {
       } else {
         if (role) { //role 파라미터가 존재하는 경우, user type 조회(role이 user여도 type이 vendor일 경우 전체조회)
           const data_userinfo = await userinfo();
+          if (data_userinfo.error)  continue;
           const user_companytype = data_userinfo.attributes.type[0]
           const user_company_id = data_userinfo.attributes.company_id[0]
           if (user_companytype == data_user[idx].attributes.type && user_company_id == data_user[idx].attributes.company_id) {
@@ -76,8 +77,8 @@ export async function GET(request: Request) {
       });
 
       // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
-      if (data_user[idx].type !== 'vendor') {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
+      if (data_user[idx].type[0] !== 'vendor') {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type[0]}/${data_user[idx].company_id[0]}`);
         const company = await response.json();
         data_user[idx].company = company.name
       } else {

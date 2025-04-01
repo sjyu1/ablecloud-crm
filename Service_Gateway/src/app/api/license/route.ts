@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const productName = searchParams.get('productName');
-    const role = searchParams.get('role');
+    const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
@@ -25,6 +25,7 @@ export async function GET(request: Request) {
     }
     if (role) {
       const data_userinfo = await userinfo();
+      if (data_userinfo.error)  throw new Error(data_userinfo.error);
       apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
     }
 
@@ -34,6 +35,7 @@ export async function GET(request: Request) {
     // 라이센스 데이터에 발급자 정보 추가
     for(var idx in data.items) {
       const data_userinfo = await userinfo_id(data.items[idx].issued_id);
+      if (data_userinfo.error)  continue;
       data.items[idx].issued_name = data_userinfo.username
       data.items[idx].issued_type = data_userinfo.attributes.type[0]
       data.items[idx].issued_company_id = data_userinfo.attributes.company_id[0]
@@ -94,6 +96,7 @@ export async function POST(request: Request) {
     // company_id 조회한 후 라이센스등록
     // if (role == 'User'){
     const data_userinfo = await userinfo();
+    if (data_userinfo.error)  throw new Error(data_userinfo.error);
     issued_id = data_userinfo.id;
     company_id = data_userinfo.attributes.company_id[0];
     // }

@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
-    const role = searchParams.get('role');
+    const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.PARTNER_API_URL}/customer`);
@@ -30,12 +30,15 @@ export async function GET(request: Request) {
     let user_companytype
     if (role) {
       const data_userinfo = await userinfo();
+      if (data_userinfo.error)  throw new Error(data_userinfo.error);
+
       user_companytype = data_userinfo.attributes.type[0]
     }
 
     // 고객 데이터에 사업담당자 정보 추가
     for(var idx in data.data) {
       const data_userinfo = await userinfo_id(data.data[idx].manager_id);
+      if (data_userinfo.error)  continue;
       data.data[idx].manager_name = data_userinfo.username
       data.data[idx].manager_type = data_userinfo.attributes.type[0]
       data.data[idx].manager_company_id = data_userinfo.attributes.company_id[0]

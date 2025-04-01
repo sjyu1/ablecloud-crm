@@ -64,6 +64,16 @@ export async function PUT(
 
     // partners[index] = { ...partners[index], ...body };
 
+    if (!response.ok) {
+      return NextResponse.json(
+        { 
+          success: false,
+          message: partner.message || '파트너 수정 중 오류가 발생했습니다.'
+        },
+        { status: response.status }
+      );
+    }
+
     return NextResponse.json({ 
       status: 200,
       data: partner.data 

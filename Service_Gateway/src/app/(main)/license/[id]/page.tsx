@@ -13,7 +13,6 @@ interface License {
   product_name: string;
   status: string;
   product_type: string;
-  // cpu_core: string;
   issued: string;
   expired: string;
   issued_user: string;
@@ -41,7 +40,6 @@ export default function LicenseDetailPage() {
     try {
       const response = await fetch(`/api/license/${params.id}`);
       const result = await response.json();
-      // console.log(response);
       if (!response.ok) {
         throw new Error(result.message || '라이센스 정보를 불러올 수 없습니다.');
       }
@@ -227,12 +225,6 @@ export default function LicenseDetailPage() {
                 </span>
               </p>
             </div>
-            {/* <div>
-              <h3 className="text-sm font-medium text-gray-500">코어수</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {license.cpu_core}
-              </p>
-            </div> */}
             <div>
               <h3 className="text-sm font-medium text-gray-500">사업명</h3>
               <p className="mt-1 text-lg text-gray-900">

@@ -20,7 +20,6 @@ interface Business {
   license_key: string;
   license_status: string;
   product_type: string;
-  // license_cpu_core: string;
   license_issued: string;
   license_expired: string;
   manager_id: string;
@@ -202,7 +201,7 @@ export default function BusinessDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">사업유형</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                {business.product_type === 'vm' ? ('ABLESTACK VM') : business.product_type === 'hci' ? ('ABLESTACK HCI') : business.product_type === 'vm_beta' ? ('ABLESTACK VM - Beta'): business.product_type === 'hci_beta' ? ('ABLESTACK VM - Beta'): ('Unknown Type')}
+                {business.product_type === 'vm' ? ('ABLESTACK VM') : business.product_type === 'hci' ? ('ABLESTACK HCI') : business.product_type === 'vm_trial' ? ('ABLESTACK VM - Trial'): business.product_type === 'hci_trial' ? ('ABLESTACK VM - Trial'): ('Unknown Type')}
                 </p>
               </div>
               <div>
