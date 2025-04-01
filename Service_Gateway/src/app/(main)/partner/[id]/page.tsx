@@ -130,6 +130,11 @@ export default function PartnerDetailPage() {
       return;
     }
 
+    if (users.length > 0) {
+      alert('파트너 담당자가 존재합니다. 파트너 담당자를 삭제하세요.');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/partner/${params.id}`, {
         method: 'DELETE',

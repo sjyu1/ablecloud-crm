@@ -52,6 +52,7 @@ export async function GET(request: Request) {
       } else {
         if (role) { //role 파라미터가 존재하는 경우, user type 조회(role이 user여도 type이 vendor일 경우 전체조회)
           const data_userinfo = await userinfo();
+          if (data_userinfo.error)  continue;
           const user_companytype = data_userinfo.attributes.type[0]
           const user_company_id = data_userinfo.attributes.company_id[0]
           if (user_companytype == data_user[idx].attributes.type && user_company_id == data_user[idx].attributes.company_id) {

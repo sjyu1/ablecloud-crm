@@ -153,7 +153,7 @@ export default function CustomerPage() {
                 전화번호
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                고객 관리 담당자 (회사)
+                고객 관리 파트너 (회사)
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일

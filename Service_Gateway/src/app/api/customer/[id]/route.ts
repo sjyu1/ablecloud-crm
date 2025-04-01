@@ -18,6 +18,7 @@ export async function GET(
 
     // 고객 데이터에 고객관리담당자 정보 추가
     const data_userinfo = await userinfo_id(customer.manager_id);
+    if (data_userinfo.error)  throw new Error(data_userinfo.error);
     customer.manager_name = data_userinfo.username
     customer.manager_type = data_userinfo.attributes.type[0]
     customer.manager_company_id = data_userinfo.attributes.company_id[0]

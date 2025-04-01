@@ -18,6 +18,7 @@ export async function GET(
     
     // 사업 데이터에 사업담당자 정보 추가
     const data_userinfo = await userinfo_id(business.manager_id);
+    if (data_userinfo.error)  throw new Error(data_userinfo.error);
     business.manager_name = data_userinfo.username
     business.manager_type = data_userinfo.attributes.type[0]
     business.manager_company_id = data_userinfo.attributes.company_id[0]

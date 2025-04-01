@@ -235,7 +235,7 @@ export default function CustomerDetailPage() {
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">고객 관리 담당자</h3>
+                <h3 className="text-sm font-medium text-gray-500">고객 관리 파트너 (회사)</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {customer.manager_name} ({customer.manager_company})
                 </p>

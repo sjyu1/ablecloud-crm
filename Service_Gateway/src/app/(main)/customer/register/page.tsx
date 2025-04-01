@@ -128,7 +128,7 @@ export default function CustomerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                고객 관리 담당자
+                고객 관리 파트너 (회사)
               </label>
               <select
                 name="manager_id"

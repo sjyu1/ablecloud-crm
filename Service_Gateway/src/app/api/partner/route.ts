@@ -31,6 +31,7 @@ export async function GET(request: Request) {
     let user_companyid
     if (role) {
       const data_userinfo = await userinfo();
+      if (data_userinfo.error)  throw new Error(data_userinfo.error);
       user_companytype = data_userinfo.attributes.type[0]
       user_companyid = data_userinfo.attributes.company_id[0]
     }

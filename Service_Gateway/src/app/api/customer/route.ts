@@ -30,12 +30,15 @@ export async function GET(request: Request) {
     let user_companytype
     if (role) {
       const data_userinfo = await userinfo();
+      if (data_userinfo.error)  throw new Error(data_userinfo.error);
+
       user_companytype = data_userinfo.attributes.type[0]
     }
 
     // 고객 데이터에 사업담당자 정보 추가
     for(var idx in data.data) {
       const data_userinfo = await userinfo_id(data.data[idx].manager_id);
+      if (data_userinfo.error)  continue;
       data.data[idx].manager_name = data_userinfo.username
       data.data[idx].manager_type = data_userinfo.attributes.type[0]
       data.data[idx].manager_company_id = data_userinfo.attributes.company_id[0]

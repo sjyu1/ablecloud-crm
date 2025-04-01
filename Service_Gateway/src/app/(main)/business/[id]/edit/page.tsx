@@ -199,8 +199,8 @@ export default function BusinessEditPage() {
               >
                 <option value="vm">ABLESTACK VM</option>
                 <option value="hci">ABLESTACK HCI</option>
-                <option value="vm_beta">ABLESTACK VM - Beta</option>
-                <option value="hci_beta">ABLESTACK HCI - Beta</option>
+                <option value="vm_trial">ABLESTACK VM - Trial</option>
+                <option value="hci_trial">ABLESTACK HCI - Trial</option>
               </select>
             </div>
             <div>
