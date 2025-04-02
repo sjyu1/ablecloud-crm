@@ -39,8 +39,8 @@ export class BusinessService {
                   .where('business.removed IS NULL');
 
     if (filters.name) {
-      query.andWhere('business.id = :name', { 
-        productId: filters.name 
+      query.andWhere('business.id = :name', {
+        productId: filters.name
       });
     }
 
@@ -74,11 +74,10 @@ export class BusinessService {
       .select([
         'business.*',
         'customer.name as customer_name',
-        'license.license_key as license_key',
-        'license.status as license_status',
-        // 'license.cpu_core as license_cpu_core',
-        'license.issued as license_issued',
-        'license.expired as license_expired',
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.license_key END AS license_key',
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.status END AS license_status',
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.issued END AS license_issued',
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.expired END AS license_expired',
       ])
       .where('business.id = :id', { id });
 
@@ -101,11 +100,11 @@ export class BusinessService {
       where: { id },
       withDeleted: false
     });
-    
+
     if (!business) {
       throw new NotFoundException(`사업 ID ${id}를 찾을 수 없습니다.`);
     }
-    
+
     return business;
   }
 
@@ -120,6 +119,11 @@ export class BusinessService {
 
   async remove(id: number): Promise<void> {
     const business = await this.findOne(id);
+
+    // license_id를 null로 설정
+    business.license_id = null;
+    await this.businessRepository.save(business);
+
     await this.businessRepository.softDelete(id);
   }
 
@@ -139,5 +143,3 @@ export class BusinessService {
     return formattedusiness as unknown as Business;
   }
 }
-
-
