@@ -103,6 +103,11 @@ export default function BusinessDetailPage() {
       return;
     }
 
+    if (business?.license_key) {
+      alert('사업에 대한 라이센스가 존재합니다. 라이센스를 삭제하세요.');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/business/${params.id}`, {
         method: 'DELETE',
