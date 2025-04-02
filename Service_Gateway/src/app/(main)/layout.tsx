@@ -21,6 +21,7 @@ export default function MainLayout({
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const username = getCookie('username');
+  const role = getCookie('role');
 
   const handleLogout = () => {
     logout();
@@ -81,6 +82,7 @@ export default function MainLayout({
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
+                style={item.name === '사용자' && role !== 'Admin' ? { display: 'none' } : {}}
               >
                 <span className="text-xl">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>
