@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 interface Product {
   id: number;
   name: string;
-  rpmFilePath: string;
+  // rpmFilePath: string;
   isoFilePath: string;
   version: string;
   created: string;
@@ -145,14 +145,14 @@ export default function ProductDetailPage() {
                 </a>
               </p>
             </div>
-            <div>
+            {/* <div>
               <h3 className="text-sm font-medium text-gray-500">제품 RPM경로</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
                 <a href={product.rpmFilePath} target="_blank" rel="noopener noreferrer">
                   {product.rpmFilePath}
                 </a>
               </p>
-            </div>
+            </div> */}
             <div>
               <h3 className="text-sm font-medium text-gray-500">생성일</h3>
               <p className="mt-1 text-lg text-gray-900">{format(product.created, 'yyyy-MM-dd HH:mm:ss')}</p>
