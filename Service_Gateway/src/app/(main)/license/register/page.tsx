@@ -197,7 +197,7 @@ export default function LicenseRegisterPage() {
               </label>
               <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-gray-900">
-                  {formData.product_name? formData.product_name : '사업명을 선택하세요'}
+                  {formData.product_name ? `${formData.product_name} (v${formData.product_version})` : '사업명을 선택하세요'}
                 </span>
               </div>
             </div>
