@@ -17,7 +17,8 @@ interface Business {
   core_cnt:string;
   manager_name: string;
   manager_company: string;
-  product_type: string;
+  product_name: string;
+  product_version: string;
 }
 
 interface Pagination {
@@ -165,7 +166,7 @@ export default function BusinessPage() {
                 사업 상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품 유형
+                제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 노드수
@@ -200,7 +201,7 @@ export default function BusinessPage() {
                   {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.product_type}
+                  {business.product_name} (v{business.product_version})
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {business.node_cnt}

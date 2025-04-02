@@ -1,5 +1,4 @@
 export class CreateLicenseDto {
-  product_id: string;
   issued?: string;
   expired?: string;
   status?: 'active' | 'inactive' | 'expired';
@@ -8,6 +7,7 @@ export class CreateLicenseDto {
   issued_id?: string;
   approve_user?: string;
   approved?: Date;
+  trial?: boolean;
 }
 
 export class UpdateLicenseDto extends CreateLicenseDto {
@@ -15,4 +15,5 @@ export class UpdateLicenseDto extends CreateLicenseDto {
   issued_id?: string;
   approve_user?: string;
   approved?: Date;
+  trial?: boolean;
 }

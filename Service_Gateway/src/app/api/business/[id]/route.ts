@@ -31,6 +31,12 @@ export async function GET(
       business.manager_company = company.name
     }
 
+    // product_id를 이용해 제품명/제품버전 가져오기
+    const response_product = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${business.product_id}`);
+    const product = await response_product.json();
+    business.product_name = product.name
+    business.product_version = product.version
+
     if (!business) {
       return NextResponse.json(
         { message: '사업을 찾을 수 없습니다.' },

@@ -86,7 +86,7 @@ export class Business {
     length: 255,
     nullable: true
   })
-  product_type: string;
+  product_id: string;
 
   @CreateDateColumn({
     type: 'timestamp',

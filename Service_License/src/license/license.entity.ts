@@ -9,9 +9,6 @@ export class License {
   license_key: string
 
   @Column()
-  product_id: string
-
-  @Column()
   issued: string
 
   @Column()
@@ -55,6 +52,11 @@ export class License {
     nullable: true
   })
   issued_id: string;
+
+  @Column({
+    type: 'tinyint'
+  })
+  trial: boolean;
 
   @CreateDateColumn()
   created: string

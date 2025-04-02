@@ -21,6 +21,7 @@ export default function MainLayout({
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const username = getCookie('username');
+  const role = getCookie('role');
 
   const handleLogout = () => {
     logout();
@@ -33,8 +34,8 @@ export default function MainLayout({
     { name: '사용자', path: '/user', icon: <LuUserRound /> },
     { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
     { name: '고객', path: '/customer', icon: <HiUsers /> },
-    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
     { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
+    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
 
@@ -81,6 +82,7 @@ export default function MainLayout({
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
+                style={item.name === '사용자' && role !== 'Admin' ? { display: 'none' } : {}}
               >
                 <span className="text-xl">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>

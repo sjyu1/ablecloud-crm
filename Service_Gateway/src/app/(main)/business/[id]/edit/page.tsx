@@ -14,13 +14,19 @@ interface BusinessForm {
   issued: string;
   expired: string;
   manager_id: string;
-  product_type: string;
+  product_id: string;
 }
 
 interface Manager {
   id: number;
   username: string;
   company: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  version: string;
 }
 
 export default function BusinessEditPage() {
@@ -30,11 +36,13 @@ export default function BusinessEditPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [managers, setManagers] = useState<Manager[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const role = getCookie('role');
 
   useEffect(() => {
     fetchBusinessDetail();
     fetchManagers();
+    fetchProducts();
   }, []);
 
   const fetchBusinessDetail = async () => {
@@ -71,6 +79,24 @@ export default function BusinessEditPage() {
       }
 
       setManagers(result.data);
+    } catch (error) {
+      alert('사업담당자 목록 조회에 실패했습니다.');
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      let url = `/api/product`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (!result.success) {
+        // alert(result.message);
+        return;
+      }
+
+      setProducts(result.data);
     } catch (error) {
       alert('사업담당자 목록 조회에 실패했습니다.');
     }
@@ -189,18 +215,21 @@ export default function BusinessEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업유형
+                제품
               </label>
               <select
-                name="product_type"
-                value={formData.product_type}
+                name="product_id"
+                value={formData.product_id}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               >
-                <option value="vm">ABLESTACK VM</option>
-                <option value="hci">ABLESTACK HCI</option>
-                <option value="vm_trial">ABLESTACK VM - Trial</option>
-                <option value="hci_trial">ABLESTACK HCI - Trial</option>
+                <option value="">선택하세요</option>
+                {products.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name} (v{item.version})
+                  </option>
+                ))}
               </select>
             </div>
             <div>

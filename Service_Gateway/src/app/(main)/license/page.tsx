@@ -10,12 +10,13 @@ interface License {
   license_key: string;
   product_id: string;
   product_name: string;
-  product_type: string;
+  product_version: string;
   business_name: string;
   issued_name: string;
   status: string;
   issued: string;
   expired: string;
+  trial: string;
 }
 
 interface Pagination {
@@ -171,6 +172,9 @@ export default function LicensePage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 만료일
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Trial
+              </th>
               {/* <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 관리
               </th> */}
@@ -185,7 +189,7 @@ export default function LicensePage() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {license.product_name}
+                  {license.product_name} (v{license.product_version})
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.business_name}
@@ -208,6 +212,9 @@ export default function LicensePage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {license.expired}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {license.trial == '1' ? 'O' : '-'}
+                </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={`/license/${license.id}`}
@@ -226,7 +233,7 @@ export default function LicensePage() {
             ))}
             {licenses.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
                   라이센스 정보가 없습니다.
                 </td>
               </tr>

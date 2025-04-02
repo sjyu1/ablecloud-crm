@@ -59,6 +59,12 @@ export async function GET(request: Request) {
           data_user_com.push(data.items[idx])
         }
       }
+
+      // product_id를 이용해 제품명/제품버전 가져오기
+      const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${data.items[idx].product_id}`);
+      const product = await response.json();
+      data.items[idx].product_name = product.name
+      data.items[idx].product_version = product.version
     }
 
     if (role && user_companytype !== 'vendor'){

@@ -19,12 +19,13 @@ interface Business {
   core_cnt: number;
   license_key: string;
   license_status: string;
-  product_type: string;
   license_issued: string;
   license_expired: string;
   manager_id: string;
   manager_name: string;
   manager_company: string;
+  product_name: string;
+  product_version: string;
 }
 
 interface TabPanelProps {
@@ -199,9 +200,9 @@ export default function BusinessDetailPage() {
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">사업유형</h3>
+                <h3 className="text-sm font-medium text-gray-500">제품명</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                {business.product_type === 'vm' ? ('ABLESTACK VM') : business.product_type === 'hci' ? ('ABLESTACK HCI') : business.product_type === 'vm_trial' ? ('ABLESTACK VM - Trial'): business.product_type === 'hci_trial' ? ('ABLESTACK VM - Trial'): ('Unknown Type')}
+                  {business.product_name} (v{business.product_version})
                 </p>
               </div>
               <div>
