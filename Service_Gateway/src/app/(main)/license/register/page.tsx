@@ -247,7 +247,7 @@ export default function LicenseRegisterPage() {
                 style={{marginLeft: '10px'}}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                Trial (Trial 라이센스는 시작일부터 1달 사용가능합니다.)
+                Trial (Trial 라이센스는 시작일부터 한달 사용가능합니다.)
               </label>
             </div>
           </div>

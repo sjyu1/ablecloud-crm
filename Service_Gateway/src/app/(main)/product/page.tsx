@@ -99,6 +99,7 @@ export default function ProductPage() {
         <Link
           href="/product/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           제품 등록
         </Link>

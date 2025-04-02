@@ -102,6 +102,7 @@ export default function PartnerPage() {
         <Link
           href="/partner/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           파트너 등록
         </Link>

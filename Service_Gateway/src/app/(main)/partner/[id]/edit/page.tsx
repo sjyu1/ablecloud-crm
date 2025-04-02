@@ -113,7 +113,7 @@ export default function PartnerEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                전화번호 (-포함)
               </label>
               <input
                 type="text"
