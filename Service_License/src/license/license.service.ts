@@ -37,15 +37,18 @@ export class LicenseService {
     }
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
     const query = this.licenseRepository.createQueryBuilder('license')
-                  .leftJoin('product', 'product', 'license.product_id = product.id')
+                  // .leftJoin('product', 'product', 'license.product_id = product.id')
                   // .leftJoin('partner', 'partner', 'license.partner_id = partner.id')
                   .leftJoin('business', 'business', 'license.business_id = business.id')
+                  .leftJoin('product', 'product', 'business.product_id = product.id')
                   .select([
                     'license.*',
-                    'product.name as product_name',
+                    // 'product.name as product_name',
                     // 'partner.name as partner_name',
                     'license.approved as approved',
-                    'business.name as business_name'
+                    'business.name as business_name',
+                    'product.name as product_name',
+                    'product.version as product_version'
                   ])
                   .orderBy('license.created', 'DESC')
                   .where('license.removed IS NULL');
@@ -78,6 +81,7 @@ export class LicenseService {
     const formattedItems = items.map(license => ({
       ...license,
       product_name: license.product_name,
+      product_version: license.product_version,
       partner_name: license.partner_name,
       issued: this.formatDateToYYYYMMDD(license.issued),
       expired: this.formatDateToYYYYMMDD(license.expired),
@@ -97,20 +101,23 @@ export class LicenseService {
 
   async getLicenseById(id: number): Promise<License | null> {
     const query = this.licenseRepository.createQueryBuilder('license')
-      .leftJoin('product', 'product', 'license.product_id = product.id')
+      // .leftJoin('product', 'product', 'license.product_id = product.id')
       .leftJoinAndSelect('partner', 'company', 'license.company_id = company.id')
       // .leftJoinAndSelect('partner', 'issuer', 'license.issued_user = issuer.id')
       .leftJoinAndSelect('business', 'business', 'license.business_id = business.id')
+      .leftJoinAndSelect('product', 'product', 'business.product_id = product.id')
       .select([
         'license.*',
-        'product.name as product_name',
+        // 'product.name as product_name',
         'company.name as company_name',
         'company.telnum as company_telnum',
         'company.level as company_level',
         // 'issuer.name as issuer_company_name',
         // 'issuer.telnum as issuer_company_telnum',
         // 'issuer.level as issuer_company_level',
-        'business.name as business_name'
+        'business.name as business_name',
+        'product.name as product_name',
+        'product.version as product_version'
       ])
       .where('license.id = :id', { id });
 

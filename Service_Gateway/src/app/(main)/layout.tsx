@@ -33,8 +33,8 @@ export default function MainLayout({
     { name: '사용자', path: '/user', icon: <LuUserRound /> },
     { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
     { name: '고객', path: '/customer', icon: <HiUsers /> },
-    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
     { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
+    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
 

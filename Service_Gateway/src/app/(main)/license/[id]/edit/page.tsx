@@ -9,10 +9,10 @@ interface LicenseForm {
   license_key: string;
   product_id: string;
   product_name: string;
-  product_type: string;
   business_name: string;
   issued: string;
   expired: string;
+  trial: string;
 }
 
 interface Product {
@@ -30,15 +30,16 @@ export default function LicenseEditPage() {
     license_key: '',
     product_id: '',
     product_name: '',
-    product_type: '',
     business_name: '',
     issued: '',
     expired: '',
+    trial: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isCheckedToTrial, setIsCheckedToTrial] = useState<boolean>(false);
 
   useEffect(() => {
     fetchLicenseDetail();
@@ -80,34 +81,32 @@ export default function LicenseEditPage() {
   };
 
   //영구 라이센스 체크
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
+  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setIsChecked(event.target.checked);
 
-    if (event.target.checked) {
-      setFormData({
-        id: formData?.id?formData?.id:0,
-        license_key: formData?.license_key?formData?.license_key:'',
-        product_id: formData?.product_id?formData?.product_id:'',
-        product_name: formData?.product_name?formData?.product_name:'',
-        product_type: formData?.product_type?formData?.product_type:'',
-        business_name: formData?.business_name?formData?.business_name:'',
-        issued: formData?.issued?formData?.issued:'',
-        expired: '9999-12-31',
-      });
-    } else {
-      setFormData({
-        id: formData?.id?formData?.id:0,
-        license_key: formData?.license_key?formData?.license_key:'',
-        product_id: formData?.product_id?formData?.product_id:'',
-        product_name: formData?.product_name?formData?.product_name:'',
-        product_type: formData?.product_type?formData?.product_type:'',
-        business_name: formData?.business_name?formData?.business_name:'',
-        issued: formData?.issued?formData?.issued:'',
-        expired: formData?.expired?formData?.expired:'',
+  //   if (event.target.checked) {
+  //     setFormData({
+  //       id: formData?.id?formData?.id:0,
+  //       license_key: formData?.license_key?formData?.license_key:'',
+  //       product_id: formData?.product_id?formData?.product_id:'',
+  //       product_name: formData?.product_name?formData?.product_name:'',
+  //       business_name: formData?.business_name?formData?.business_name:'',
+  //       issued: formData?.issued?formData?.issued:'',
+  //       expired: '9999-12-31',
+  //     });
+  //   } else {
+  //     setFormData({
+  //       id: formData?.id?formData?.id:0,
+  //       license_key: formData?.license_key?formData?.license_key:'',
+  //       product_id: formData?.product_id?formData?.product_id:'',
+  //       product_name: formData?.product_name?formData?.product_name:'',
+  //       business_name: formData?.business_name?formData?.business_name:'',
+  //       issued: formData?.issued?formData?.issued:'',
+  //       expired: formData?.expired?formData?.expired:'',
 
-      });
-    }
-  };
+  //     });
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +147,55 @@ export default function LicenseEditPage() {
       ...prev,
       [name]: value
     } : null);
+
+    if (name === 'issued') {
+      setIsChecked(false);  // 영구 라이센스 체크박스 해제
+      setIsCheckedToTrial(false); // Trial 체크박스 해제
+      formData.expired = ''
+    }
+  };
+
+  //영구 라이센스 체크
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
+    setIsCheckedToTrial(false); // Trial 체크박스 해제
+
+    if (event.target.checked) {
+      formData.expired = '9999-12-31'
+      formData.trial = false
+    } else {
+      formData.expired = ''
+      formData.trial = false
+    }
+  };
+  
+  //Trial 라이센스 체크
+  const handleCheckboxTrialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsCheckedToTrial(event.target.checked);
+    setIsChecked(false); // 영구 라이센스 체크박스 해제
+    if (event.target.checked) {
+      if (!formData.issued) {
+        setError('시작일을 선택하세요.');
+      }
+      const newDate = getOneMonthLater(formData.issued);
+      formData.expired = newDate
+      formData.trial = true
+    } else {
+      formData.expired = ''
+      formData.trial = false
+    }
+  };
+
+  // 한 달 후 날짜를 계산하는 함수
+  const getOneMonthLater = (date_string: string | number | Date) => {
+    const date = new Date(date_string); // date_string은 'YYYY-MM-DD' 형식
+    date.setMonth(date.getMonth() + 1);
+
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   };
 
   if (isLoading) {
@@ -224,9 +272,12 @@ export default function LicenseEditPage() {
                 value={formData.expired}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isChecked || isCheckedToTrial}
                 required
               />
-              {/* <input
+            </div>
+            <div>
+              <input
                 type="checkbox"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
@@ -235,7 +286,17 @@ export default function LicenseEditPage() {
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
                 영구 라이센스
-              </label> */}
+              </label>
+              <input
+                type="checkbox"
+                checked={isCheckedToTrial || formData.trial=='1'}
+                onChange={handleCheckboxTrialChange}
+                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{marginLeft: '10px'}}
+              />
+              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
+                Trial (Trial 라이센스는 시작일부터 1달 사용가능합니다.)
+              </label>
             </div>
           </div>
 

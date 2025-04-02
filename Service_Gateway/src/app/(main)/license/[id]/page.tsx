@@ -11,8 +11,8 @@ interface License {
   license_key: string;
   product_id: string;
   product_name: string;
+  product_version: string;
   status: string;
-  product_type: string;
   issued: string;
   expired: string;
   issued_user: string;
@@ -22,6 +22,7 @@ interface License {
   approved: string;
   business_name: string;
   issued_name: string;
+  trial: string;
 }
 
 export default function LicenseDetailPage() {
@@ -209,7 +210,7 @@ export default function LicenseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품명</h3>
               <p className="mt-1 text-lg text-gray-900">
-              {license.product_name}
+              {license.product_name} (v{license.product_version})
               </p>
             </div>
             <div>
@@ -242,6 +243,10 @@ export default function LicenseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자</h3>
               <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Trial</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.trial == '1' ? 'O' : '-'}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
