@@ -20,6 +20,7 @@ interface License {
   created: string;
   approve_user: string;
   approved: string;
+  business_id: string;
   business_name: string;
   issued_name: string;
   trial: string;
@@ -118,7 +119,7 @@ export default function LicenseDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/license/${params.id}`, {
+      const response = await fetch(`/api/license/${params.id}?business_id=${license?.business_id}`, {
         method: 'DELETE',
       });
 
