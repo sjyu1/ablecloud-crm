@@ -23,7 +23,7 @@ export class PartnerController {
   async findAllHttp(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('level') level?: 'PLATINUM' | 'GOLD' | 'VAD',
+    @Query('level') level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
     @Query('name') name?: string
   ) {
     try {
@@ -35,7 +35,7 @@ export class PartnerController {
       const validName = name && name !== 'undefined' && name !== '' ? name : undefined;
 
       // level이 유효한 값인지 확인
-      const validLevel = level && ['PLATINUM', 'GOLD', 'VAD'].includes(level) ? level : undefined;
+      const validLevel = level && ['PLATINUM', 'GOLD', 'SILVER', 'VAR'].includes(level) ? level : undefined;
 
       return await this.partnerService.findAll(validPage, validLimit, validLevel, validName);
     } catch (error) {
@@ -69,7 +69,7 @@ export class PartnerController {
   async findAll(data: {
     page: number;
     limit: number;
-    level?: 'PLATINUM' | 'GOLD' | 'VAD';
+    level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR';
     name?: string;
   }) {
     const { page = 1, limit = 10, level, name } = data;

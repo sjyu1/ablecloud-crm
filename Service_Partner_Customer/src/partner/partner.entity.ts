@@ -13,10 +13,10 @@ export class Partner {
 
   @Column({
     type: 'enum',
-    enum: ['PLATINUM', 'GOLD', 'VAD'],
+    enum: ['PLATINUM', 'GOLD', 'SILVER', 'VAR'],
     default: 'GOLD'
   })
-  level: 'PLATINUM' | 'GOLD' | 'VAD';
+  level: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR';
 
   @CreateDateColumn()
   created: Date;

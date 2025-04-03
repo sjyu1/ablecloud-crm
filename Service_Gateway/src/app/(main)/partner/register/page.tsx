@@ -80,7 +80,7 @@ export default function PartnerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                전화번호 (-포함)
               </label>
               <input
                 type="text"
@@ -104,7 +104,8 @@ export default function PartnerRegisterPage() {
               >
                 <option value="PLATINUM">PLATINUM</option>
                 <option value="GOLD">GOLD</option>
-                <option value="VAD">VAD</option>
+                <option value="SILVER">SILVER</option>
+                <option value="VAR">VAR</option>
               </select>
             </div>
           </div>
