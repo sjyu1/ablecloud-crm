@@ -45,9 +45,9 @@ export async function GET(request: Request) {
     // 3. 사용자 데이터에 role 추가
     for(var idx in data_user){
       // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
-      data_user[idx].type = data_user[idx].attributes.type
-      data_user[idx].telnum = data_user[idx].attributes.telnum
-      data_user[idx].company_id = data_user[idx].attributes.company_id
+      data_user[idx].type = data_user[idx].attributes.type[0]
+      data_user[idx].telnum = data_user[idx].attributes.telnum[0]
+      data_user[idx].company_id = data_user[idx].attributes.company_id[0]
 
       const res = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${data_user[idx].id}/role-mappings/realm`, {
         method: 'GET',
@@ -56,8 +56,8 @@ export async function GET(request: Request) {
           'Authorization': `Bearer ${client_token.access_token}`,
         }
       });
-
       const data_role = await res.json();
+
       for (var idx2 in data_role){
         if (data_role[idx2].name === "Admin" || data_role[idx2].name === "User"){
           data_user[idx].role = data_role[idx2].name
