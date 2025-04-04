@@ -74,10 +74,10 @@ export class BusinessService {
       .select([
         'business.*',
         'customer.name as customer_name',
-        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.license_key END AS license_key',
-        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.status END AS license_status',
-        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.issued END AS license_issued',
-        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.expired END AS license_expired',
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.license_key END AS license_key', 
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.status END AS license_status', 
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.issued END AS license_issued', 
+        'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.expired END AS license_expired', 
       ])
       .where('business.id = :id', { id });
 
