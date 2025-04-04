@@ -72,3 +72,18 @@ export const getCookie = (name: string): string | null => {
   // }
   // return null;
 }; 
+
+// 토큰 만료시 로그아웃
+export const logoutIfTokenExpired = () => {
+  alert('로그인 유효시간이 지나 로그아웃됩니다.');
+
+  // 모든 인증 관련 쿠키 제거
+  const cookies = document.cookie.split(';');
+  cookies.forEach(cookie => {
+    const cookieName = cookie.split('=')[0].trim();
+    document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;  // 쿠키 만료시킴
+  });
+
+  // 로그인 페이지로 리디렉션
+  window.location.href = '/login';
+};
