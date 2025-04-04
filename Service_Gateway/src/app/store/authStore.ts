@@ -62,15 +62,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 // 쿠키에서 값을 가져오는 유틸리티 함수
 export const getCookie = (name: string): string | null => {
-  // if(typeof document !== 'undefined') {
+  if (typeof document !== 'undefined') {
+    // 클라이언트에서만 실행
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
       return parts.pop()?.split(';').shift() || null;
     }
     return null;
-  // }
-  // return null;
+  }
+  return null; // 서버 사이드에서 실행되면 null 반환
 }; 
 
 // 토큰 만료시 로그아웃
