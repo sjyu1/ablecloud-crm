@@ -18,10 +18,11 @@ export async function GET(
 
     // 라이센스 데이터에 발급자 정보 추가
     const data_userinfo = await userinfo_id(data.issued_id);
-    if (data_userinfo.error)  throw new Error(data_userinfo.error);
-    data.issued_name = data_userinfo.username
-    data.issued_type = data_userinfo.attributes.type[0]
-    data.issued_company_id = data_userinfo.attributes.company_id[0]
+    if (!data_userinfo.error) {
+      data.issued_name = data_userinfo.username
+      data.issued_type = data_userinfo.attributes.type[0]
+      data.issued_company_id = data_userinfo.attributes.company_id[0]
+    }
 
     if (data.issued_type == 'vendor') {
       data.issued_company = 'ABLECLOUD'
@@ -102,7 +103,12 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`,{
+    const { searchParams } = new URL(request.url);
+    const business_id = searchParams.get('business_id');
+
+    console.log(business_id)
+    return;
+    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}?business_id=${business_id}`,{
       method: 'DELETE',
     })
 

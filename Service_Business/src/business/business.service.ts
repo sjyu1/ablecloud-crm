@@ -39,8 +39,8 @@ export class BusinessService {
                   .where('business.removed IS NULL');
 
     if (filters.name) {
-      query.andWhere('business.id = :name', {
-        productId: filters.name
+      query.andWhere('business.name LIKE :name', {
+        name: `%${filters.name}%`
       });
     }
 
