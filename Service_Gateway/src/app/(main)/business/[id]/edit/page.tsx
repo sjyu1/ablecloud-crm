@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getCookie } from '../../../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
 interface BusinessForm {
@@ -74,8 +74,12 @@ export default function BusinessEditPage() {
       const result = await response.json();
 
       if (!result.success) {
-        // alert(result.message);
-        return;
+        if (result.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        } else {
+          // alert(result.message);
+          return;
+        }
       }
 
       setManagers(result.data);
@@ -92,8 +96,12 @@ export default function BusinessEditPage() {
       const result = await response.json();
 
       if (!result.success) {
-        // alert(result.message);
-        return;
+        if (result.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        } else {
+          // alert(result.message);
+          return;
+        }
       }
 
       setProducts(result.data);
