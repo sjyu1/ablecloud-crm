@@ -34,8 +34,8 @@ export default function ProductPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const roleCookie = getCookie('role');
-    setRole(roleCookie ?? undefined);
+    const role = getCookie('role');
+    setRole(role ?? undefined);
 
     const fetchProducts = async () => {
       try {

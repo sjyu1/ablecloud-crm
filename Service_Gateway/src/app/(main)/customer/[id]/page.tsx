@@ -80,8 +80,8 @@ export default function CustomerDetailPage() {
   };
 
   useEffect(() => {
-    const roleCookie = getCookie('role');
-    setRole(roleCookie ?? undefined);
+    const role = getCookie('role');
+    setRole(role ?? undefined);
 
     fetchCustomerDetail();
     fetchCustomerUserDetail();

@@ -71,8 +71,8 @@ export default function BusinessDetailPage() {
   };
 
   useEffect(() => {
-    const roleCookie = getCookie('role');
-    setRole(roleCookie ?? undefined);
+    const role = getCookie('role');
+    setRole(role ?? undefined);
 
     fetchBusinessDetail();
   }, []);

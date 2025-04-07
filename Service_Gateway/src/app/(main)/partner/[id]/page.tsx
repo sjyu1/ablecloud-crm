@@ -72,8 +72,8 @@ export default function PartnerDetailPage() {
   };
 
   useEffect(() => {
-    const roleCookie = getCookie('role');
-    setRole(roleCookie ?? undefined);
+    const role = getCookie('role');
+    setRole(role ?? undefined);
 
     fetchPartnerDetail();
     fetchPartnerUserDetail();

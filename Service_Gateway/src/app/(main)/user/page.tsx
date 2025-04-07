@@ -22,10 +22,13 @@ export default function UserPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const roleCookie = getCookie('role');
-    setRole(roleCookie ?? undefined);
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+    const username = getCookie('username');
+    setUsername(username ?? undefined);
 
     const fetchUsers = async () => {
       try {
