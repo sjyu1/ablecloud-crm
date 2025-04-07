@@ -20,9 +20,12 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchProductDetail();
   }, []);
 

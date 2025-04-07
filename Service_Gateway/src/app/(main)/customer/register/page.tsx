@@ -27,9 +27,12 @@ export default function CustomerRegisterPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [managers, setManagers] = useState<Manager[]>([]);
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     const fetchManagers = async () => {
       try {
         let url = `/api/user/forCreateManager`;

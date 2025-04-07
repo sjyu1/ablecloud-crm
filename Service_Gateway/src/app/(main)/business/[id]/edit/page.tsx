@@ -37,9 +37,12 @@ export default function BusinessEditPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [managers, setManagers] = useState<Manager[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchBusinessDetail();
     fetchManagers();
     fetchProducts();

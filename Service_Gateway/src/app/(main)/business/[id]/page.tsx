@@ -63,7 +63,7 @@ export default function BusinessDetailPage() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   const [value, setValue] = useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -71,6 +71,9 @@ export default function BusinessDetailPage() {
   };
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchBusinessDetail();
   }, []);
 

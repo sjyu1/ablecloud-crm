@@ -32,9 +32,12 @@ export default function LicenseDetailPage() {
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchLicenseDetail();
   }, []);
 

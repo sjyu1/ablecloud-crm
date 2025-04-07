@@ -39,9 +39,12 @@ export default function BusinessPage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     const fetchBusiness = async () => {
       try {
         const page = searchParams.get('page') || '1';

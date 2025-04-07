@@ -21,12 +21,22 @@ export default function UserPage() {
   const [productId, setProductId] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+    const username = getCookie('username');
+    setUsername(username ?? undefined);
+
     const fetchUsers = async () => {
       try {
         let url = `/api/user`;
+
+        if (role == 'User') {
+          url += `?role=User&username=`+username;
+        }
 
         const response = await fetch(url);
         const result = await response.json();
@@ -131,7 +141,7 @@ export default function UserPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                사용자 이름
+                아이디
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 이메일

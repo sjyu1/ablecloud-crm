@@ -12,6 +12,8 @@ import { userinfo } from '@/utils/userinfo';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const role = searchParams.get('role');
+    const username = searchParams.get('username');
 
     // 1. client_credentials token 가져오기
     const submitData_token = {
@@ -42,7 +44,10 @@ export async function GET(request: Request) {
 
     let data_user = await res_user.json();
 
-    // 3. 사용자 데이터에 role 추가
+    // 3. 사용자 데이터에 role 추가 및 같은 회사 담당자 조회 추가
+    let loginuser_companay_id
+    let loginuser_type
+    let data_user_partner = []
     for(var idx in data_user){
       // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
       data_user[idx].type = data_user[idx].attributes.type[0]
@@ -72,6 +77,22 @@ export async function GET(request: Request) {
         const company = await response.json();
         data_user[idx].company = company.name
       }
+
+      // Role이 User인 경우, 같은 회사 담당자 모두 조회
+      if (role && username == data_user[idx].username) {
+        loginuser_type = data_user[idx].type
+        loginuser_companay_id = data_user[idx].company_id
+      }
+    }
+
+    for(var idx in data_user){
+      if (loginuser_type == data_user[idx].type && loginuser_companay_id == data_user[idx].company_id) {
+        data_user_partner.push(data_user[idx])
+      }
+    }
+
+    if (role) {
+      data_user = data_user_partner
     }
 
     if (!res_user.ok) {

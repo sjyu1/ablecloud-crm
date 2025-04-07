@@ -53,9 +53,12 @@ export default function BusinessRegisterPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [managers, setManagers] = useState<Manager[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     const fetchManagers = async () => {
       try {
         let url = `/api/user/forCreateManager`;

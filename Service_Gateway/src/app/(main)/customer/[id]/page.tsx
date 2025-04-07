@@ -70,7 +70,7 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
@@ -80,6 +80,9 @@ export default function CustomerDetailPage() {
   };
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchCustomerDetail();
     fetchCustomerUserDetail();
   }, []);
@@ -255,7 +258,7 @@ export default function CustomerDetailPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                사용자 이름
+                아이디
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 이메일
