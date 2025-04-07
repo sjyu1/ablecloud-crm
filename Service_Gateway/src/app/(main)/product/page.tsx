@@ -31,9 +31,12 @@ export default function ProductPage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const roleCookie = getCookie('role');
+    setRole(roleCookie ?? undefined);
+
     const fetchProducts = async () => {
       try {
         const page = searchParams.get('page') || '1';

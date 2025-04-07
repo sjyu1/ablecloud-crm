@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCookie, useAuthStore } from '../store/authStore';
 import Link from 'next/link';
@@ -20,8 +21,17 @@ export default function MainLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
-  const username = getCookie('username');
-  const role = getCookie('role');
+  
+  const [username, setUsername] = useState<string | undefined>(undefined);
+  const [role, setRole] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const usernameCookie = getCookie('username');
+    const roleCookie = getCookie('role');
+    
+    setUsername(usernameCookie ?? undefined);
+    setRole(roleCookie ?? undefined);
+  }, []);
 
   const handleLogout = () => {
     logout();

@@ -32,9 +32,12 @@ export default function PartnerPage() {
   });
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const roleCookie = getCookie('role');
+    setRole(roleCookie ?? undefined);
+
     const fetchPartners = async () => {
       try {
         const page = searchParams.get('page') || '1';

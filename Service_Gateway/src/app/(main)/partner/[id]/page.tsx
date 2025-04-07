@@ -62,7 +62,7 @@ export default function PartnerDetailPage() {
   const [partner, setPartner] = useState<Partner | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
@@ -72,6 +72,9 @@ export default function PartnerDetailPage() {
   };
 
   useEffect(() => {
+    const roleCookie = getCookie('role');
+    setRole(roleCookie ?? undefined);
+
     fetchPartnerDetail();
     fetchPartnerUserDetail();
   }, []);

@@ -21,9 +21,12 @@ export default function UserPage() {
   const [productId, setProductId] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const roleCookie = getCookie('role');
+    setRole(roleCookie ?? undefined);
+
     const fetchUsers = async () => {
       try {
         let url = `/api/user`;
