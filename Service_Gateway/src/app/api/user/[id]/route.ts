@@ -97,7 +97,7 @@ export async function GET(
 /**
  * 사용자 수정
  * 1. client_credentials token 가져오기
- * 2. 사용자 삭제
+ * 2. 사용자 수정
  * @param request 
  * @param params 
  * @returns 

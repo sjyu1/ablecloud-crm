@@ -34,6 +34,10 @@ export default function UserPage() {
       try {
         let url = `/api/user`;
 
+        if (role == 'User') {
+          url += `?role=User&username=`+username;
+        }
+
         const response = await fetch(url);
         const result = await response.json();
 

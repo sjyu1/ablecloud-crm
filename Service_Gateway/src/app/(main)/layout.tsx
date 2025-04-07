@@ -27,10 +27,10 @@ export default function MainLayout({
 
   useEffect(() => {
     const usernameCookie = getCookie('username');
-    const roleCookie = getCookie('role');
+    const role = getCookie('role');
     
     setUsername(usernameCookie ?? undefined);
-    setRole(roleCookie ?? undefined);
+    setRole(role ?? undefined);
   }, []);
 
   const handleLogout = () => {
@@ -92,7 +92,7 @@ export default function MainLayout({
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
-                style={item.name === '사용자' && role !== 'Admin' ? { display: 'none' } : {}}
+                // style={item.name === '사용자' && role !== 'Admin' ? { display: 'none' } : {}}
               >
                 <span className="text-xl">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>

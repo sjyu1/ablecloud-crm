@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getCookie } from '../../../store/authStore';
+import PasswordChangeModal from './passwordChangeModal';
 
 interface User {
   id: string,
@@ -23,6 +24,7 @@ export default function UserDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -77,6 +79,13 @@ export default function UserDetailPage() {
     }
   };
 
+  const handlePasswordChange = (newPassword: string) => {
+    // Call your API to update the password here
+    // console.log('New Password:', newPassword);
+    // Close the modal after submitting
+    setIsModalOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -107,16 +116,23 @@ export default function UserDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">사용자 상세정보</h1>
         <div className="space-x-2">
           <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            // style={{ display: role === 'Admin' ? '' : 'none' }}
+          >
+            비밀번호 변경
+          </button>
+          <button
             onClick={() => window.location.href = `/user/${user.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             삭제
           </button> 
@@ -181,6 +197,13 @@ export default function UserDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal component for password change */}
+      <PasswordChangeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handlePasswordChange}
+      />
     </div>
   );
 } 
