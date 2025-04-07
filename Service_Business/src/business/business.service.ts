@@ -39,8 +39,8 @@ export class BusinessService {
                   .where('business.removed IS NULL');
 
     if (filters.name) {
-      query.andWhere('business.id = :name', { 
-        productId: filters.name 
+      query.andWhere('business.name LIKE :name', {
+        name: `%${filters.name}%`
       });
     }
 
@@ -100,11 +100,11 @@ export class BusinessService {
       where: { id },
       withDeleted: false
     });
-    
+
     if (!business) {
       throw new NotFoundException(`사업 ID ${id}를 찾을 수 없습니다.`);
     }
-    
+
     return business;
   }
 
@@ -119,6 +119,11 @@ export class BusinessService {
 
   async remove(id: number): Promise<void> {
     const business = await this.findOne(id);
+
+    // license_id를 null로 설정
+    business.license_id = null;
+    await this.businessRepository.save(business);
+
     await this.businessRepository.softDelete(id);
   }
 
@@ -138,5 +143,3 @@ export class BusinessService {
     return formattedusiness as unknown as Business;
   }
 }
-
-

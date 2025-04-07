@@ -31,6 +31,7 @@ export class LicenseService {
     limit: number = 10,
     filters: {
       productId?: string;
+      productName?: string;
       businessType?: string;
       partnerId?: number;
       company_id?: string;
@@ -72,15 +73,27 @@ export class LicenseService {
       query.andWhere('license.company_id = :company_id', { company_id: filters.company_id });
     }
 
+    if (filters.productName) {
+      query.andWhere('product.name LIKE :productName', { 
+        productName: `%${filters.productName}%` 
+      });
+    }
+
+    console.log('Final SQL Query:', query.getSql());
+    console.log('Query Parameters:', query.getParameters());
+
     const total = await query.getCount();
     const items = await query
+      .orderBy('license.created', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getRawMany();
 
+    console.log('Raw Query Results:', items);
+
     const formattedItems = items.map(license => ({
       ...license,
-      product_name: license.product_name,
+      product_name: license.product_name || license.business_name,
       product_version: license.product_version,
       partner_name: license.partner_name,
       issued: this.formatDateToYYYYMMDD(license.issued),

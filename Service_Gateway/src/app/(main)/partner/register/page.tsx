@@ -104,7 +104,8 @@ export default function PartnerRegisterPage() {
               >
                 <option value="PLATINUM">PLATINUM</option>
                 <option value="GOLD">GOLD</option>
-                <option value="VAD">VAD</option>
+                <option value="SILVER">SILVER</option>
+                <option value="VAR">VAR</option>
               </select>
             </div>
           </div>

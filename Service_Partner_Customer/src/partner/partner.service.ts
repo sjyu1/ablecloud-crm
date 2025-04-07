@@ -19,7 +19,7 @@ export class PartnerService {
   async findAll(
     page: number,
     limit: number,
-    level?: 'PLATINUM' | 'GOLD' | 'VAD',
+    level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
     name?: string
   ): Promise<{ partners: Partner[]; total: number }> {
     try {
