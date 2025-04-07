@@ -70,7 +70,7 @@ export default function PartnerEditPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-      
+
     setFormData(prev => prev ? {
       ...prev,
       [name]: value
@@ -137,7 +137,8 @@ export default function PartnerEditPage() {
               >
                 <option value="PLATINUM">PLATINUM</option>
                 <option value="GOLD">GOLD</option>
-                <option value="VAD">VAD</option>
+                <option value="SILVER">SILVER</option>
+                <option value="VAR">VAR</option>
               </select>
             </div>
           </div>

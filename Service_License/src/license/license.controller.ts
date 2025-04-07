@@ -14,25 +14,27 @@ export class LicenseController {
   @Get()
   // @Roles('Admin', 'User')
   async getLicenses(
-    @Query() query: { 
-      page?: string; 
-      limit?: string; 
+    @Query() query: {
+      page?: string;
+      limit?: string;
       productId?: string;
       businessType?: string;
       company_id?: string;
+      productName?: string;
     },
     @Request() req: any
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
     const page = query.page || '1';
     const limit = query.limit || '10';
-    
+
     const partnerId = req.user?.partnerId;
 
     const filters = {
       productId: query.productId || '',
       businessType: query.businessType || '',
       company_id: query.company_id || '',
-      partnerId: partnerId
+      partnerId: partnerId,
+      productName: query.productName || ''
     };
 
     const pageNumber = parseInt(page, 10);
