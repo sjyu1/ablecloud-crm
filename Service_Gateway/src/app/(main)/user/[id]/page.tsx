@@ -130,7 +130,7 @@ export default function UserDetailPage() {
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">사용자 이름</h3>
+              <h3 className="text-sm font-medium text-gray-500">아이디</h3>
               <p className="mt-1 text-lg text-gray-900">{user.username}</p>
             </div>
           </div>
