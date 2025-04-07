@@ -48,6 +48,13 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
       if (response.ok) {
         alert('사용자 비밀번호가 변경 되었습니다.');
+        
+        // setAlertMessage('사용자 비밀번호가 변경 되었습니다.');
+        // setShowAlert(true);
+
+        // setTimeout(() => {
+        //   onClose();
+        // }, 2000);
       } else {
         throw new Error('사용자 비밀번호 변경에 실패했습니다.');
       }
