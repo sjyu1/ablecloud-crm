@@ -165,7 +165,7 @@ export default function UserRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사용자이름
+                아이디
               </label>
               <input
                 type="text"
