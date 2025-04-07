@@ -106,8 +106,6 @@ export async function DELETE(
     const { searchParams } = new URL(request.url);
     const business_id = searchParams.get('business_id');
 
-    console.log(business_id)
-    return;
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}?business_id=${business_id}`,{
       method: 'DELETE',
     })

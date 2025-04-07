@@ -31,11 +31,11 @@ export default function MainLayout({
   const menuItems = [
     // { name: '대시보드', path: '/dashboard', icon: '📊' },
     { name: '라이센스', path: '/license', icon: <PiCertificate /> },
-    { name: '사용자', path: '/user', icon: <LuUserRound /> },
-    { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
-    { name: '고객', path: '/customer', icon: <HiUsers /> },
     { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
     { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
+    { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
+    { name: '고객', path: '/customer', icon: <HiUsers /> },
+    { name: '사용자', path: '/user', icon: <LuUserRound /> },
     // { name: '설정', path: '/settings', icon: '⚙️' },
   ];
 

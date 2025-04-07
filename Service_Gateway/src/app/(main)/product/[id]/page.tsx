@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 interface Product {
   id: number;
   name: string;
-  rpmFilePath: string;
+  // rpmFilePath: string;
   isoFilePath: string;
   version: string;
   created: string;
@@ -104,12 +104,14 @@ export default function ProductDetailPage() {
           <button
             onClick={() => window.location.href = `/product/${product.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+            style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             삭제
           </button>
@@ -145,14 +147,14 @@ export default function ProductDetailPage() {
                 </a>
               </p>
             </div>
-            <div>
+            {/* <div>
               <h3 className="text-sm font-medium text-gray-500">제품 RPM경로</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
                 <a href={product.rpmFilePath} target="_blank" rel="noopener noreferrer">
                   {product.rpmFilePath}
                 </a>
               </p>
-            </div>
+            </div> */}
             <div>
               <h3 className="text-sm font-medium text-gray-500">생성일</h3>
               <p className="mt-1 text-lg text-gray-900">{format(product.created, 'yyyy-MM-dd HH:mm:ss')}</p>

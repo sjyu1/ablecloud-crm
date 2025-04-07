@@ -29,13 +29,13 @@ export class Product {
   })
   isoFilePath: string;
 
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  rpmFilePath: string;
+  // @Column({
+  //   type: 'varchar',
+  //   length: 255,
+  //   nullable: false,
+  //   default: ''
+  // })
+  // rpmFilePath: string;
 
   @Column({
     type: 'text',

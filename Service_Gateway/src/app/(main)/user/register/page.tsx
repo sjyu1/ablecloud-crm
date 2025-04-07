@@ -51,11 +51,16 @@ export default function UserRegisterPage() {
     setError('');
 
     try {
+      // 패스워드 밸리데이션
+      if (!validatePassword(formData.password)) {
+        throw new Error('비밀번호는 8자 이상이어야 하며, 대문자/소문자/특수문자/숫자를 모두 포함해야 합니다.');
+      }
+
       // 패스워드 확인
       if (formData.password !== formData.passwordCheck) {
         throw new Error('비밀번호가 일치하지 않습니다.');
       }
-      
+
       setIsLoading(true);
       const response = await fetch('/api/user', {
         method: 'POST',
@@ -132,6 +137,23 @@ export default function UserRegisterPage() {
     }
   };
 
+  // 비밀번호 유효성 검사 함수
+  const validatePassword = (password: string) => {
+    const regex = {
+      minLength: /.{8,}/, // 8자 이상
+      hasNumber: /[0-9]/, // 숫자 포함
+      hasUpperCase: /[A-Z]/, // 대문자 포함
+      hasLowerCase: /[a-z]/, // 소문자 포함
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/, // 특수문자 포함
+    };
+
+    if (!regex.minLength.test(password) || !regex.hasNumber.test(password) || !regex.hasUpperCase.test(password) || !regex.hasLowerCase.test(password) || !regex.hasSpecialChar.test(password)) {
+      return false;
+    }
+
+    return true;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -156,7 +178,7 @@ export default function UserRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호
+                비밀번호 (비밀번호는 8자 이상, 대문자/소문자/특수문자/숫자를 모두 포함)
               </label>
               <input
                 type="password"
@@ -221,7 +243,7 @@ export default function UserRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                전화번호 (-포함)
               </label>
               <input
                 type="text"

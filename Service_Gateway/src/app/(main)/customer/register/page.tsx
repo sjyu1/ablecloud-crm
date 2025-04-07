@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCookie } from '../../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface CustomerForm {
@@ -42,8 +42,12 @@ export default function CustomerRegisterPage() {
         const result = await response.json();
 
         if (!result.success) {
-          // alert(result.message);
-          return;
+          if (result.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          } else {
+            // alert(result.message);
+            return;
+          }
         }
 
         setManagers(result.data);
@@ -115,7 +119,7 @@ export default function CustomerRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호
+                전화번호 (-포함)
               </label>
               <input
                 type="text"

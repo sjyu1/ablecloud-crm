@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getCookie } from '../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../store/authStore';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -48,8 +48,12 @@ export default function ProductPage() {
         const result = await response.json();
         
         if (!result.success) {
-          alert(result.message);
-          return;
+          if (result.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          } else {
+            alert(result.message);
+            return;
+          }
         }
 
         setProducts(result.data);
@@ -99,6 +103,7 @@ export default function ProductPage() {
         <Link
           href="/product/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           제품 등록
         </Link>

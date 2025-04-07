@@ -18,17 +18,19 @@ export async function GET(
 
     // 고객 데이터에 고객관리담당자 정보 추가
     const data_userinfo = await userinfo_id(customer.manager_id);
-    if (data_userinfo.error)  throw new Error(data_userinfo.error);
-    customer.manager_name = data_userinfo.username
-    customer.manager_type = data_userinfo.attributes.type[0]
-    customer.manager_company_id = data_userinfo.attributes.company_id[0]
 
-    if (customer.manager_type == 'vendor') {
-      customer.manager_company = 'ABLECLOUD'
-    } else {
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${customer.manager_type}/${customer.manager_company_id}`);
-      const company = await response.json();
-      customer.manager_company = company.name
+    if (!data_userinfo.error) {
+      customer.manager_name = data_userinfo.username
+      customer.manager_type = data_userinfo.attributes.type[0]
+      customer.manager_company_id = data_userinfo.attributes.company_id[0]
+      
+      if (customer.manager_type == 'vendor') {
+        customer.manager_company = 'ABLECLOUD'
+      } else {
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${customer.manager_type}/${customer.manager_company_id}`);
+        const company = await response.json();
+        customer.manager_company = company.name
+      }
     }
 
     if (!customer) {

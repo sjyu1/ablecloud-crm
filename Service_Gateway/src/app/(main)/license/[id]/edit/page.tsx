@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
 interface LicenseForm {
@@ -70,8 +71,12 @@ export default function LicenseEditPage() {
       const result = await response.json();
       
       if (!result.success) {
-        // alert(result.message);
-        return;
+        if (result.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        } else {
+          // alert(result.message);
+          return;
+        }
       }
 
       setProducts(result.data);
@@ -295,7 +300,7 @@ export default function LicenseEditPage() {
                 style={{marginLeft: '10px'}}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                Trial (Trial 라이센스는 시작일부터 1달 사용가능합니다.)
+                Trial (Trial 라이센스는 시작일부터 한달 사용가능합니다.)
               </label>
             </div>
           </div>
