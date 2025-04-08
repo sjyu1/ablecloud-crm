@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +23,7 @@ export default function LoginPage() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const success = await login({ username, password });
       if (success) {
@@ -33,6 +35,8 @@ export default function LoginPage() {
     } catch (err) {
       // alert('로그인에 실패했습니다. 다시 시도해주세요.');
       setError('로그인에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,6 +89,14 @@ export default function LoginPage() {
           >
             로그인
           </button>
+          {isLoading ? (
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full border-t-2 border-white w-6 h-6 mr-2"></div>
+                로딩 중...
+              </div>
+            ) : (
+              ''
+            )}
         </form>
       </div>
     </div>
