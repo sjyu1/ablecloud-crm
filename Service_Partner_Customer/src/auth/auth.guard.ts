@@ -38,7 +38,7 @@ import { firstValueFrom } from 'rxjs';
   private async getUserInfo(accessToken: string): Promise<UserInfoResponse> {
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(`http://10.10.254.208:8080/realms/test/protocol/openid-connect/userinfo`, {
+        this.httpService.get(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/userinfo`, {
           headers: {
             Authorization: accessToken,
           },

@@ -1,26 +1,33 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PartnerModule } from './partner/partner.module';
-import { CustomerModule } from './customer/customer.module';
+import { LicenseModule } from './license/license.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '10.10.254.208',
-      port: 3306,
-      username: 'user',
-      password: 'Ablecloud1!',
-      database: 'licenses',
-      entities: [__dirname + '/**/*.entity.{js,ts}'],
-      synchronize: true,
-      extra: {
-        allowPublicKeyRetrieval: true,
-      },
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        retryAttempts: configService.get('NODE_ENV') === 'prod' ? 10 : 1,
+        type: 'mysql',
+        host: configService.get('DB_HOST'),
+        port: Number(configService.get('DB_PORT')),
+        database: configService.get('DB_DATABASE'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASSWORD'),
+        entities: [__dirname + '/**/*.entity.{js,ts}'],
+        synchronize: false,
+        // logging: true,
+        timezone: 'local',
+      }),
     }),
-    CustomerModule,
-    PartnerModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        '.env.local',
+      ],
+    }),
+    LicenseModule,
   ],
 })
 export class AppModule {}
-
