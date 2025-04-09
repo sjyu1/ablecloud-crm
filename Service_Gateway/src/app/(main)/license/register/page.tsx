@@ -250,6 +250,7 @@ export default function LicenseRegisterPage() {
                 onChange={handleCheckboxTrialChange}
                 className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 style={{marginLeft: '10px'}}
+                disabled={formData.product_name.includes('Trial 제외')}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
                 Trial (Trial 라이센스는 시작일부터 한달 사용가능합니다.)
