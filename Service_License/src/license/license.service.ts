@@ -193,7 +193,7 @@ export class LicenseService {
   async deleteLicense(id: number): Promise<void> {
     const license = await this.licenseRepository.findOne({ where: { id } })
     if (!license) throw new Error(`License with ID ${id} not found`)
-    await this.licenseRepository.delete(id)
+    await this.licenseRepository.softDelete(id)
   }
 
   async create(createLicenseDto: CreateLicenseDto) {

@@ -298,7 +298,6 @@ export default function PartnerDetailPage() {
         </table>
         </CustomTabPanel>
       </Box>
-
     </div>
   );
 } 

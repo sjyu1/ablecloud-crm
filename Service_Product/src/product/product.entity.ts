@@ -44,6 +44,11 @@ export class Product {
   })
   history: string;
 
+  @Column({
+    type: 'tinyint'
+  })
+  enabled: boolean;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

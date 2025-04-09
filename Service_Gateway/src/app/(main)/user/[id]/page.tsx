@@ -80,9 +80,6 @@ export default function UserDetailPage() {
   };
 
   const handlePasswordChange = (newPassword: string) => {
-    // Call your API to update the password here
-    // console.log('New Password:', newPassword);
-    // Close the modal after submitting
     setIsModalOpen(false);
   };
 

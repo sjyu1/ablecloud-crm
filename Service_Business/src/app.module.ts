@@ -1,29 +1,31 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BusinessModule } from './business/business.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '10.10.254.208',
-      port: 3306,
-      username: 'user',
-      password: 'Ablecloud1!',
-      database: 'licenses',
-      entities: [__dirname + '/**/*.entity.{js,ts}'],
-      synchronize: false,
-      logging: ['error', 'query', 'schema'],
-      charset: 'utf8mb4',
-      timezone: '+09:00',
-      extra: {
-        connectionLimit: 10,
-      },
-      ssl: false,
-      retryAttempts: 3,
-      retryDelay: 3000,
-      keepConnectionAlive: true,
-      autoLoadEntities: true
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        retryAttempts: configService.get('NODE_ENV') === 'prod' ? 10 : 1,
+        type: 'mysql',
+        host: configService.get('DB_HOST'),
+        port: Number(configService.get('DB_PORT')),
+        database: configService.get('DB_DATABASE'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASSWORD'),
+        entities: [__dirname + '/**/*.entity.{js,ts}'],
+        synchronize: false,
+        // logging: true,
+        timezone: 'local',
+      }),
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        '.env.local',
+      ],
     }),
     BusinessModule,
   ],

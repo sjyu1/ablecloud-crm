@@ -64,4 +64,14 @@ export class ProductController {
   async remove(@Param('id') id: string): Promise<void> {
     return this.productService.remove(parseInt(id, 10));
   }
+
+  @Put(':id/disabled')
+  // @Roles('Admin')
+  async disabledProduct(
+    @Param('id') id: string,
+  ): Promise<Product> {
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) throw new Error('Invalid ID format');
+    return this.productService.disabledProduct(numericId);
+  }
 }

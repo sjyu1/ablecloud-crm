@@ -53,6 +53,28 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleDisabled = async () => {
+    if (!confirm('정말 이 제품을 비활성화 하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/product/${params.id}/disabled`, {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        alert('제품이 비활성화 되었습니다.');
+      } else {
+        throw new Error('제품 비활성화에 실패했습니다.');
+      }
+
+      router.push(`/product`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('정말 이 제품을 삭제하시겠습니까?')) {
       return;
@@ -105,6 +127,12 @@ export default function ProductDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">제품 상세정보</h1>
         <div className="space-x-2">
           <button
+            onClick={handleDisabled}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          >
+            제품 비활성화
+          </button>
+          <button
             onClick={() => window.location.href = `/product/${product.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             style={{ display: role === 'Admin' ? '' : 'none' }}
@@ -144,9 +172,15 @@ export default function ProductDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품 ISO경로</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {product.isoFilePath}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">제품 다운로드</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
-                <a href={product.isoFilePath} target="_blank" rel="noopener noreferrer">
-                  {product.isoFilePath}
+                <a href={"/iso"+product.isoFilePath} target="_self" rel="noopener noreferrer">
+                  [ 다운로드 ]
                 </a>
               </p>
             </div>
