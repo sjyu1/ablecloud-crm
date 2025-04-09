@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCookie } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface UserForm {
@@ -45,6 +46,13 @@ export default function UserRegisterPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [company, setCompany] = useState<Company[]>([]);
+  const [role, setRole] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,19 +122,24 @@ export default function UserRegisterPage() {
 
   const fetchCompanyDetail = async (type: string) => {
     try {
-        const response = await fetch(`/api/${type}`);
-        const result = await response.json();
+      let url = `/api/${type}`;
+      if (role == 'User') {
+        url += `?role=User`;
+      }
 
-        if (!response.ok) {
-          throw new Error(result.message || type+' 정보를 불러올 수 없습니다.');
-        }
+      const response = await fetch(url);
+      const result = await response.json();
 
-        if (result.data.error) {
-          setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-          // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-        }
+      if (!response.ok) {
+        throw new Error(result.message || type+' 정보를 불러올 수 없습니다.');
+      }
 
-        setCompany(result.data);
+      if (result.data.error) {
+        setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+        // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+      }
+
+      setCompany(result.data);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -265,7 +278,7 @@ export default function UserRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="Admin">Admin</option>
+                {role == 'Admin' && <option value="Admin">Admin</option>}
                 <option value="User">User</option>
               </select>
             </div>
@@ -281,8 +294,8 @@ export default function UserRegisterPage() {
                 required
               >
                 <option value="">선택하세요</option>
-                <option value="vendor">vendor</option>
-                <option value="partner">partner</option>
+                {role == 'Admin' && <option value="vendor">vendor</option>}
+                {role == 'Admin' && <option value="partner">partner</option>}
                 <option value="customer">customer</option>
               </select>
             </div>

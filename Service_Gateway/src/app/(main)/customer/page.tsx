@@ -110,7 +110,7 @@ export default function CustomerPage() {
         <Link
           href="/customer/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-          style={{ display: role === 'Admin' ? '' : 'none' }}
+          // style={{ display: role === 'Admin' ? '' : 'none' }}
         >
           고객 등록
         </Link>

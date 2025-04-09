@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
-import { userinfo } from '@/utils/userinfo';
+
+import { userinfo, userinfo_id } from '@/utils/userinfo';
 
 /**
  * 사용자 목록 조회
@@ -47,6 +48,8 @@ export async function GET(request: Request) {
     // 3. 사용자 데이터에 role 추가 및 같은 회사 담당자 조회 추가
     let loginuser_companay_id
     let loginuser_type
+    let partner_company_type
+    let partner_company_id
     let data_user_partner = []
     for(var idx in data_user){
       // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
@@ -76,6 +79,8 @@ export async function GET(request: Request) {
         const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
         const company = await response.json();
         data_user[idx].company = company.name
+        data_user[idx].user_company_id = company.id
+        data_user[idx].user_manager_id = company.manager_id      
       }
 
       // Role이 User인 경우, 같은 회사 담당자 모두 조회
@@ -86,7 +91,15 @@ export async function GET(request: Request) {
     }
 
     for(var idx in data_user){
-      if (loginuser_type == data_user[idx].type && loginuser_companay_id == data_user[idx].company_id) {
+      // 파트너 로그인시, 관리 고객 사용자 조회
+      if (data_user[idx].user_manager_id) {
+        const data_userinfo = await userinfo_id(data_user[idx].user_manager_id);
+        if (data_userinfo.error)  continue;
+        partner_company_type = data_userinfo.attributes.type[0]
+        partner_company_id = data_userinfo.attributes.company_id[0]
+      }
+
+      if ((loginuser_type == data_user[idx].type && loginuser_companay_id == data_user[idx].company_id) || data_user[idx].type == 'customer' && loginuser_companay_id == partner_company_id) {
         data_user_partner.push(data_user[idx])
       }
     }
