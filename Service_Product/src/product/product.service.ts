@@ -12,6 +12,7 @@ export class ProductService {
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
+    createProductDto.enabled = true;
     const product = this.productRepository.create(createProductDto);
     return this.productRepository.save(product);
   }
@@ -22,7 +23,8 @@ export class ProductService {
     name?: string
   ): Promise<{ products: Product[]; total: number }> {
     const queryBuilder = this.productRepository.createQueryBuilder('product')
-      .where('product.removed IS NULL');
+      .andWhere('product.enabled = true')
+      .andWhere('product.removed IS NULL');
 
     if (name) {
       queryBuilder.andWhere('product.name LIKE :name', { name: `%${name}%` });
@@ -62,5 +64,20 @@ export class ProductService {
   async remove(id: number): Promise<void> {
     const product = await this.findOne(id);
     await this.productRepository.softDelete(id);
+  }
+
+  async disabledProduct(id: number): Promise<Product> {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new Error(`product with ID ${id} not found`);
+    }
+    product.enabled = false;
+
+    const savedProduct = await this.productRepository.save(product);
+    const formattedProduct = {
+      ...savedProduct,
+    };
+
+    return formattedProduct as unknown as Product;
   }
 }

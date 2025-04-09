@@ -4,6 +4,7 @@ export class CreateProductDto {
   isoFilePath: string;
   // rpmFilePath: string;
   history: string;
+  enabled: boolean;
 }
 
 export class UpdateProductDto {
@@ -12,4 +13,5 @@ export class UpdateProductDto {
   isoFilePath?: string;
   // rpmFilePath?: string;
   history?: string;
+  enabled?: boolean;
 } 

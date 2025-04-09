@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LicenseModule } from './license/license.module';
+import { BusinessModule } from './business/business.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -27,7 +27,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         '.env.local',
       ],
     }),
-    LicenseModule,
+    BusinessModule,
   ],
 })
 export class AppModule {}
