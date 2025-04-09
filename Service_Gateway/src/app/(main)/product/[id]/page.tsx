@@ -172,9 +172,15 @@ export default function ProductDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품 ISO경로</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {product.isoFilePath}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">제품 다운로드</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
-                <a href={product.isoFilePath} target="_blank" rel="noopener noreferrer">
-                  {product.isoFilePath}
+                <a href={"/iso"+product.isoFilePath} target="_self" rel="noopener noreferrer">
+                  [ 다운로드 ]
                 </a>
               </p>
             </div>
