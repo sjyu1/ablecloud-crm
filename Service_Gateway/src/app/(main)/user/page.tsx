@@ -242,7 +242,7 @@ export default function UserPage() {
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {users.filter(user => user.type === 'partner').length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                     사용자 정보가 없습니다.
@@ -309,7 +309,7 @@ export default function UserPage() {
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {users.filter(user => user.type === 'customer').length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                     사용자 정보가 없습니다.
@@ -376,7 +376,7 @@ export default function UserPage() {
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {users.filter(user => user.type === 'vendor').length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                     사용자 정보가 없습니다.
