@@ -1,9 +1,9 @@
 #!/bin/bash
 
-service_path='/ablecloud-crm'
+service_path='/root/ablecloud-crm'
 
 # keycloak 시작
-keycloak_path='/keycloak'
+keycloak_path='/root/keycloak-25.0.6_test'
 cd $keycloak_path
 bin/kc.sh start-dev
 

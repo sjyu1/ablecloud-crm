@@ -17,6 +17,7 @@ interface User {
   type: string;
   role: string;
   company: string;
+  // loginuser_type: string;
 }
 
 interface TabPanelProps {
@@ -55,6 +56,7 @@ export default function UserPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [value, setValue] = useState(0);
+  const [loginUserType, setLoginUserType] = useState('');
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -91,6 +93,7 @@ export default function UserPage() {
         }
 
         setUsers(result.data);
+        setLoginUserType(result.data[result.data.length - 1].loginuser_type)
       } catch (error) {
         alert('사용자 목록 조회에 실패했습니다.');
       }
@@ -181,7 +184,7 @@ export default function UserPage() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="파트너" {...tabProps(0)} />
             <Tab label="고객" {...tabProps(1)} />
-          {role !== 'User' && users.filter(user => user.type === 'vendor').length > 0 && (
+          {(role === 'Admin' || (role === 'User' && loginUserType === 'vendor')) && users.filter(user => user.type === 'vendor').length > 0 && (
             <Tab label="벤더" {...tabProps(2)} />
           )}
         </Tabs>
