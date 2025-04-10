@@ -17,7 +17,6 @@ interface User {
   type: string;
   role: string;
   company: string;
-  // loginuser_type: string;
 }
 
 interface TabPanelProps {
