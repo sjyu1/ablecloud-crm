@@ -129,6 +129,7 @@ export default function ProductDetailPage() {
           <button
             onClick={handleDisabled}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            style={{ display: role === 'Admin' ? '' : 'none' }}
           >
             제품 비활성화
           </button>
@@ -170,12 +171,12 @@ export default function ProductDetailPage() {
               {product.version}
               </p>
             </div>
-            <div>
+            {/* <div>
               <h3 className="text-sm font-medium text-gray-500">제품 ISO경로</h3>
               <p className="mt-1 text-lg text-gray-900">
                 {product.isoFilePath}
               </p>
-            </div>
+            </div> */}
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품 다운로드</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">

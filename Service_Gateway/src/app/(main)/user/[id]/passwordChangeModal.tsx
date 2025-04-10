@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import AlertComponent from '../../common/alertComponent'; 
 
@@ -16,6 +15,14 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [newPasswordCheck, setNewPasswordCheck] = React.useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setNewPassword('');
+      setNewPasswordCheck('');
+      setError('');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -48,7 +55,8 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
       if (response.ok) {
         alert('사용자 비밀번호가 변경 되었습니다.');
-        
+        onClose();
+
         // setAlertMessage('사용자 비밀번호가 변경 되었습니다.');
         // setShowAlert(true);
 
@@ -62,7 +70,7 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
-      onClose();
+      // onClose();
     }
   };
 
@@ -128,7 +136,7 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
-              저장
+              확인
             </button>
           </div>
         </form>
