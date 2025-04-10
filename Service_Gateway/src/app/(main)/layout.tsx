@@ -1,17 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getCookie, useAuthStore } from '../store/authStore';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { PiCertificate } from "react-icons/pi";
-import { LuUserRound } from "react-icons/lu";
-import { LiaUserFriendsSolid } from "react-icons/lia";
-import { HiUsers } from "react-icons/hi";
-import { AiOutlineProduct } from "react-icons/ai";
-import { LuBriefcaseBusiness } from "react-icons/lu";
 import Image from 'next/image';
+
+// SVG 파일을 React 컴포넌트로 임포트
+import license_svg from '../../../public/icons/license.svg';
+import business_svg from '../../../public/icons/business.svg';
+import product_svg from '../../../public/icons/product.svg';
+import partner_svg from '../../../public/icons/partner.svg';
+import customer_svg from '../../../public/icons/customer.svg';
+import user_svg from '../../../public/icons/user.svg';
 
 export default function MainLayout({
   children,
@@ -20,33 +21,34 @@ export default function MainLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
-  
+  const { logout } = useAuthStore();
+
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [role, setRole] = useState<string | undefined>(undefined);
 
+  // 쿠키에서 사용자 정보 가져오기
   useEffect(() => {
     const usernameCookie = getCookie('username');
-    const role = getCookie('role');
-    
+    const roleCookie = getCookie('role');
+
     setUsername(usernameCookie ?? undefined);
-    setRole(role ?? undefined);
+    setRole(roleCookie ?? undefined);
   }, []);
 
+  // 로그아웃 처리
   const handleLogout = () => {
     logout();
     router.push('/login');
   };
 
+  // 메뉴 아이템 정의 (아이콘 참조 형태)
   const menuItems = [
-    // { name: '대시보드', path: '/dashboard', icon: '📊' },
-    { name: '라이센스', path: '/license', icon: <PiCertificate /> },
-    { name: '사업', path: '/business', icon: <LuBriefcaseBusiness /> },
-    { name: '제품', path: '/product', icon: <AiOutlineProduct /> },
-    { name: '파트너', path: '/partner', icon: <LiaUserFriendsSolid /> },
-    { name: '고객', path: '/customer', icon: <HiUsers /> },
-    { name: '사용자', path: '/user', icon: <LuUserRound /> },
-    // { name: '설정', path: '/settings', icon: '⚙️' },
+    { name: '라이센스', path: '/license', icon: license_svg },
+    { name: '사업', path: '/business', icon: business_svg },
+    { name: '제품', path: '/product', icon: product_svg },
+    { name: '파트너', path: '/partner', icon: partner_svg },
+    { name: '고객', path: '/customer', icon: customer_svg },
+    { name: '사용자', path: '/user', icon: user_svg },
   ];
 
   return (
@@ -55,16 +57,15 @@ export default function MainLayout({
       <header className="bg-white shadow fixed w-full z-10">
         <div className="px-4 py-4">
           <nav className="flex justify-between items-center">
-            {/* <h1 className="text-xl font-bold text-gray-800">ABLECLOUD CRM</h1> */}
             <Image
-              src="/images/ablestack-logo.png"  // public 폴더의 경로
-              alt="My PNG Image"
-              width={200}  // 이미지의 너비
-              height={100} // 이미지의 높이
+              src="/images/ablestack-logo.png"
+              alt="ABLESTACK Logo"
+              width={200}
+              height={100}
+              priority
             />
             <div className="flex items-center gap-4">
               <span className="text-gray-600">
-                {/* <strong>{user?.username}</strong>님 환영합니다 */}
                 <strong>{username}</strong>님 환영합니다
               </span>
               <button
@@ -82,22 +83,30 @@ export default function MainLayout({
         {/* 왼쪽 메뉴 */}
         <aside className="w-64 bg-white shadow-lg fixed h-full">
           <nav className="p-4 space-y-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  // pathname === item.path
-                  pathname.includes(item.path)
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-                // style={item.name === '사용자' && role !== 'Admin' ? { display: 'none' } : {}}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            ))}
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname.startsWith(item.path);
+
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-xl">
+                  <Image
+                    src={Icon}
+                    alt="ABLESTACK Logo"
+                    className="w-6 h-6"
+                    priority
+                  />
+                  </span>
+                  <span className="font-medium">{item.name}</span>
+                </Link>
+              );
+            })}
           </nav>
         </aside>
 
