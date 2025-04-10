@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { logoutIfTokenExpired } from '../../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface LicenseForm {
@@ -38,12 +38,19 @@ export default function LicenseRegisterPage() {
   const [business, setBusiness] = useState<Business[]>([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isCheckedToTrial, setIsCheckedToTrial] = useState<boolean>(false);
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
 
     const fetchBusiness = async () => {
       try {
         let url = `/api/business?available=true`;
+
+        if (role == 'User') {
+          url += `&role=User`;
+        }
 
         const response = await fetch(url);
         const result = await response.json();
