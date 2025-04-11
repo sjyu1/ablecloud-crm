@@ -79,7 +79,7 @@ export default function MainLayout({
         </div>
       </header>
 
-      <div className="flex flex-1 pt-16">
+      <div className="flex flex-1 pt-16 bg-white shadow-lg">
         {/* 왼쪽 메뉴 */}
         <aside className="w-64 bg-white shadow-lg fixed h-full">
           <nav className="p-4 space-y-2">
