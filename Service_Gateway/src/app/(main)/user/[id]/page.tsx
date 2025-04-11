@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getCookie } from '../../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import PasswordChangeModal from './passwordChangeModal';
 
 interface User {
@@ -43,15 +43,17 @@ export default function UserDetailPage() {
       }
 
       if (result.data.error) {
-        setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-        // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+        throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
       }
+
       setUser(result.data);
     } catch (err) {
-      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      return;
+      if (err instanceof Error) {
+        if (err.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        }
+      }
     } finally {
       setIsLoading(false);
     }

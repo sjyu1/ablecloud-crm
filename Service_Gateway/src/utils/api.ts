@@ -25,11 +25,11 @@ export async function fetchWithAuthValid(url: string, options: RequestInit = {})
   const token = (await cookies()).get('token')?.value;
   
   if (!token) {
-    throw new Error('인증 토큰이 필요합니다.');
+    throw new Error('Failed to fetch user information');
   }
 
   if (!await validToken(token)) {
-    throw new Error('유효한 인증 토큰이 필요합니다.');
+    throw new Error('Failed to fetch user information');
   }
   const defaultHeaders = {
     'Content-Type': 'application/json',

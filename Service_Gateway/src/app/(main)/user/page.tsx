@@ -83,18 +83,19 @@ export default function UserPage() {
         const result = await response.json();
 
         if (!result.success) {
-          if (result.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          } else {
-            alert(result.message);
-            return;
-          }
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
         setUsers(result.data);
         setLoginUserType(result.data[result.data.length - 1].loginuser_type)
-      } catch (error) {
-        alert('사용자 목록 조회에 실패했습니다.');
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          }
+        } else {
+          alert('사용자 목록 조회에 실패했습니다.');
+        }
       }
     };
 

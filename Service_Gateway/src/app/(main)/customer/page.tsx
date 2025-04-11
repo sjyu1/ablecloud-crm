@@ -55,18 +55,19 @@ export default function CustomerPage() {
         const result = await response.json();
 
         if (!result.success) {
-          if (result.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          } else {
-            alert(result.message);
-            return;
-          }
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
         setCustomers(result.data);
         setPagination(result.pagination);
-      } catch (error) {
-        alert('고객 목록 조회에 실패했습니다.');
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          }
+        } else {
+          alert('고객 목록 조회에 실패했습니다.');
+        }
       }
     };
 
