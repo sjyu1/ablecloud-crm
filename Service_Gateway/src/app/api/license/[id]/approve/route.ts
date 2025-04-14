@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { cookies } from 'next/headers';
+import log from '@/utils/logger';
 
 /**
  * 라이센스 승인
@@ -13,6 +14,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /license/'+params.id+'/approve');
     const username = (await cookies()).get('username')?.value;
     const submitData = {
       approve_user: username,
@@ -25,6 +27,7 @@ export async function PUT(
     });
 
     const license = await response.json();
+    log.info('PUT /license/'+params.id+'/approve DATA ::: '+JSON.stringify(license));
     
     // if (license === -1) {
     //   return NextResponse.json(
@@ -40,6 +43,7 @@ export async function PUT(
       data: license.data 
     });
   } catch (error) {
+    log.info('PUT /license/'+params.id+'/approve ERROR::: '+error);
     return NextResponse.json(
       { message: '라이센스 승인 중 오류가 발생했습니다.' },
       { status: 500 }

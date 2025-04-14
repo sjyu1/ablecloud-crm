@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import log from '@/utils/logger';
 
 /**
  * 로그인
@@ -7,6 +8,7 @@ import { NextResponse } from 'next/server';
  */ 
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /api/login');
     const body = await request.json();
     const { username, password } = body;
     const submitData = {
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
     });
 
     const data = await res.json();
-    // console.log(data.access_token);
+    // log.info('POST /api/login DATA ::: '+JSON.stringify(data));
 
     /*
     {
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
     */
 
     if (data.error) {
+      log.info('POST /api/login ERROR ::: '+data.error);
       return NextResponse.json(
         { message: '아이디 또는 비밀번호가 올바르지 않습니다.' },
         { status: 401 }
@@ -58,7 +61,8 @@ export async function POST(request: Request) {
       } 
     });
   } catch (error) {
-    console.error('Login error:', error);
+    log.info('POST /api/login ERROR ::: '+error);
+    // console.error('Login error:', error);
     return NextResponse.json(
       { message: '서버 오류가 발생했습니다.' },
       { status: 500 }
