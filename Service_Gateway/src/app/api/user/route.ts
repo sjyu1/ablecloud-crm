@@ -104,8 +104,10 @@ export async function GET(request: Request) {
       }
     }
 
-    if (role) {
+    if (role && loginuser_type !== 'vendor') {
       data_user = data_user_partner
+    } else {
+      data_user.push({'loginuser_type':loginuser_type})
     }
 
     if (!res_user.ok) {

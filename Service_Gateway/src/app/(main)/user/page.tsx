@@ -55,6 +55,7 @@ export default function UserPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [value, setValue] = useState(0);
+  const [loginUserType, setLoginUserType] = useState('');
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -82,17 +83,19 @@ export default function UserPage() {
         const result = await response.json();
 
         if (!result.success) {
-          if (result.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          } else {
-            alert(result.message);
-            return;
-          }
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
         setUsers(result.data);
-      } catch (error) {
-        alert('사용자 목록 조회에 실패했습니다.');
+        setLoginUserType(result.data[result.data.length - 1].loginuser_type)
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          }
+        } else {
+          alert('사용자 목록 조회에 실패했습니다.');
+        }
       }
     };
 
@@ -181,7 +184,7 @@ export default function UserPage() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="파트너" {...tabProps(0)} />
             <Tab label="고객" {...tabProps(1)} />
-          {role !== 'User' && users.filter(user => user.type === 'vendor').length > 0 && (
+          {(role === 'Admin' || (role === 'User' && loginUserType === 'vendor')) && users.filter(user => user.type === 'vendor').length > 0 && (
             <Tab label="벤더" {...tabProps(2)} />
           )}
         </Tabs>

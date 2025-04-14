@@ -1,1 +1,3 @@
 mount -t nfs 10.10.0.203:/volume1/images/ABLESTACK-ISO /root/ablecloud-crm/Service_Gateway/public/iso
+vi /etc/fstab
+10.10.0.203:/volume1/images/ABLESTACK-ISO /root/ablecloud-crm/Service_Gateway/public/iso nfs defaults 0 0

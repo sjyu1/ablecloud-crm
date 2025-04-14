@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getCookie } from '../../../store/authStore';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { format } from 'date-fns';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -66,6 +66,7 @@ export default function PartnerDetailPage() {
 
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -89,15 +90,17 @@ export default function PartnerDetailPage() {
       }
 
       if (result.data.error) {
-        setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-        // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+        throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
       }
+
       setPartner(result.data);
     } catch (err) {
-      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      return;
+      // if (err instanceof Error) {
+      //   if (err.message == 'Failed to fetch user information') {
+      //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+      //   }
+      // }
     } finally {
       setIsLoading(false);
     }
@@ -119,10 +122,13 @@ export default function PartnerDetailPage() {
 
       setUsers(result.data);
     } catch (err) {
-      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      return;
+      if (err instanceof Error) {
+        if (err.message == 'Failed to fetch user information') {
+          setIsLoggedOut(true);
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +183,10 @@ export default function PartnerDetailPage() {
         <div className="text-gray-500">파트너를 찾을 수 없습니다.</div>
       </div>
     );
+  }
+
+  if (isLoggedOut) {
+    return null;
   }
 
   return (
