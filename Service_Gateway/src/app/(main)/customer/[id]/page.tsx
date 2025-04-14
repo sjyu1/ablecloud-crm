@@ -185,7 +185,7 @@ export default function CustomerDetailPage() {
   if (!customer) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">고객을 찾을 수 없습니다.</div>
+        {/* <div className="text-gray-500">고객을 찾을 수 없습니다.</div> */}
       </div>
     );
   }
