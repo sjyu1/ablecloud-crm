@@ -54,13 +54,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '라이센스 조회에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error('라이센스 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -79,7 +73,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: '라이센스 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -148,13 +142,7 @@ export async function POST(request: Request) {
     log.info('POST /license DATA ::: '+JSON.stringify(response_business));
 
     if (!response_business.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '사업에 라이센스 아이드 등록을 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error('사업에 라이센스 등록을 실패했습니다.');
     }
 
     return NextResponse.json({ 

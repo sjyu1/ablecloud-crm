@@ -28,15 +28,6 @@ export async function PUT(
 
     const license = await response.json();
     log.info('PUT /license/'+params.id+'/approve DATA ::: '+JSON.stringify(license));
-    
-    // if (license === -1) {
-    //   return NextResponse.json(
-    //     { message: '라이센스를 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // licenses[index] = { ...licenses[index], ...body };
 
     return NextResponse.json({ 
       status: 200,

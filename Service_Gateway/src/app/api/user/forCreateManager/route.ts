@@ -97,13 +97,7 @@ export async function GET(request: Request) {
     log.info('GET /user/forCreateManager DATA ::: '+JSON.stringify(data_user));
 
     if (!res_user.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data_user.message || '사용자 조회에 실패했습니다.'
-        },
-        { status: res_user.status }
-      );
+      throw new Error(data_user.message || '사용자 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 

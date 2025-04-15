@@ -19,10 +19,7 @@ export async function GET(
     log.info('GET /partner/'+params.id+' DATA ::: '+JSON.stringify(partner));
     
     if (!partner) {
-      return NextResponse.json(
-        { message: '파트너를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('파트너를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -59,24 +56,9 @@ export async function PUT(
 
     const partner = await response.json();
     log.info('PUT /partner/'+params.id+' DATA ::: '+JSON.stringify(partner));
-    
-    // if (partner === -1) {
-    //   return NextResponse.json(
-    //     { message: '파트너를 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // partners[index] = { ...partners[index], ...body };
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: partner.message || '파트너 수정 중 오류가 발생했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(partner.message || '파트너 수정 중 오류가 발생했습니다.');
     }
 
     return NextResponse.json({ 
@@ -107,15 +89,6 @@ export async function DELETE(
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${params.id}`,{
       method: 'DELETE',
     })
-
-    // if (!response) {
-    //   return NextResponse.json(
-    //     { message: '파트너를 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // partners = partners.filter(l => l.id !== parseInt(params.id));
 
     return NextResponse.json({ 
       status: 200,

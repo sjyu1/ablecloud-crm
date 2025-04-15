@@ -56,17 +56,11 @@ export async function PUT(
     if (!response.ok) {
       const data = await response.json();
 
-      return NextResponse.json(
-        { message: data.error },
-        { status: 401 }
-      );
+      throw new Error(data.error);
     }
 
     if (!response) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 

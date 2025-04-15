@@ -19,15 +19,6 @@ export async function PUT(
     });
 
     const product = await response.json();
-    
-    // if (product === -1) {
-    //   return NextResponse.json(
-    //     { message: '제품을 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // products[index] = { ...products[index], ...body };
 
     return NextResponse.json({ 
       status: 200,

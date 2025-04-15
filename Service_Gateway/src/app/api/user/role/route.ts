@@ -30,8 +30,7 @@ export async function GET(request: Request) {
     });
 
     const client_token = await res_token.json();
-    // console.log('---------')
-    // console.log(client_token.access_token)
+
     // 2. 사용자 Role 목록 조회
     const res_user = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/roles`, {
       method: 'GET',
@@ -45,13 +44,7 @@ export async function GET(request: Request) {
     log.info('GET /user/role DATA ::: '+JSON.stringify(data_user));
 
     if (!res_user.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data_user.message || '사용자 조회에 실패했습니다.'
-        },
-        { status: res_user.status }
-      );
+      throw new Error(data_user.message || '사용자 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 

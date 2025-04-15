@@ -27,13 +27,7 @@ export async function GET(request: Request) {
     log.info('GET /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '제품 조회에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error('제품 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -77,13 +71,7 @@ export async function POST(request: Request) {
     log.info('POST /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '제품 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '제품 생성에 실패했습니다.');
     }
 
     return NextResponse.json({ 

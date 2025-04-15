@@ -76,13 +76,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '사업 조회에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '사업 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -101,7 +95,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: '사업 조회 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );
@@ -126,13 +120,7 @@ export async function POST(request: Request) {
     log.info('POST /business DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '사업 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '사업 생성에 실패했습니다.');
     }
 
     return NextResponse.json({ 

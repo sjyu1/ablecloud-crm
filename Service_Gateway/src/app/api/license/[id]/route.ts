@@ -37,10 +37,7 @@ export async function GET(
     }
 
     if (!data) {
-      return NextResponse.json(
-        { message: '라이센스를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('라이센스를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -76,15 +73,6 @@ export async function PUT(
 
     const license = await response.json();
     log.info('PUT /license/'+params.id+' DATA ::: '+JSON.stringify(license));
-    
-    // if (license === -1) {
-    //   return NextResponse.json(
-    //     { message: '라이센스를 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // licenses[index] = { ...licenses[index], ...body };
 
     return NextResponse.json({ 
       status: 200,
@@ -117,15 +105,6 @@ export async function DELETE(
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}?business_id=${business_id}`,{
       method: 'DELETE',
     })
-
-    // if (!response) {
-    //   return NextResponse.json(
-    //     { message: '라이센스를 찾을 수 없습니다.' },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // licenses = licenses.filter(l => l.id !== parseInt(params.id));
 
     return NextResponse.json({ 
       status: 200,

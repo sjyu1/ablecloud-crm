@@ -80,10 +80,7 @@ export async function GET(
     log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
 
     if (!data_user) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -159,18 +156,11 @@ export async function PUT(
 
     if (!response.ok) {
       const data = await response.json();
-
-      return NextResponse.json(
-        { message: data.error },
-        { status: 401 }
-      );
+      throw new Error(data.error);
     }
 
     if (!response) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -228,13 +218,8 @@ export async function DELETE(
     });
 
     if (!response) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
-
-    // licenses = licenses.filter(l => l.id !== parseInt(params.id));
 
     return NextResponse.json({ 
       status: 200,

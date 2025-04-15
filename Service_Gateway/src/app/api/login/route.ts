@@ -46,11 +46,7 @@ export async function POST(request: Request) {
     */
 
     if (data.error) {
-      log.info('POST /api/login ERROR ::: '+data.error);
-      return NextResponse.json(
-        { message: '아이디 또는 비밀번호가 올바르지 않습니다.' },
-        { status: 401 }
-      );
+      throw new Error(data.error);
     }
 
     return NextResponse.json({
@@ -64,8 +60,8 @@ export async function POST(request: Request) {
     log.info('POST /api/login ERROR ::: '+error);
     // console.error('Login error:', error);
     return NextResponse.json(
-      { message: '서버 오류가 발생했습니다.' },
-      { status: 500 }
+      { message: '아이디 또는 비밀번호가 올바르지 않습니다.' },
+      { status: 401 }
     );
   }
 }
