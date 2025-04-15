@@ -15,6 +15,6 @@ find $BACKUP_DIR -type f -name "*.gz" -mtime +7 -delete
 
 
 
-# crontab(매일 1시마다 백업)
+# crontab(매일 1시마다 백업. backup_script.sh 파일권한 확인)
 # crontab -e
-# 0 1 * * * /root/ablecloud-crm/backup_script.sh
+# 0 1 * * * /root/ablecloud-crm/backup_script.sh >> /root/ablecloud-crm/backup_script.sh.log 2>&1
