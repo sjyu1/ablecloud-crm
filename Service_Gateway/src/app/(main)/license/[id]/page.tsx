@@ -110,7 +110,7 @@ export default function LicenseDetailPage() {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.href = url;
-      link.download = `${uniqueId}_${license?.expired}`;
+      link.download = `${uniqueId}`;
       link.click();
 
     } catch (err) {
