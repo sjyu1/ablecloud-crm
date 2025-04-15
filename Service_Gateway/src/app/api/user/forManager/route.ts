@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
-import { userinfo } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 사용자 목록 조회
@@ -11,6 +11,7 @@ import { userinfo } from '@/utils/userinfo';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /user/forManager');
     const { searchParams } = new URL(request.url);
     const company_id = searchParams.get('company_id');
     const type = searchParams.get('type');  //vendor, partner, customer
@@ -68,6 +69,8 @@ export async function GET(request: Request) {
       data_user = data_user_com
     }
 
+    log.info('GET /user/forManager DATA ::: '+JSON.stringify(data_user));
+
     if (!res_user.ok) {
       return NextResponse.json(
         { 
@@ -84,6 +87,7 @@ export async function GET(request: Request) {
       data: data_user || []
     });
   } catch (error) {
+    log.info('GET /user/forManager ERROR ::: '+error);
     if (error instanceof Error){ 
       return NextResponse.json(
         { 

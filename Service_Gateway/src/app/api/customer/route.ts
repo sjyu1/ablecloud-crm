@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo, userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 고객 목록 조회
@@ -8,6 +9,7 @@ import { userinfo, userinfo_id } from '@/utils/userinfo';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /customer');
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -24,6 +26,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+    log.info('GET /customer DATA ::: '+JSON.stringify(data));
 
     // role 파라미터가 존재하는경우, 로그인한 파트너의 정보만 조회(role이 user여도 type이 vendor일 경우 전체조회)
     let data_user_com = []
@@ -86,6 +89,7 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    log.info('GET /customer ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,
@@ -103,6 +107,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /customer');
     const body = await request.json();
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer`, {
       method: 'POST',
@@ -110,6 +115,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+    log.info('POST /customer DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       return NextResponse.json(
@@ -127,6 +133,7 @@ export async function POST(request: Request) {
       data: data
     });
   } catch (error) {
+    log.info('POST /customer ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,

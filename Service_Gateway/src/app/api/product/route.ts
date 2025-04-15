@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import log from '@/utils/logger';
 
 /**
  * 제품 목록 조회
@@ -7,6 +8,7 @@ import { fetchWithAuth } from '@/utils/api';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /product');
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -22,6 +24,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+    log.info('GET /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       return NextResponse.json(
@@ -45,6 +48,7 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    log.info('GET /product ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,
@@ -62,6 +66,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /product');
     const body = await request.json();
     const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product`, {
       method: 'POST',
@@ -69,6 +74,8 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+    log.info('POST /product DATA ::: '+JSON.stringify(data));
+
     if (!response.ok) {
       return NextResponse.json(
         { 
@@ -85,6 +92,7 @@ export async function POST(request: Request) {
       data: data
     });
   } catch (error) {
+    log.info('POST /product ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
-
 import { userinfo, userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 사용자 목록 조회
@@ -12,6 +12,7 @@ import { userinfo, userinfo_id } from '@/utils/userinfo';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /user');
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
     const username = searchParams.get('username');
@@ -110,6 +111,8 @@ export async function GET(request: Request) {
       data_user.push({'loginuser_type':loginuser_type})
     }
 
+    log.info('GET /user DATA ::: '+JSON.stringify(data_user));
+
     if (!res_user.ok) {
       return NextResponse.json(
         { 
@@ -126,6 +129,7 @@ export async function GET(request: Request) {
       data: data_user || []
     });
   } catch (error) {
+    log.info('GET /user ERROR ::: '+error);
     if (error instanceof Error){ 
       return NextResponse.json(
         { 
@@ -160,6 +164,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /user');
 
     // 1. client_credentials token 가져오기
     const submitData_token = {
@@ -209,6 +214,7 @@ export async function POST(request: Request) {
 
     if(res_createuser && !res_createuser.ok) {
       const data_createuser = await res_createuser.json();
+      log.info('POST /user DATA ::: '+JSON.stringify(data_createuser));
       if (data_createuser && !data_createuser.errors) throw new Error(data_createuser.errorMessage || data_createuser.error)
       if (data_createuser.errors) throw new Error(data_createuser.errors[0].errorMessage)
     }
@@ -287,6 +293,7 @@ export async function POST(request: Request) {
       data: res
     });
   } catch (error) {
+    log.info('POST /user ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,

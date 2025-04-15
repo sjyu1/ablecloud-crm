@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 사업 상세 조회
@@ -13,8 +14,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: GET /business/'+params.id);
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`);
     const business = await response.json();
+    log.info('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     
     // 사업 데이터에 사업담당자 정보 추가
     const data_userinfo = await userinfo_id(business.manager_id);
@@ -50,6 +53,7 @@ export async function GET(
       data: business
     });
   } catch (error) {
+    log.info('GET /business/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사업 조회 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -68,6 +72,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /business/'+params.id);
     const body = await request.json();
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`, {
       method: 'PUT',
@@ -75,7 +80,7 @@ export async function PUT(
     });
 
     const business = await response.json();
-    
+    log.info('PUT /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     // if (business === -1) {
     //   return NextResponse.json(
     //     { message: '사업을 찾을 수 없습니다.' },
@@ -100,6 +105,7 @@ export async function PUT(
       data: business.data 
     });
   } catch (error) {
+    log.info('PUT /business/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사업 수정 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -118,6 +124,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: DELETE /business/'+params.id);
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`,{
       method: 'DELETE',
     })
@@ -136,6 +143,7 @@ export async function DELETE(
       message: '사업이 삭제되었습니다.' 
     });
   } catch (error) {
+    log.info('DELETE /business/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사업 삭제 중 오류가 발생했습니다.' },
       { status: 500 }

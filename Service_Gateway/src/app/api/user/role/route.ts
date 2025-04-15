@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
+import log from '@/utils/logger';
 
 /**
  * 사용자 Role 목록 조회
@@ -9,6 +10,7 @@ import { fetchWithAuth, fetchWithAuthValid } from '@/utils/api';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /user/role');
     const { searchParams } = new URL(request.url);
 
     // 1. client_credentials token 가져오기
@@ -40,8 +42,8 @@ export async function GET(request: Request) {
     });
 
     const data_user = await res_user.json();
-    // console.log('---------')
-    // console.log(data_user)
+    log.info('GET /user/role DATA ::: '+JSON.stringify(data_user));
+
     if (!res_user.ok) {
       return NextResponse.json(
         { 
@@ -58,6 +60,7 @@ export async function GET(request: Request) {
       data: data_user || []
     });
   } catch (error) {
+    log.info('GET /user/role ERROR ::: '+error);
     if (error instanceof Error){ 
       return NextResponse.json(
         { 

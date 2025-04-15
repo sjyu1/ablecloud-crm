@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 고객 상세 조회
@@ -13,8 +14,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: GET /customer/'+params.id);
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer/${params.id}`);
     const customer = await response.json();
+    log.info('GET /customer/'+params.id+' DATA ::: '+JSON.stringify(customer));
 
     // 고객 데이터에 고객관리담당자 정보 추가
     const data_userinfo = await userinfo_id(customer.manager_id);
@@ -45,6 +48,7 @@ export async function GET(
       data: customer 
     });
   } catch (error) {
+    log.info('GET /customer/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '고객 조회 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -63,14 +67,15 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /customer/'+params.id);
     const body = await request.json();
-
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer/${params.id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
 
     const customer = await response.json();
+    log.info('PUT /customer/'+params.id+' DATA ::: '+JSON.stringify(customer));
 
     // if (customer === -1) {
     //   return NextResponse.json(
@@ -96,6 +101,7 @@ export async function PUT(
       data: customer.data 
     });
   } catch (error) {
+    log.info('PUT /customer/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '고객 수정 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -114,6 +120,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: DELETE /customer/'+params.id);
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/customer/${params.id}`,{
       method: 'DELETE',
     })
@@ -132,6 +139,7 @@ export async function DELETE(
       message: '고객이 삭제되었습니다.' 
     });
   } catch (error) {
+    log.info('DELETE /customer/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '고객 삭제 중 오류가 발생했습니다.' },
       { status: 500 }

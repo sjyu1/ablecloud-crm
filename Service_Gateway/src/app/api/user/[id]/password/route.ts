@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import log from '@/utils/logger';
 
 /**
  * 사용자 비밀번호 변경
@@ -14,6 +15,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /user/'+params.id+'/password');
     // 1. client_credentials token 가져오기
     const submitData_token = {
       client_id: process.env.CLIENT_ID,
@@ -72,6 +74,7 @@ export async function PUT(
       message: '사용자 비밀번호가 변경되었습니다.' 
     });
   } catch (error) {
+    log.info('DELETE /user/'+params.id+'/password ERROR ::: '+error);
     return NextResponse.json(
       { message: '사용자 비밀번호 변경 중 오류가 발생했습니다.' },
       { status: 500 }

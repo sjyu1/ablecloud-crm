@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import log from '@/utils/logger';
 
 /**
  * 제품 상세 조회
@@ -12,9 +13,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: GET /product/'+params.id);
     const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${params.id}`);
-
     const product = await response.json();
+    log.info('GET /product/'+params.id+' DATA ::: '+JSON.stringify(product));
     
     if (!product) {
       return NextResponse.json(
@@ -28,6 +30,7 @@ export async function GET(
       data: product 
     });
   } catch (error) {
+    log.info('GET /product/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '제품 조회 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -46,6 +49,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /product/'+params.id);
     const body = await request.json();
 
     const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${params.id}`, {
@@ -54,6 +58,7 @@ export async function PUT(
     });
 
     const product = await response.json();
+    log.info('PUT /product/'+params.id+' DATA ::: '+JSON.stringify(product));
     
     // if (product === -1) {
     //   return NextResponse.json(
@@ -79,6 +84,7 @@ export async function PUT(
       data: product.data 
     });
   } catch (error) {
+    log.info('PUT /product/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '제품 수정 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -97,6 +103,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: DELETE /product/'+params.id);
     const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${params.id}`,{
       method: 'DELETE',
     })
@@ -115,6 +122,7 @@ export async function DELETE(
       message: '제품이 삭제되었습니다.' 
     });
   } catch (error) {
+    log.info('DELETE /product/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '제품 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
