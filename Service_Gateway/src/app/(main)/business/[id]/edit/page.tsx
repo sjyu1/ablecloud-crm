@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
@@ -32,6 +32,8 @@ interface Product {
 export default function BusinessEditPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prevPage = searchParams.get('page') || '1';
   const [formData, setFormData] = useState<BusinessForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -134,7 +136,7 @@ export default function BusinessEditPage() {
         throw new Error(response.status == 409? '이미 존재하는 사업명입니다.' : '사업 수정에 실패했습니다.');
       }
 
-      router.push(`/business/${params.id}`);
+      router.push(`/business/${params.id}?page=${prevPage}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -303,7 +305,7 @@ export default function BusinessEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/business/${params.id}`}
+              href={`/business/${params.id}?page=${prevPage}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
