@@ -300,6 +300,7 @@ export default function BusinessRegisterPage() {
               <input
                 type="number"
                 name="node_cnt"
+                min="0"
                 value={formData.node_cnt}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -312,6 +313,7 @@ export default function BusinessRegisterPage() {
               <input
                 type="number"
                 name="core_cnt"
+                min="0"
                 value={formData.core_cnt}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

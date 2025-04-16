@@ -3,6 +3,7 @@ import { fetchWithAuth } from '@/utils/api';
 import { userinfo } from '@/utils/userinfo';
 import { cookies } from 'next/headers';
 import { userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 라이센스 목록 조회
@@ -10,6 +11,7 @@ import { userinfo_id } from '@/utils/userinfo';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /license');
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -32,6 +34,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+    log.info('GET /license DATA ::: '+JSON.stringify(data));
 
     // 라이센스 데이터에 발급자 정보 추가
     for(var idx in data.items) {
@@ -51,13 +54,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '라이센스 조회에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error('라이센스 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -72,10 +69,11 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    log.info('GET /license ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: '라이센스 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -89,6 +87,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /license');
     const username = (await cookies()).get('username')?.value;
     const role = (await cookies()).get('role')?.value;
     let company_id;
@@ -118,6 +117,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+    log.info('POST /license DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       return NextResponse.json(
@@ -139,14 +139,10 @@ export async function POST(request: Request) {
       body: JSON.stringify(submitData_business),
     });
 
+    log.info('POST /license DATA ::: '+JSON.stringify(response_business));
+
     if (!response_business.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '사업에 라이센스 아이드 등록을 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error('사업에 라이센스 등록을 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -155,6 +151,7 @@ export async function POST(request: Request) {
       data: data
     });
   } catch (error) {
+    log.info('POST /license ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,

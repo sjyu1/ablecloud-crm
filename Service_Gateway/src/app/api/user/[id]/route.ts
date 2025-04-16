@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import log from '@/utils/logger';
 
 /**
  * 사용자 상세 조회
@@ -15,6 +16,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: GET /user/'+params.id);
     // 1. client_credentials token 가져오기
     const submitData_token = {
       client_id: process.env.CLIENT_ID,
@@ -75,11 +77,10 @@ export async function GET(
       }
     }
 
+    log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
+
     if (!data_user) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -87,6 +88,7 @@ export async function GET(
       data: data_user 
     });
   } catch (error) {
+    log.info('GET /user/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사용자 조회 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -107,6 +109,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: PUT /user/'+params.id);
     // 1. client_credentials token 가져오기
     const submitData_token = {
       client_id: process.env.CLIENT_ID,
@@ -153,18 +156,11 @@ export async function PUT(
 
     if (!response.ok) {
       const data = await response.json();
-
-      return NextResponse.json(
-        { message: data.error },
-        { status: 401 }
-      );
+      throw new Error(data.error);
     }
 
     if (!response) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -172,6 +168,7 @@ export async function PUT(
       message: '사용자가 수정되었습니다.' 
     });
   } catch (error) {
+    log.info('PUT /user/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사용자 수정 중 오류가 발생했습니다.' },
       { status: 500 }
@@ -192,6 +189,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    log.info('API URL ::: DELETE /user/'+params.id);
     // 1. client_credentials token 가져오기
     const submitData_token = {
       client_id: process.env.CLIENT_ID,
@@ -220,19 +218,15 @@ export async function DELETE(
     });
 
     if (!response) {
-      return NextResponse.json(
-        { message: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
+      throw new Error('사용자를 찾을 수 없습니다.');
     }
-
-    // licenses = licenses.filter(l => l.id !== parseInt(params.id));
 
     return NextResponse.json({ 
       status: 200,
       message: '사용자가 삭제되었습니다.' 
     });
   } catch (error) {
+    log.info('DELETE /user/'+params.id+' ERROR ::: '+error);
     return NextResponse.json(
       { message: '사용자 삭제 중 오류가 발생했습니다.' },
       { status: 500 }

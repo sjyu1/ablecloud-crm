@@ -180,7 +180,7 @@ export default function PartnerDetailPage() {
   if (!partner) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">파트너를 찾을 수 없습니다.</div>
+        {/* <div className="text-gray-500">파트너를 찾을 수 없습니다.</div> */}
       </div>
     );
   }

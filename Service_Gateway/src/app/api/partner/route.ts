@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo, userinfo_id } from '@/utils/userinfo';
+import log from '@/utils/logger';
 
 /**
  * 파트너 목록 조회
@@ -8,6 +9,7 @@ import { userinfo, userinfo_id } from '@/utils/userinfo';
  */
 export async function GET(request: Request) {
   try {
+    log.info('API URL ::: GET /partner');
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -24,6 +26,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
+    log.info('GET /partner DATA ::: '+JSON.stringify(data));
 
     // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
     let data_user_com = []
@@ -48,13 +51,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '파트너 조회에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '파트너 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -69,10 +66,11 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    log.info('GET /partner ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: '파트너 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -86,6 +84,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    log.info('API URL ::: POST /partner');
     const body = await request.json();
     const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner`, {
       method: 'POST',
@@ -93,15 +92,10 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+    log.info('POST /partner DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '파트너 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '파트너 생성에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -110,6 +104,7 @@ export async function POST(request: Request) {
       data: data
     });
   } catch (error) {
+    log.info('POST /partner ERROR ::: '+error);
     return NextResponse.json(
       { 
         success: false,
