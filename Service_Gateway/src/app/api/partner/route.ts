@@ -95,13 +95,7 @@ export async function POST(request: Request) {
     log.info('POST /partner DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '파트너 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '파트너 생성에 실패했습니다.');
     }
 
     return NextResponse.json({ 
