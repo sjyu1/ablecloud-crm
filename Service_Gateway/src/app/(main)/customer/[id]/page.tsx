@@ -347,7 +347,7 @@ export default function CustomerDetailPage() {
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">사업 만료일</h3>
+                <h3 className="text-sm font-medium text-gray-500">사업 종료일</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {format(customer.business_expired, 'yyyy-MM-dd')}
                 </p>
