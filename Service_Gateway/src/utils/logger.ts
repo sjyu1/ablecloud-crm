@@ -1,4 +1,5 @@
 import { createLogger, transports, format } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,6 +13,16 @@ const logFile = path.join(logPath, 'app.log');
 //   fs.mkdirSync(logPath, { recursive: true }); // 권한 필요
 // }
 
+// 날짜별 로그 파일 생성
+const dailyRotateFileTransport = new DailyRotateFile({
+  dirname: logPath,
+  filename: 'app-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  maxSize: '1g',
+  maxFiles: '7d'
+});
+
 const logger = createLogger({
   level: 'info',
   format: format.combine(
@@ -22,7 +33,7 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(),
-    new transports.File({ filename: logFile })
+    dailyRotateFileTransport
   ]
 });
 
