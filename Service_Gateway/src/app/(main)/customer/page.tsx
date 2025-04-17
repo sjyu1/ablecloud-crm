@@ -31,135 +31,48 @@ export default function CustomerPage() {
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const role = getCookie('role');
-  const partnerId = getCookie('partnerId');
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     const fetchCustomers = async () => {
       try {
-        const page = Number(searchParams.get('page')) || 1;
+        const page = searchParams.get('page') || '1';
         const currentName = searchParams.get('name');
-        const token = getCookie('token');
         
-        // 전체 고객 목록을 가져오는 API 호출
-        let totalUrl = `/api/customer?page=1&limit=10000`;
-        if (currentName) {
-          totalUrl += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          totalUrl += `&role=User`;
-        }
-        
-        const totalResponse = await fetch(totalUrl, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        let totalResult;
-        try {
-          totalResult = await totalResponse.json();
-        } catch (error) {
-          console.error('Total response parsing error:', error);
-          totalResult = { data: [], success: false };
-        }
-        
-        if (!totalResponse.ok || !totalResult.success) {
-          if (totalResponse.status === 401) {
-            logoutIfTokenExpired();
-            return;
-          }
-          console.error('Total API Error:', totalResult);
-          setCustomers([]);
-          setPagination({
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: 0,
-            itemsPerPage: 10
-          });
-          return;
-        }
-
-        const totalCount = totalResult.data ? totalResult.data.length : 0;
-
-        // 현재 페이지 데이터 가져오기
-        let url = `/api/customer?page=${page}&limit=10`;
+        let url = `/api/customer?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
         }
-        if (role === 'User') {
+        if (role == 'User') {
           url += `&role=User`;
         }
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const response = await fetch(url);
+        const result = await response.json();
 
-        let result;
-        try {
-          result = await response.json();
-        } catch (error) {
-          console.error('Response parsing error:', error);
-          result = { data: [], success: false };
+        if (!result.success) {
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
-        if (!response.ok || !result.success) {
-          if (response.status === 401) {
-            logoutIfTokenExpired();
-            return;
+        setCustomers(result.data);
+        setPagination(result.pagination);
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
           }
-          console.error('API Error:', result);
-          setCustomers([]);
-          setPagination({
-            currentPage: 1,
-            totalPages: 1,
-            totalItems: 0,
-            itemsPerPage: 10
-          });
-          return;
+        } else {
+          alert('고객 목록 조회에 실패했습니다.');
         }
-
-        // 현재 페이지의 데이터 설정
-        const startIndex = (page - 1) * 10;
-        const endIndex = startIndex + 10;
-        const pageData = totalResult.data.slice(startIndex, endIndex);
-        setCustomers(pageData);
-        
-        // 다음 페이지 존재 여부 확인
-        const hasNext = endIndex < totalCount;
-        setHasNextPage(hasNext);
-        
-        // 페이지네이션 정보 업데이트
-        const totalPages = Math.ceil(totalCount / 10);
-        setPagination({
-          currentPage: page,
-          totalPages: totalPages,
-          totalItems: totalCount,
-          itemsPerPage: 10
-        });
-
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setCustomers([]);
-        setPagination({
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: 0,
-          itemsPerPage: 10
-        });
-        alert('고객 목록을 불러오는데 실패했습니다.');
       }
     };
 
     fetchCustomers();
-  }, [searchParams]);
+  }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
@@ -261,11 +174,7 @@ export default function CustomerPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {customers.map((customer) => (
-              <tr 
-                key={customer.id} 
-                className="hover:bg-gray-50 cursor-pointer" 
-                onClick={() => window.location.href = (`/customer/${customer.id}?page=${pagination.currentPage}`)}
-              >
+              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {customer.name}
                 </td>
@@ -306,24 +215,24 @@ export default function CustomerPage() {
       </div>
 
       {/* 페이지네이션 */}
-      {customers.length > 0 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2">
           <button
             onClick={() => handlePageChange(pagination.currentPage - 1)}
             disabled={pagination.currentPage === 1}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border rounded disabled:opacity-50"
           >
             이전
           </button>
 
           <span className="px-4">
-          {pagination.currentPage} / {pagination.totalPages} 페이지
+            {pagination.currentPage} / {pagination.totalPages} 페이지
           </span>
 
           <button
             onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={!hasNextPage}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={pagination.currentPage === pagination.totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50"
           >
             다음
           </button>
@@ -331,9 +240,9 @@ export default function CustomerPage() {
       )}
 
       {/* 총 아이템 수 */}
-      {<div className="text-center mt-2 text-gray-600">
+      {/* <div className="text-center mt-2 text-gray-600">
         총 {pagination.totalItems}개의 고객
-      </div>}
+      </div> */}
     </div>
   );
 } 

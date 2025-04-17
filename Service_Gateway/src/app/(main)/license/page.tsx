@@ -27,8 +27,6 @@ interface Pagination {
 }
 
 export default function LicensePage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [productName, setProductName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
@@ -37,114 +35,49 @@ export default function LicensePage() {
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const role = getCookie('role');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     const fetchLicenses = async () => {
       try {
-        const page = Number(searchParams.get('page')) || 1;
+        const page = searchParams.get('page') || '1';
         const currentProductName = searchParams.get('productName');
         
-        // 전체 라이센스 목록을 가져오는 API 호출
-        let totalUrl = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentProductName) {
-          totalUrl += `&productName=${currentProductName}`;
-        }
-        if (role === 'User') {
-          totalUrl += `&role=User`;
-        }
-        
-        const token = getCookie('token');
-        const totalResponse = await fetch(totalUrl, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!totalResponse.ok) {
-          if (totalResponse.status === 401) {
-            logoutIfTokenExpired();
-            return;
-          }
-          const errorData = await totalResponse.json();
-          throw new Error(errorData.message || `서버 응답 실패: ${totalResponse.status}`);
-        }
-
-        const totalResult = await totalResponse.json();
-        const totalCount = totalResult.data ? totalResult.data.length : 0;
-
-        // 현재 페이지 데이터 가져오기
-        let url = `/api/license?page=${page}&limit=10`;
+        let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentProductName) {
           url += `&productName=${currentProductName}`;
         }
-        if (role === 'User') {
+        if (role == 'User') {
           url += `&role=User`;
         }
 
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            logoutIfTokenExpired();
-            return;
-          }
-          const errorData = await response.json();
-          throw new Error(errorData.message || `서버 응답 실패: ${response.status}`);
-        }
-
+        const response = await fetch(url);
         const result = await response.json();
-        
+
         if (!result.success) {
-          throw new Error(result.message || '라이센스 목록을 불러오는데 실패했습니다.');
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
-        // 현재 페이지의 데이터 설정
-        const startIndex = (page - 1) * 10;
-        const endIndex = startIndex + 10;
-        const pageData = totalResult.data.slice(startIndex, endIndex);
-        setLicenses(pageData);
-        
-        // 다음 페이지 존재 여부 확인
-        const hasNext = endIndex < totalCount;
-        setHasNextPage(hasNext);
-        
-        // 페이지네이션 정보 업데이트
-        const totalPages = Math.ceil(totalCount / 10);
-        setPagination({
-          currentPage: page,
-          totalPages: totalPages,
-          totalItems: totalCount,
-          itemsPerPage: 10
-        });
-
-      } catch (error) {
-        console.error('Error:', error);
-        setLicenses([]);
-        setPagination({
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: 0,
-          itemsPerPage: 10
-        });
-        setHasNextPage(false);
-        if (error instanceof Error) {
-          alert(error.message);
+        setLicenses(result.data);
+        setPagination(result.pagination);
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          }
         } else {
-          alert('라이센스 목록을 불러오는데 실패했습니다.');
+          alert('라이센스 목록 조회에 실패했습니다.');
         }
       }
     };
 
     fetchLicenses();
-  }, [searchParams, role]);
+  }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
@@ -169,24 +102,15 @@ export default function LicensePage() {
     router.push('/license?page=1');
   };
 
-  // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1) return;
-
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
     router.push(`/license?${params.toString()}`);
   };
 
-  // tr 클릭 핸들러 수정
-  const handleRowClick = (licenseId: number) => {
-    // 현재 URL 파라미터를 state로 전달
-    router.push(`/license/${licenseId}?${searchParams.toString()}`);
-  };
-
   return (
     <div className="space-y-6">
-
+      
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">라이센스 관리</h1>
         <Link
@@ -266,11 +190,7 @@ export default function LicensePage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {licenses.map((license) => (
-              <tr 
-                key={license.id} 
-                className="hover:bg-gray-50 cursor-pointer" 
-                onClick={() => window.location.href =(`/license/${license.id}?page=${pagination.currentPage}`)}
-              >
+              <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {license.license_key}
@@ -331,12 +251,12 @@ export default function LicensePage() {
       </div>
 
       {/* 페이지네이션 */}
-      {licenses.length > 0 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2">
           <button
             onClick={() => handlePageChange(pagination.currentPage - 1)}
             disabled={pagination.currentPage === 1}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 border rounded disabled:opacity-50"
           >
             이전
           </button>
@@ -347,8 +267,8 @@ export default function LicensePage() {
 
           <button
             onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={!hasNextPage}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={pagination.currentPage === pagination.totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50"
           >
             다음
           </button>
@@ -356,9 +276,9 @@ export default function LicensePage() {
       )}
 
       {/* 총 아이템 수 */}
-      {<div className="text-center mt-2 text-gray-600">
+      {/* <div className="text-center mt-2 text-gray-600">
         총 {pagination.totalItems}개의 라이센스
-      </div>}
+      </div> */}
     </div>
   );
-}
+} 

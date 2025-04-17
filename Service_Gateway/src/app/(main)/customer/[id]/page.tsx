@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { format } from 'date-fns';
 import Tabs from '@mui/material/Tabs';
@@ -67,7 +67,6 @@ function tabProps(index: number) {
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -75,10 +74,6 @@ export default function CustomerDetailPage() {
 
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
-  const [currentPage, setCurrentPage] = useState<string>('1');
-
-  // 이전 페이지 번호를 가져옵니다
-  const prevPage = searchParams.get('page') || '1';
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -87,12 +82,9 @@ export default function CustomerDetailPage() {
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
+
     fetchCustomerDetail();
     fetchCustomerUserDetail();
-    // URL에서 page 파라미터 가져오기
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page') || '1';
-    setCurrentPage(page);
   }, []);
 
   const fetchCustomerDetail = async () => {
@@ -110,10 +102,12 @@ export default function CustomerDetailPage() {
 
       setCustomer(result.data);
     } catch (err) {
-      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      return;
+      // if (err instanceof Error) {
+      //   if (err.message == 'Failed to fetch user information') {
+      //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+      //   }
+      // }
     } finally {
       setIsLoading(false);
     }
@@ -202,7 +196,7 @@ export default function CustomerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">고객 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href = (`/customer/${customer.id}/edit?page=${prevPage}`)}
+            onClick={() => window.location.href = `/customer/${customer.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -216,7 +210,7 @@ export default function CustomerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = (`/customer?page=${prevPage}`)}
+            onClick={() => window.location.href = `/customer`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -285,11 +279,7 @@ export default function CustomerDetailPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {users.map((user) => (
-              <tr 
-                key={user.id} 
-                className="hover:bg-gray-50 cursor-pointer" 
-                onClick={() => window.location.href = (`/user/${user.id}`)}
-              >
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {user.username}
