@@ -15,6 +15,7 @@ interface BusinessForm {
   expired: string;
   manager_id: string;
   product_id: string;
+  details: string;
 }
 
 interface Manager {
@@ -142,7 +143,7 @@ export default function BusinessEditPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
       
     setFormData(prev => prev ? {
@@ -295,6 +296,20 @@ export default function BusinessEditPage() {
                 required
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                세부사항
+              </label>
+              <textarea
+                id="text-input"
+                name="details"
+                value={formData.details}
+                onChange={handleChange}
+                placeholder="내용을 입력하세요"
+                rows={5}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
           {error && (
@@ -324,4 +339,4 @@ export default function BusinessEditPage() {
       </div>
     </div>
   );
-} 
+}

@@ -10,6 +10,7 @@ export class CreateBusinessDto {
   core_cnt: number;
   node_cnt: number;
   product_id?: string;
+  details: string;
 }
 
 export class UpdateBusinessDto {
@@ -24,4 +25,5 @@ export class UpdateBusinessDto {
   node_cnt: number;
   manager_id?: string;
   product_id?: string;
+  details: string;
 }
