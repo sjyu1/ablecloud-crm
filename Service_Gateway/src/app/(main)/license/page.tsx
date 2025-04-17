@@ -63,7 +63,7 @@ export default function LicensePage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/business?page=${page}&limit=10`;
+        let url = `/api/license?page=${page}&limit=10`;
         if (currentName) {
           url += `&name=${currentName}`;
         }
