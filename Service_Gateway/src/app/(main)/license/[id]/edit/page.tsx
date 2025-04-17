@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
@@ -26,6 +26,8 @@ interface Product {
 export default function LicenseEditPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prevPage = searchParams.get('page') || '1';
   const [formData, setFormData] = useState<LicenseForm | null>({
     id: 0,
     license_key: '',
@@ -133,11 +135,11 @@ export default function LicenseEditPage() {
 
       if (response.ok) {
         alert('라이센스가 수정되었습니다.');
+        router.push(`/license/${params.id}?page=${prevPage}`);
       } else {
         throw new Error('라이센스 수정에 실패했습니다.');
       }
 
-      router.push(`/license/${params.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -314,7 +316,7 @@ export default function LicenseEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/license/${params.id}`}
+              href={`/license/${params.id}?page=${prevPage}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
