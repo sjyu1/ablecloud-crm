@@ -285,7 +285,7 @@ export default function BusinessEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업 시작일
+                사업 종료일
               </label>
               <input
                 type="date"
@@ -303,7 +303,7 @@ export default function BusinessEditPage() {
               <textarea
                 id="text-input"
                 name="details"
-                value={formData.details}
+                value={formData.details ?? ''}
                 onChange={handleChange}
                 placeholder="내용을 입력하세요"
                 rows={5}
