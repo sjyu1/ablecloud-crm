@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
@@ -29,8 +29,6 @@ interface License {
 export default function LicenseDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -84,7 +82,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이센스 승인에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}`);
+      router.push(`/license`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -136,7 +134,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이센스 삭제에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}`);
+      router.push('/license');
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -186,7 +184,7 @@ export default function LicenseDetailPage() {
             다운로드
           </button>
           <button
-            onClick={() => window.location.href = (`/license/${license.id}/edit?page=${prevPage}`)}
+            onClick={() => window.location.href = `/license/${license.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -200,7 +198,7 @@ export default function LicenseDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = (`/license?page=${prevPage}`)}
+            onClick={() => window.location.href = `/license`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록

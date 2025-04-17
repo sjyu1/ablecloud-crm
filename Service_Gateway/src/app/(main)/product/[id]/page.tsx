@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { format } from 'date-fns';
 
@@ -17,8 +17,6 @@ interface Product {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -138,7 +136,7 @@ export default function ProductDetailPage() {
             제품 비활성화
           </button>
           <button
-            onClick={() => window.location.href = `/product/${product.id}/edit?page=${prevPage}`}
+            onClick={() => window.location.href = `/product/${product.id}/edit`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -152,7 +150,7 @@ export default function ProductDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = `/product?page=${prevPage}`}
+            onClick={() => window.location.href = `/product`}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
