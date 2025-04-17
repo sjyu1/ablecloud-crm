@@ -88,6 +88,12 @@ export class Business {
   })
   product_id: string;
 
+  @Column({
+    type: 'text',
+    nullable: true
+  })
+  details: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

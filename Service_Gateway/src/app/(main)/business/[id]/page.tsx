@@ -26,6 +26,7 @@ interface Business {
   manager_company: string;
   product_name: string;
   product_version: string;
+  details: string;
 }
 
 interface TabPanelProps {
@@ -245,6 +246,21 @@ export default function BusinessDetailPage() {
                   {format(business.expired, 'yyyy-MM-dd')}
                 </p>
               </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">세부사항</h3>
+                <textarea
+                  id="text-input"
+                  name="details"
+                  value={business.details}
+                  rows={5}
+                  readOnly
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  // className="mt-1 text-lg text-gray-900"
+                />
+                {/* <p className="mt-1 text-lg text-gray-900">
+                  {business.details}
+                </p> */}
+              </div>
             </div>
           </div>
         </div>
@@ -308,4 +324,4 @@ export default function BusinessDetailPage() {
 
     </div>
   );
-} 
+}

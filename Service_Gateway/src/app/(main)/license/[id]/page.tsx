@@ -234,8 +234,10 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">사업명</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {license.business_name}
+              <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
+                <a href={`/business/${license.business_id}`} target="_self" rel="noopener noreferrer">
+                {license.business_name}
+                </a>
               </p>
             </div>
             <div>
@@ -275,4 +277,4 @@ export default function LicenseDetailPage() {
       </div>
     </div>
   );
-} 
+}
