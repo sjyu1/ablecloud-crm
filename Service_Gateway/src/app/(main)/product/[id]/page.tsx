@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { format } from 'date-fns';
 
@@ -19,6 +19,8 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const prevPage = searchParams.get('page') || '1';
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
 
@@ -71,12 +73,11 @@ export default function ProductDetailPage() {
         throw new Error('제품 비활성화에 실패했습니다.');
       }
 
-      router.push(`/product`);
+      router.push(`/product/${params.id}?page=${prevPage}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
   };
-
   const handleDelete = async () => {
     if (!confirm('정말 이 제품을 삭제하시겠습니까?')) {
       return;
@@ -136,7 +137,7 @@ export default function ProductDetailPage() {
             제품 비활성화
           </button>
           <button
-            onClick={() => window.location.href = `/product/${product.id}/edit`}
+            onClick={() => window.location.href =(`/product/${product.id}/edit?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -150,7 +151,7 @@ export default function ProductDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = `/product`}
+            onClick={() => window.location.href =(`/product?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
