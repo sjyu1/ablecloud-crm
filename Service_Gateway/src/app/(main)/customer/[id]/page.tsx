@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { format } from 'date-fns';
 import Tabs from '@mui/material/Tabs';
@@ -67,6 +67,7 @@ function tabProps(index: number) {
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,6 +75,8 @@ export default function CustomerDetailPage() {
 
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
+
+  const prevPage = searchParams.get('page') || '1';
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -196,7 +199,7 @@ export default function CustomerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">고객 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href = `/customer/${customer.id}/edit`}
+            onClick={() => window.location.href =(`/customer/${customer.id}/edit?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -210,7 +213,7 @@ export default function CustomerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = `/customer`}
+            onClick={() => window.location.href =(`/customer?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -279,7 +282,7 @@ export default function CustomerDetailPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = (`/user/${user.id}?page=${prevPage}`)}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {user.username}

@@ -31,6 +31,7 @@ export default function CustomerPage() {
     totalItems: 0,
     itemsPerPage: 10
   });
+  const [hasNextPage, setHasNextPage] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
@@ -41,16 +42,30 @@ export default function CustomerPage() {
 
     const fetchCustomers = async () => {
       try {
-        const page = searchParams.get('page') || '1';
+        const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('name');
+
+        let totalUrl = `/api/customer?page=1&limit=10000`;
+        if (currentName) {
+          totalUrl += `&name=${currentName}`;
+        }
+        if (role === 'User') {
+          totalUrl += `&role=User`;
+        }
         
-        let url = `/api/customer?page=${page}&limit=${pagination.itemsPerPage}`;
+        const totalResponse = await fetch(totalUrl);
+        const totalResult = await totalResponse.json();
+        const totalCount = totalResult.data ? totalResult.data.length : 0;
+
+        // 현재 페이지 데이터 가져오기
+        let url = `/api/customer?page=${page}&limit=10`;
         if (currentName) {
           url += `&name=${currentName}`;
         }
-        if (role == 'User') {
+        if (role === 'User') {
           url += `&role=User`;
         }
+
         const response = await fetch(url);
         const result = await response.json();
 
@@ -58,8 +73,24 @@ export default function CustomerPage() {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
 
-        setCustomers(result.data);
-        setPagination(result.pagination);
+        // 현재 페이지의 데이터 설정
+        const startIndex = (page - 1) * 10;
+        const endIndex = startIndex + 10;
+        const pageData = totalResult.data.slice(startIndex, endIndex);
+        setCustomers(pageData);
+        // 다음 페이지 존재 여부 확인
+        const hasNext = endIndex < totalCount;
+        setHasNextPage(hasNext);
+        
+        // 페이지네이션 정보 업데이트
+        const totalPages = Math.ceil(totalCount / 10);
+        setPagination({
+          currentPage: page,
+          totalPages: totalPages,
+          totalItems: totalCount,
+          itemsPerPage: 10
+        });
+
       } catch (err) {
         if (err instanceof Error) {
           if (err.message == 'Failed to fetch user information') {
@@ -174,7 +205,7 @@ export default function CustomerPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {customers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
+              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = (`/customer/${customer.id}?page=${pagination.currentPage}`)}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {customer.name}
                 </td>
@@ -240,9 +271,9 @@ export default function CustomerPage() {
       )}
 
       {/* 총 아이템 수 */}
-      {/* <div className="text-center mt-2 text-gray-600">
+      {<div className="text-center mt-2 text-gray-600">
         총 {pagination.totalItems}개의 고객
-      </div> */}
+      </div>}
     </div>
   );
 } 
