@@ -17,7 +17,7 @@ export async function GET(
     log.info('API URL ::: GET /business/'+params.id);
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`);
     const business = await response.json();
-    log.info('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
+    //('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     
     // 사업 데이터에 사업담당자 정보 추가
     const data_userinfo = await userinfo_id(business.manager_id);
@@ -80,7 +80,7 @@ export async function PUT(
     });
 
     const business = await response.json();
-    log.info('PUT /business/'+params.id+' DATA ::: '+JSON.stringify(business));
+    //log.info('PUT /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     // if (business === -1) {
     //   return NextResponse.json(
     //     { message: '사업을 찾을 수 없습니다.' },

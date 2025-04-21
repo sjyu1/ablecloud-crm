@@ -77,7 +77,7 @@ export async function GET(
       }
     }
 
-    log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
+    //log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
 
     if (!data_user) {
       throw new Error('사용자를 찾을 수 없습니다.');

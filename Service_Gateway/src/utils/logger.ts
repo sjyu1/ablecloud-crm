@@ -19,7 +19,7 @@ const dailyRotateFileTransport = new DailyRotateFile({
   filename: 'app-%DATE%.log',
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
-  maxSize: '1g',
+  maxSize: '20m',
   maxFiles: '7d'
 });
 

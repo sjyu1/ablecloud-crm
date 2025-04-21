@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /product DATA ::: '+JSON.stringify(data));
+    //log.info('GET /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       throw new Error('제품 조회에 실패했습니다.');
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /product DATA ::: '+JSON.stringify(data));
+    //log.info('POST /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       throw new Error(data.message || '제품 생성에 실패했습니다.');

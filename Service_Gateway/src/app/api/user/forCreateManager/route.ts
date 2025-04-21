@@ -94,7 +94,7 @@ export async function GET(request: Request) {
       data_user = data_user_manager
     }
 
-    log.info('GET /user/forCreateManager DATA ::: '+JSON.stringify(data_user));
+    //log.info('GET /user/forCreateManager DATA ::: '+JSON.stringify(data_user));
 
     if (!res_user.ok) {
       throw new Error(data_user.message || '사용자 조회에 실패했습니다.');

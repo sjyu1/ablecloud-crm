@@ -16,7 +16,7 @@ export async function GET(
     log.info('API URL ::: GET /product/'+params.id);
     const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${params.id}`);
     const product = await response.json();
-    log.info('GET /product/'+params.id+' DATA ::: '+JSON.stringify(product));
+    //log.info('GET /product/'+params.id+' DATA ::: '+JSON.stringify(product));
     
     if (!product) {
       throw new Error('제품을 찾을 수 없습니다.');
@@ -55,7 +55,7 @@ export async function PUT(
     });
 
     const product = await response.json();
-    log.info('PUT /product/'+params.id+' DATA ::: '+JSON.stringify(product));
+    //log.info('PUT /product/'+params.id+' DATA ::: '+JSON.stringify(product));
 
     if (!response.ok) {
       throw new Error('제품 수정 중 오류가 발생했습니다.');

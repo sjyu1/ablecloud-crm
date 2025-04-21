@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /license DATA ::: '+JSON.stringify(data));
+    //log.info('GET /license DATA ::: '+JSON.stringify(data));
 
     // 라이센스 데이터에 발급자 정보 추가
     for(var idx in data.items) {
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /license DATA ::: '+JSON.stringify(data));
+    //log.info('POST /license DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       return NextResponse.json(
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
       body: JSON.stringify(submitData_business),
     });
 
-    log.info('POST /license DATA ::: '+JSON.stringify(response_business));
+    //log.info('POST /license DATA ::: '+JSON.stringify(response_business));
 
     if (!response_business.ok) {
       throw new Error('사업에 라이센스 등록을 실패했습니다.');

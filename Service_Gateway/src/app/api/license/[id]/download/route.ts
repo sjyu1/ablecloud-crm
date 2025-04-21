@@ -19,7 +19,7 @@ export async function GET(
 
     const license = await response.json();
 
-    log.info('GET /license/'+params.id+'/download DATA ::: '+JSON.stringify(license));
+    //log.info('GET /license/'+params.id+'/download DATA ::: '+JSON.stringify(license));
 
     // 라이센스 파일 내용 생성
     const licenseContent = JSON.stringify(license, null, 2);

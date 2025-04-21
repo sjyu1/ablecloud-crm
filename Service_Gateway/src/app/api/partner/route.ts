@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /partner DATA ::: '+JSON.stringify(data));
+    //log.info('GET /partner DATA ::: '+JSON.stringify(data));
 
     // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
     let data_user_com = []
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /partner DATA ::: '+JSON.stringify(data));
+    //log.info('POST /partner DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       throw new Error(data.message || '파트너 생성에 실패했습니다.');

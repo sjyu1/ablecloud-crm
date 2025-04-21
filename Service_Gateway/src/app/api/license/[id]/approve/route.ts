@@ -27,7 +27,7 @@ export async function PUT(
     });
 
     const license = await response.json();
-    log.info('PUT /license/'+params.id+'/approve DATA ::: '+JSON.stringify(license));
+    //('PUT /license/'+params.id+'/approve DATA ::: '+JSON.stringify(license));
 
     return NextResponse.json({ 
       status: 200,

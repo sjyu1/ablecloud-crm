@@ -32,7 +32,7 @@ export async function GET(
     } else {
       const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.issued_type}/${data.issued_company_id}`);
       const company = await response.json();
-      log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
+      //log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
       data.issued_company = company.name
     }
 
@@ -72,7 +72,7 @@ export async function PUT(
     });
 
     const license = await response.json();
-    log.info('PUT /license/'+params.id+' DATA ::: '+JSON.stringify(license));
+    //('PUT /license/'+params.id+' DATA ::: '+JSON.stringify(license));
 
     return NextResponse.json({ 
       status: 200,
