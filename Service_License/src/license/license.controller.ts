@@ -21,6 +21,7 @@ export class LicenseController {
       businessType?: string;
       company_id?: string;
       productName?: string;
+      trial?: string;
     },
     @Request() req: any
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
@@ -34,7 +35,8 @@ export class LicenseController {
       businessType: query.businessType || '',
       company_id: query.company_id || '',
       partnerId: partnerId,
-      productName: query.productName || ''
+      productName: query.productName || '',
+      trial: query.trial || '0'
     };
 
     const pageNumber = parseInt(page, 10);

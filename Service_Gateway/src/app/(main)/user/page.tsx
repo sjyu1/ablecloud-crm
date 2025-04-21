@@ -47,6 +47,7 @@ function tabProps(index: number) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
+
 export default function UserPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [productId, setProductId] = useState('');
@@ -186,7 +187,7 @@ export default function UserPage() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="파트너" {...tabProps(0)} />
-            <Tab label="고객" {...tabProps(1)} />
+          <Tab label="고객" {...tabProps(1)} />
           {(role === 'Admin' || (role === 'User' && loginUserType === 'vendor')) && users.filter(user => user.type === 'vendor').length > 0 && (
             <Tab label="벤더" {...tabProps(2)} />
           )}

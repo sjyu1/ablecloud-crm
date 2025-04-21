@@ -35,6 +35,7 @@ export class LicenseService {
       businessType?: string;
       partnerId?: number;
       company_id?: string;
+      trial?: string;
     }
   ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
     const query = this.licenseRepository.createQueryBuilder('license')
@@ -77,6 +78,10 @@ export class LicenseService {
       query.andWhere('product.name LIKE :productName', { 
         productName: `%${filters.productName}%` 
       });
+    }
+
+    if (filters.trial) {
+      query.andWhere('license.trial = :trial', { trial: filters.trial });
     }
 
     console.log('Final SQL Query:', query.getSql());
