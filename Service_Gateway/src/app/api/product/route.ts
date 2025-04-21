@@ -24,10 +24,10 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /product DATA ::: '+JSON.stringify(data));
+    //log.info('GET /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      throw new Error('제품 조회에 실패했습니다.');
+      throw new Error(data.message || '제품 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -43,10 +43,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /product ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: errorMessage || '서버 오류가 발생했습니다.'
       },
       { status: 500 }
     );
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /product DATA ::: '+JSON.stringify(data));
+    //log.info('POST /product DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       throw new Error(data.message || '제품 생성에 실패했습니다.');
@@ -81,10 +82,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /product ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '제품 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '제품 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

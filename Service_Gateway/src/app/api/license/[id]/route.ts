@@ -32,7 +32,7 @@ export async function GET(
     } else {
       const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.issued_type}/${data.issued_company_id}`);
       const company = await response.json();
-      log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
+      //log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
       data.issued_company = company.name
     }
 
@@ -46,8 +46,9 @@ export async function GET(
     });
   } catch (error) {
     log.info('GET /license/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -72,7 +73,7 @@ export async function PUT(
     });
 
     const license = await response.json();
-    log.info('PUT /license/'+params.id+' DATA ::: '+JSON.stringify(license));
+    //('PUT /license/'+params.id+' DATA ::: '+JSON.stringify(license));
 
     return NextResponse.json({ 
       status: 200,
@@ -80,8 +81,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /license/'+params.id+' ERROR::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -112,8 +114,9 @@ export async function DELETE(
     });
   } catch (error) {
     log.info('DELETE /license/'+params.id+' ERROR::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

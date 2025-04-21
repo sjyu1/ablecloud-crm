@@ -111,7 +111,7 @@ export async function GET(request: Request) {
       data_user.push({'loginuser_type':loginuser_type})
     }
 
-    log.info('GET /user DATA ::: '+JSON.stringify(data_user));
+    //log.info('GET /user DATA ::: '+JSON.stringify(data_user));
 
     if (!res_user.ok) {
       throw new Error(data_user.message || '사용자 조회에 실패했습니다.');
@@ -124,24 +124,14 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /user ERROR ::: '+error);
-    if (error instanceof Error){ 
-      return NextResponse.json(
-        { 
-          success: false,
-          message: error.message
-        },
-        { status: 500 }
-      );
-    } else {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: '서버 오류가 발생했습니다.'
-        },
-        { status: 500 }
-      );
-    }
-
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    return NextResponse.json(
+      { 
+        success: false,
+        message: errorMessage || '사용자 조회에 실패했습니다.'
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -208,7 +198,7 @@ export async function POST(request: Request) {
 
     if(res_createuser && !res_createuser.ok) {
       const data_createuser = await res_createuser.json();
-      log.info('POST /user DATA ::: '+JSON.stringify(data_createuser));
+      //log.info('POST /user DATA ::: '+JSON.stringify(data_createuser));
       if (data_createuser && !data_createuser.errors) throw new Error(data_createuser.errorMessage || data_createuser.error)
       if (data_createuser.errors) throw new Error(data_createuser.errors[0].errorMessage)
     }
@@ -285,10 +275,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /user ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: error instanceof Error ? error.message : '사용자 생성 중 오류가 발생했습니다.',
+        message: errorMessage || '사용자 생성 중 오류가 발생했습니다.',
       },
       { status: 500 }
     );

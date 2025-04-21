@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /customer DATA ::: '+JSON.stringify(data));
+    //log.info('GET /customer DATA ::: '+JSON.stringify(data));
 
     // role 파라미터가 존재하는경우, 로그인한 파트너의 정보만 조회(role이 user여도 type이 vendor일 경우 전체조회)
     let data_user_com = []
@@ -36,7 +36,6 @@ export async function GET(request: Request) {
       if (!data_userinfo.error) {
         user_companytype = data_userinfo.attributes.type[0]
       }
-
     }
 
     // 고객 데이터에 사업담당자 정보 추가
@@ -84,10 +83,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /customer ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: errorMessage || '서버 오류가 발생했습니다.'
       },
       { status: 500 }
     );
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /customer DATA ::: '+JSON.stringify(data));
+    //log.info('POST /customer DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
       throw new Error(data.message || '고객 생성에 실패했습니다.');
@@ -122,10 +122,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /customer ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '고객 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '고객 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

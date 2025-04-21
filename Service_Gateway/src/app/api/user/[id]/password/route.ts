@@ -55,7 +55,6 @@ export async function PUT(
 
     if (!response.ok) {
       const data = await response.json();
-
       throw new Error(data.error);
     }
 
@@ -69,8 +68,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('DELETE /user/'+params.id+'/password ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사용자 비밀번호 변경 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사용자 비밀번호 변경 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

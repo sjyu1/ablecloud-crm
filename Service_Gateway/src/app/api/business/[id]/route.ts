@@ -17,7 +17,7 @@ export async function GET(
     log.info('API URL ::: GET /business/'+params.id);
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`);
     const business = await response.json();
-    log.info('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
+    //('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     
     // 사업 데이터에 사업담당자 정보 추가
     const data_userinfo = await userinfo_id(business.manager_id);
@@ -36,10 +36,10 @@ export async function GET(
     }
 
     // product_id를 이용해 제품명/제품버전 가져오기
-    const response_product = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${business.product_id}`);
-    const product = await response_product.json();
-    business.product_name = product.name
-    business.product_version = product.version
+    // const response_product = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${business.product_id}`);
+    // const product = await response_product.json();
+    // business.product_name = product.name
+    // business.product_version = product.version
 
     if (!business) {
       return NextResponse.json(
@@ -54,8 +54,9 @@ export async function GET(
     });
   } catch (error) {
     log.info('GET /business/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사업 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사업 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -80,7 +81,7 @@ export async function PUT(
     });
 
     const business = await response.json();
-    log.info('PUT /business/'+params.id+' DATA ::: '+JSON.stringify(business));
+    //log.info('PUT /business/'+params.id+' DATA ::: '+JSON.stringify(business));
     // if (business === -1) {
     //   return NextResponse.json(
     //     { message: '사업을 찾을 수 없습니다.' },
@@ -91,13 +92,7 @@ export async function PUT(
     // business[index] = { ...business[index], ...body };
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: business.message || '사업 수정 중 오류가 발생했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(business.message || '사업 수정 중 오류가 발생했습니다.');
     }
 
     return NextResponse.json({ 
@@ -106,8 +101,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /business/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사업 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사업 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -144,8 +140,9 @@ export async function DELETE(
     });
   } catch (error) {
     log.info('DELETE /business/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사업 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사업 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

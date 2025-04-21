@@ -77,7 +77,7 @@ export async function GET(
       }
     }
 
-    log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
+    //log.info('GET /user/'+params.id+' DATA ::: '+JSON.stringify(data_user));
 
     if (!data_user) {
       throw new Error('사용자를 찾을 수 없습니다.');
@@ -89,8 +89,9 @@ export async function GET(
     });
   } catch (error) {
     log.info('GET /user/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사용자 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사용자 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -169,8 +170,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /user/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사용자 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사용자 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -227,8 +229,9 @@ export async function DELETE(
     });
   } catch (error) {
     log.info('DELETE /user/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '사용자 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '사용자 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

@@ -34,6 +34,7 @@ export default function PartnerPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -99,6 +100,8 @@ export default function PartnerPage() {
         } else {
           alert('파트너 목록 조회에 실패했습니다.');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -204,41 +207,45 @@ export default function PartnerPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {partners.map((partner) => (
-              <tr 
-                key={partner.id} 
-                className="hover:bg-gray-50 cursor-pointer" 
-                onClick={() => router.push(`/partner/${partner.id}?page=${pagination.currentPage}`)}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.name}
+            {isLoading ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                  로딩 중...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.telnum}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {partner.level}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(partner.created, 'yyyy-MM-dd HH:mm:ss')}
-                </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/partner/${partner.id}`}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    상세
-                  </Link>
-                  <button
-                    onClick={() => {}}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    삭제
-                  </button>
-                </td> */}
               </tr>
-            ))}
-            {partners.length === 0 && (
+            ) : (
+              partners.map((partner) => (
+                <tr key={partner.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/partner/${partner.id}?page=${pagination.currentPage}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {partner.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {partner.telnum}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {partner.level}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {format(partner.created, 'yyyy-MM-dd HH:mm:ss')}
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Link
+                      href={`/partner/${partner.id}`}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                    >
+                      상세
+                    </Link>
+                    <button
+                      onClick={() => {}}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      삭제
+                    </button>
+                  </td> */}
+                </tr>
+              ))
+            )}
+            {!isLoading && partners.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
                   파트너 정보가 없습니다.
@@ -251,33 +258,36 @@ export default function PartnerPage() {
 
       {/* 페이지네이션 수정 */}
       {partners.length > 0 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button
-            onClick={() => handlePageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            이전
-          </button>
-
-          <span className="px-4">
-            {pagination.currentPage} / {pagination.totalPages} 페이지
-          </span>
-
-          <button
-            onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={!hasNextPage}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            다음
-          </button>
+        <div className="flex justify-between items-center mt-4">
+          {/* 왼쪽: 페이지 이동 버튼 */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              이전
+            </button>
+        
+            <span className="px-4">
+              {pagination.currentPage} / {pagination.totalPages} 페이지
+            </span>
+        
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={!hasNextPage}
+              className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              다음
+            </button>
+          </div>
+        
+          {/* 오른쪽: 총 개수 */}
+          <div className="text-sm text-gray-600">
+            총 {pagination.totalItems}개의 파트너
+          </div>
         </div>
       )}
-
-      {/* 총 아이템 수 */}
-      {<div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 파트너
-      </div>}
     </div>
   );
 } 

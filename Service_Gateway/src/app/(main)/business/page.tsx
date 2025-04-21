@@ -41,6 +41,7 @@ export default function BusinessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -107,6 +108,8 @@ export default function BusinessPage() {
         } else {
           alert('사업 목록 조회에 실패했습니다.');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -229,52 +232,60 @@ export default function BusinessPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {businesses.map((business) => (
-              <tr key={business.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/business/${business.id}?page=${pagination.currentPage}`)}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.name}
+            {isLoading ? (
+              <tr>
+                <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
+                  로딩 중...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.manager_name} ({business.manager_company})
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.customer_name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.product_name} (v{business.product_version})
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.node_cnt}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {business.core_cnt}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(business.issued, 'yyyy-MM-dd')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(business.expired, 'yyyy-MM-dd')}
-                </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/business/${business.id}`}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    상세
-                  </Link>
-                  <button
-                    onClick={() => {}}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    삭제
-                  </button>
-                </td> */}
               </tr>
-            ))}
-            {businesses.length === 0 && (
+            ) : (
+              businesses.map((business) => (
+                <tr key={business.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/business/${business.id}?page=${pagination.currentPage}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.manager_name} ({business.manager_company})
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.customer_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.status === 'standby' ? ('대기 중') : business.status === 'meeting' ? ('고객 미팅') : business.status === 'poc' ? ('PoC') :business.status === 'bmt' ? ('BMT') :business.status === 'ordering' ? ('발주') :business.status === 'proposal' ? ('제안') :business.status === 'ordersuccess' ? ('수주 성공') :business.status === 'cancel' ? ('취소') : ('Unknown Type')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.product_name} (v{business.product_version})
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.node_cnt}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {business.core_cnt}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {format(business.issued, 'yyyy-MM-dd')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {format(business.expired, 'yyyy-MM-dd')}
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Link
+                      href={`/business/${business.id}`}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                    >
+                      상세
+                    </Link>
+                    <button
+                      onClick={() => {}}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      삭제
+                    </button>
+                  </td> */}
+                </tr>
+              ))
+            )}
+            {!isLoading && businesses.length === 0 && (
               <tr>
                 <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
                   사업 정보가 없습니다.
@@ -287,33 +298,36 @@ export default function BusinessPage() {
 
       {/* 페이지네이션 */}
       {businesses.length > 0 && (
-        <div className="flex justify-center items-center gap-2 mt-4">
-          <button
-            onClick={() => handlePageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            이전
-          </button>
-
-          <span className="px-4">
-          {pagination.currentPage} / {pagination.totalPages} 페이지
-          </span>
-
-          <button
-            onClick={() => handlePageChange(pagination.currentPage + 1)}
-            disabled={!hasNextPage}
-            className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            다음
-          </button>
+        <div className="flex justify-between items-center mt-4">
+          {/* 왼쪽: 페이지 이동 버튼 */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              이전
+            </button>
+        
+            <span className="px-4">
+              {pagination.currentPage} / {pagination.totalPages} 페이지
+            </span>
+        
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={!hasNextPage}
+              className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              다음
+            </button>
+          </div>
+        
+          {/* 오른쪽: 총 개수 */}
+          <div className="text-sm text-gray-600">
+            총 {pagination.totalItems}개의 사업
+          </div>
         </div>
       )}
-
-      {/* 총 아이템 수 */}
-      {<div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 사업
-      </div>}
     </div>
   );
 } 

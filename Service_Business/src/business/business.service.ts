@@ -31,9 +31,12 @@ export class BusinessService {
   ): Promise<{ items: Business[]; total: number; page: number; totalPages: number }> {
     const query = this.businessRepository.createQueryBuilder('business')
                   .leftJoin('customer', 'customer', 'business.customer_id = customer.id')
+                  .leftJoin('product', 'product', 'business.product_id = product.id')
                   .select([
                     'business.*',
-                    'customer.name as customer_name'
+                    'customer.name as customer_name',
+                    'product.name as product_name',
+                    'product.version as product_version'
                   ])
                   .orderBy('business.created', 'DESC')
                   .where('business.removed IS NULL');
@@ -70,10 +73,13 @@ export class BusinessService {
   async getBusinessById(id: number): Promise<Business | null> {
     const query = this.businessRepository.createQueryBuilder('business')
       .leftJoin('customer', 'customer', 'business.customer_id = customer.id')
+      .leftJoin('product', 'product', 'business.product_id = product.id')
       .leftJoin('license', 'license', 'business.id = license.business_id')
       .select([
         'business.*',
         'customer.name as customer_name',
+        'product.name as product_name',
+        'product.version as product_version',
         'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.license_key END AS license_key', 
         'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.status END AS license_status', 
         'CASE WHEN license.removed IS NOT NULL THEN NULL ELSE license.issued END AS license_issued', 

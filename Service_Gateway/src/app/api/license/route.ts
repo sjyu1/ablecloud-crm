@@ -17,11 +17,13 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const productName = searchParams.get('productName');
     const role = searchParams.get('role');  // User 회사 정보만 조회
+    const trial = searchParams.get('trial') || 0;
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
+    apiUrl.searchParams.set('trial', trial.toString());
     if (productName) {
       apiUrl.searchParams.set('productName', productName);
     }
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    log.info('GET /license DATA ::: '+JSON.stringify(data));
+    //log.info('GET /license DATA ::: '+JSON.stringify(data));
 
     // 라이센스 데이터에 발급자 정보 추가
     for(var idx in data.items) {
@@ -54,7 +56,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      throw new Error('라이센스 조회에 실패했습니다.');
+      throw new Error(data.message || '라이센스 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -70,10 +72,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /license ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '라이센스 조회에 실패했습니다.'
+        message: errorMessage || '라이센스 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -117,16 +120,10 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    log.info('POST /license DATA ::: '+JSON.stringify(data));
+    //log.info('POST /license DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '라이센스 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '라이센스 생성에 실패했습니다.');
     }
 
     //라이센스 등록 후 사업에 license_id 등록
@@ -139,10 +136,11 @@ export async function POST(request: Request) {
       body: JSON.stringify(submitData_business),
     });
 
-    log.info('POST /license DATA ::: '+JSON.stringify(response_business));
+    const data_business = await response_business.json();
+    //log.info('POST /license DATA ::: '+JSON.stringify(response_business));
 
     if (!response_business.ok) {
-      throw new Error('사업에 라이센스 등록을 실패했습니다.');
+      throw new Error(data_business.message || '사업에 라이센스 등록을 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -152,10 +150,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /license ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '라이센스 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '라이센스 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );
