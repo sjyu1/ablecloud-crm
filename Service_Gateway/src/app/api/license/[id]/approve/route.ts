@@ -35,8 +35,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /license/'+params.id+'/approve ERROR::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 승인 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 승인 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

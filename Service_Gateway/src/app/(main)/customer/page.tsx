@@ -34,6 +34,7 @@ export default function CustomerPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -68,6 +69,8 @@ export default function CustomerPage() {
         } else {
           alert('고객 목록 조회에 실패했습니다.');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -173,37 +176,45 @@ export default function CustomerPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {customers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {customer.name}
+            {isLoading ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                  로딩 중...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {customer.telnum}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {customer.manager_name} ({customer.manager_company})
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(customer.created, 'yyyy-MM-dd HH:mm:ss')}
-                </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/customer/${customer.id}`}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    상세
-                  </Link>
-                  <button
-                    onClick={() => {}}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    삭제
-                  </button>
-                </td> */}
               </tr>
-            ))}
-            {customers.length === 0 && (
+            ) : (
+              customers.map((customer) => (
+                <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/customer/${customer.id}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.telnum}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {customer.manager_name} ({customer.manager_company})
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {format(customer.created, 'yyyy-MM-dd HH:mm:ss')}
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <Link
+                      href={`/customer/${customer.id}`}
+                      className="text-blue-600 hover:text-blue-900 mr-4"
+                    >
+                      상세
+                    </Link>
+                    <button
+                      onClick={() => {}}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      삭제
+                    </button>
+                  </td> */}
+                </tr>
+              ))
+            )}
+            {!isLoading && customers.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
                   고객 정보가 없습니다.

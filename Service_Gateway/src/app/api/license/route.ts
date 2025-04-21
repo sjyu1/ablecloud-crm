@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      throw new Error('라이센스 조회에 실패했습니다.');
+      throw new Error(data.message || '라이센스 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -70,10 +70,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /license ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '라이센스 조회에 실패했습니다.'
+        message: errorMessage || '라이센스 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -120,13 +121,7 @@ export async function POST(request: Request) {
     //log.info('POST /license DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: data.message || '라이센스 생성에 실패했습니다.'
-        },
-        { status: response.status }
-      );
+      throw new Error(data.message || '라이센스 생성에 실패했습니다.');
     }
 
     //라이센스 등록 후 사업에 license_id 등록
@@ -139,10 +134,11 @@ export async function POST(request: Request) {
       body: JSON.stringify(submitData_business),
     });
 
+    const data_business = await response_business.json();
     //log.info('POST /license DATA ::: '+JSON.stringify(response_business));
 
     if (!response_business.ok) {
-      throw new Error('사업에 라이센스 등록을 실패했습니다.');
+      throw new Error(data_business.message || '사업에 라이센스 등록을 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -152,10 +148,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /license ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '라이센스 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '라이센스 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

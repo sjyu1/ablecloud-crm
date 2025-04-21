@@ -54,23 +54,13 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /user/role ERROR ::: '+error);
-    if (error instanceof Error){ 
-      return NextResponse.json(
-        { 
-          success: false,
-          message: error.message
-        },
-        { status: 500 }
-      );
-    } else {
-      return NextResponse.json(
-        { 
-          success: false,
-          message: '서버 오류가 발생했습니다.'
-        },
-        { status: 500 }
-      );
-    }
-
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+    return NextResponse.json(
+      { 
+        success: false,
+        message: errorMessage || '사용자 조회에 실패했습니다.'
+      },
+      { status: 500 }
+    );
   }
 }

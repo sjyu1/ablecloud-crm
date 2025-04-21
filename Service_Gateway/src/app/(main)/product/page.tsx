@@ -32,6 +32,7 @@ export default function ProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -64,6 +65,8 @@ export default function ProductPage() {
         } else {
           alert('제품 목록 조회에 실패했습니다.');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -166,18 +169,25 @@ export default function ProductPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/product/${product.id}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.name}
+            {isLoading ? (
+              <tr>
+                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                  로딩 중...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.version}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
-                </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              </tr>
+            ) : (
+              products.map((product) => (
+                <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/product/${product.id}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.version}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={`/product/${product.id}`}
                     className="text-blue-600 hover:text-blue-900 mr-4"
@@ -191,9 +201,10 @@ export default function ProductPage() {
                     삭제
                   </button>
                 </td> */}
-              </tr>
-            ))}
-            {products.length === 0 && (
+                </tr>
+              ))
+            )}
+            {!isLoading && products.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
                   제품 정보가 없습니다.

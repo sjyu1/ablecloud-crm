@@ -46,8 +46,9 @@ export async function GET(
     });
   } catch (error) {
     log.info('GET /license/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -80,8 +81,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /license/'+params.id+' ERROR::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -112,8 +114,9 @@ export async function DELETE(
     });
   } catch (error) {
     log.info('DELETE /license/'+params.id+' ERROR::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '라이센스 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이센스 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

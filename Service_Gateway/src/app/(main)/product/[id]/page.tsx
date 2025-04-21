@@ -107,13 +107,13 @@ export default function ProductDetailPage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="flex justify-center items-center h-64">
+  //       <div className="text-red-500">{error}</div>
+  //     </div>
+  //   );
+  // }
 
   if (!product) {
     return (

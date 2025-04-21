@@ -28,8 +28,9 @@ export async function GET(
     });
   } catch (error) {
     log.info('GET /product/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '제품 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '제품 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -58,7 +59,7 @@ export async function PUT(
     //log.info('PUT /product/'+params.id+' DATA ::: '+JSON.stringify(product));
 
     if (!response.ok) {
-      throw new Error('제품 수정 중 오류가 발생했습니다.');
+      throw new Error(product.message || '제품 수정 중 오류가 발생했습니다.');
     }
 
     return NextResponse.json({ 
@@ -67,8 +68,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /product/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '제품 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '제품 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
@@ -96,8 +98,9 @@ export async function DELETE(
     });
   } catch (error) {
     log.info('DELETE /product/'+params.id+' ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '제품 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '제품 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

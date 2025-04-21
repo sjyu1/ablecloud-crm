@@ -36,7 +36,6 @@ export async function GET(request: Request) {
       if (!data_userinfo.error) {
         user_companytype = data_userinfo.attributes.type[0]
       }
-
     }
 
     // 고객 데이터에 사업담당자 정보 추가
@@ -84,10 +83,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /customer ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '서버 오류가 발생했습니다.'
+        message: errorMessage || '서버 오류가 발생했습니다.'
       },
       { status: 500 }
     );
@@ -122,10 +122,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /customer ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '고객 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '고객 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

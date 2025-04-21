@@ -26,8 +26,9 @@ export async function PUT(
     });
   } catch (error) {
     log.info('PUT /product/'+params.id+'/disabled ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: '제품 비활성화 중 오류가 발생했습니다.' },
+      { message: errorMessage || '제품 비활성화 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

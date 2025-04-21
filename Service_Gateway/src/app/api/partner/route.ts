@@ -67,10 +67,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /partner ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '파트너 조회에 실패했습니다.'
+        message: errorMessage || '파트너 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -105,10 +106,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /partner ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '파트너 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '파트너 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

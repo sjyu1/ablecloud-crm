@@ -65,10 +65,10 @@ export async function GET(request: Request) {
       }
 
       // product_id를 이용해 제품명/제품버전 가져오기
-      const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${data.items[idx].product_id}`);
-      const product = await response.json();
-      data.items[idx].product_name = product.name
-      data.items[idx].product_version = product.version
+      // const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${data.items[idx].product_id}`);
+      // const product = await response.json();
+      // data.items[idx].product_name = product.name
+      // data.items[idx].product_version = product.version
     }
 
     if (role && user_companytype !== 'vendor'){
@@ -92,10 +92,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     log.info('GET /business ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '사업 조회 중 오류가 발생했습니다.'
+        message: errorMessage || '사업 조회 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );
@@ -130,10 +131,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     log.info('POST /business ERROR ::: '+error);
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
       { 
         success: false,
-        message: '사업 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '사업 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );
