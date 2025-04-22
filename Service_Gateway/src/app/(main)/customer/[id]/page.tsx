@@ -199,7 +199,7 @@ export default function CustomerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">고객 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href =(`/customer/${customer.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/customer/${customer.id}/edit?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -213,7 +213,7 @@ export default function CustomerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href =(`/customer?page=${prevPage}`)}
+            onClick={() => router.push(`/customer?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -282,7 +282,7 @@ export default function CustomerDetailPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = (`/user/${user.id}?page=${prevPage}`)}>
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}?page=${prevPage}`)}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {user.username}

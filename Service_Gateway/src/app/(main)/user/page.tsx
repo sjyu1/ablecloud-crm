@@ -230,7 +230,7 @@ export default function UserPage() {
                 </tr>
               ) : (
                 users.filter(user => user.type === 'partner').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
@@ -305,7 +305,7 @@ export default function UserPage() {
                 </tr>
               ) : (
                 users.filter(user => user.type === 'customer').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
@@ -380,7 +380,7 @@ export default function UserPage() {
                 </tr>
               ) : (
                 users.filter(user => user.type === 'vendor').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}

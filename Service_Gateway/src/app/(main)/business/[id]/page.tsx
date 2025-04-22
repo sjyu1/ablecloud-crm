@@ -164,7 +164,7 @@ export default function BusinessDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">사업 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href = (`/business/${business.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/business/${business.id}/edit?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             수정
@@ -176,7 +176,7 @@ export default function BusinessDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => window.location.href = (`/business?page=${prevPage}`)}
+            onClick={() => router.push(`/business?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록

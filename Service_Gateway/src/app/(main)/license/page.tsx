@@ -363,7 +363,7 @@ export default function LicensePage() {
                 </tr>
               ) : (
                 licenses.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}?page=${pagination.currentPage}`}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -426,33 +426,92 @@ export default function LicensePage() {
 
         {/* 페이지네이션 */}
         {licenses.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            {/* 왼쪽: 페이지 이동 버튼 */}
-            <div className="flex items-center gap-2">
+          <div className="flex justify-center items-center mt-4">
+            <div className="flex items-center gap-0">
               <button
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                이전
+                &lt;
               </button>
           
-              <span className="px-4">
-                {pagination.currentPage} / {pagination.totalPages} 페이지
-              </span>
+              {(() => {
+                const pages = [];
+                const total = pagination.totalPages;
+                const current = pagination.currentPage;
+          
+                const createText = (num: number) => {
+                  if (num === current) {
+                    return (
+                      <button
+                        key={num}
+                        disabled
+                        className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
+
+                      >
+                        {num}
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <span
+                        key={num}
+                        onClick={() => handlePageChange(num)}
+                        className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
+                      >
+                        {num}
+                      </span>
+                    );
+                  }
+                };
+          
+                if (total <= 5) {
+                  for (let i = 1; i <= total; i++) {
+                    pages.push(createText(i));
+                  }
+                } else {
+                  if (current <= 3) {
+                    for (let i = 1; i <= 5; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  } else if (current >= total - 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = total - 4; i <= total; i++) {
+                      pages.push(createText(i));
+                    }
+                  } else {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = current - 2; i <= current + 2; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis2" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  }
+                }
+          
+                return pages;
+              })()}
           
               <button
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={!hasNextPage}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                다음
+                &gt;
               </button>
-            </div>
           
-            {/* 오른쪽: 총 개수 */}
-            <div className="text-sm text-gray-600">
-              총 {pagination.totalItems}개의 라이센스
+              <div className="text-sm text-gray-600 ml-4">
+                전체 {pagination.totalItems}개 항목
+              </div>
             </div>
           </div>
         )}
@@ -500,7 +559,7 @@ export default function LicensePage() {
                 </tr>
               ) : (
                 licenses_trial.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}?page=${pagination.currentPage}`}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -563,33 +622,92 @@ export default function LicensePage() {
 
         {/* 페이지네이션 */}
         {licenses_trial.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            {/* 왼쪽: 페이지 이동 버튼 */}
-            <div className="flex items-center gap-2">
+          <div className="flex justify-center items-center mt-4">
+            <div className="flex items-center gap-0">
               <button
-                onClick={() => handlePageChange_trial(pagination_trial.currentPage - 1)}
+                onClick={() => handlePageChange(pagination_trial.currentPage - 1)}
                 disabled={pagination_trial.currentPage === 1}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                이전
+                &lt;
               </button>
           
-              <span className="px-4">
-                {pagination_trial.currentPage} / {pagination_trial.totalPages} 페이지
-              </span>
+              {(() => {
+                const pages = [];
+                const total = pagination_trial.totalPages;
+                const current = pagination_trial.currentPage;
+          
+                const createText = (num: number) => {
+                  if (num === current) {
+                    return (
+                      <button
+                        key={num}
+                        disabled
+                        className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
+
+                      >
+                        {num}
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <span
+                        key={num}
+                        onClick={() => handlePageChange(num)}
+                        className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
+                      >
+                        {num}
+                      </span>
+                    );
+                  }
+                };
+          
+                if (total <= 5) {
+                  for (let i = 1; i <= total; i++) {
+                    pages.push(createText(i));
+                  }
+                } else {
+                  if (current <= 3) {
+                    for (let i = 1; i <= 5; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  } else if (current >= total - 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = total - 4; i <= total; i++) {
+                      pages.push(createText(i));
+                    }
+                  } else {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = current - 2; i <= current + 2; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis2" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  }
+                }
+          
+                return pages;
+              })()}
           
               <button
-                onClick={() => handlePageChange_trial(pagination_trial.currentPage + 1)}
+                onClick={() => handlePageChange(pagination_trial.currentPage + 1)}
                 disabled={!hasNextPage_trial}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                다음
+                &gt;
               </button>
-            </div>
           
-            {/* 오른쪽: 총 개수 */}
-            <div className="text-sm text-gray-600">
-              총 {pagination_trial.totalItems}개의 라이센스
+              <div className="text-sm text-gray-600 ml-4">
+                전체 {pagination_trial.totalItems}개 항목
+              </div>
             </div>
           </div>
         )}

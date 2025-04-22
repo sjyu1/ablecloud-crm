@@ -46,6 +46,11 @@ export default function CustomerEditPage() {
     // setIsLoading(true);
 
     try {
+      // 전화번호 밸리데이션
+      if (!validateTelnum(formData?.telnum)) {
+        throw new Error('전화번호 형식이 올바르지 않습니다.');
+      }
+
       const updateFormData = { ...formData}
       const response = await fetch(`/api/customer/${params.id}`, {
         method: 'PUT',
@@ -76,6 +81,16 @@ export default function CustomerEditPage() {
       ...prev,
       [name]: value
     } : null);
+  };
+
+  // 전화번호 유효성 검사 함수
+  const validateTelnum = (telnum?: string) => {
+    if (!telnum) return false;
+    const phoneRegex = /^(\d{2,3})-(\d{3,4})-(\d{4})$/;
+    if (!phoneRegex.test(telnum)) {
+      return false;
+    }
+    return true;
   };
 
   if (isLoading) {

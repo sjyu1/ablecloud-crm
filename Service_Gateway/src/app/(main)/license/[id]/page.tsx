@@ -173,34 +173,30 @@ export default function LicenseDetailPage() {
         <div className="space-x-2">
           <button
             onClick={handleApprove}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin'&& license.status === 'inactive' ? '' : 'none' }}
+            className={role === 'Admin' && license.status === 'inactive' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             승인
           </button>
           <button
             onClick={handleDownload}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: license.status === 'active' ? '' : 'none' }}
+            className={license.status === 'inactive' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             다운로드
           </button>
           <button
-            onClick={() => window.location.href = (`/license/${license.id}/edit?page=${prevPage}`)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            onClick={() => router.push(`/license/${license.id}/edit?page=${prevPage}`)}
+            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            className={role === 'Admin' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
           >
             삭제
           </button>
           <button
-            onClick={() => window.location.href = (`/license?page=${prevPage}`)}
+            onClick={() => router.push(`/license?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
