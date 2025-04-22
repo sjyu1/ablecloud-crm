@@ -110,19 +110,19 @@ export default function LicensePage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/license?trial=0&page=${page}&limit=10`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          url += `&role=User`;
-        }
+        // let url = `/api/license?trial=0&page=${page}&limit=10`;
+        // if (currentName) {
+        //   url += `&name=${currentName}`;
+        // }
+        // if (role === 'User') {
+        //   url += `&role=User`;
+        // }
 
-        const response = await fetch(url);
-        const result = await response.json();
+        // const response = await fetch(url);
+        // const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.message || '오류가 발생했습니다.');
+        if (!totalResult.success) {
+          throw new Error(totalResult.message || '오류가 발생했습니다.');
         }
 
         // 현재 페이지의 데이터 설정
@@ -177,19 +177,19 @@ export default function LicensePage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/license?trial=1&page=${page}&limit=10`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          url += `&role=User`;
-        }
+        // let url = `/api/license?trial=1&page=${page}&limit=10`;
+        // if (currentName) {
+        //   url += `&name=${currentName}`;
+        // }
+        // if (role === 'User') {
+        //   url += `&role=User`;
+        // }
 
-        const response = await fetch(url);
-        const result = await response.json();
+        // const response = await fetch(url);
+        // const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.message || '오류가 발생했습니다.');
+        if (!totalResult.success) {
+          throw new Error(totalResult.message || '오류가 발생했습니다.');
         }
 
         // 현재 페이지의 데이터 설정

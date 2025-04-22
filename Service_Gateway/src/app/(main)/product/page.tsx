@@ -57,19 +57,19 @@ export default function ProductPage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/product?page=${page}&limit=10`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          url += `&role=User`;
-        }
+        // let url = `/api/product?page=${page}&limit=10`;
+        // if (currentName) {
+        //   url += `&name=${currentName}`;
+        // }
+        // if (role === 'User') {
+        //   url += `&role=User`;
+        // }
 
-        const response = await fetch(url);
-        const result = await response.json();
+        // const response = await fetch(url);
+        // const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.message || '오류가 발생했습니다.');
+        if (!totalResult.success) {
+          throw new Error(totalResult.message || '오류가 발생했습니다.');
         }
 
         // 현재 페이지의 데이터 설정
@@ -149,13 +149,13 @@ export default function ProductPage() {
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="제품명으로 검색"
-          className="px-3 py-2 border rounded-md"
+          className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -166,7 +166,7 @@ export default function ProductPage() {
         <button
           type="button"
           onClick={handleSearchClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
         </button>
@@ -174,7 +174,7 @@ export default function ProductPage() {
           <button
             type="button"
             onClick={handleResetClick}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
           >
             초기화
           </button>
