@@ -246,7 +246,7 @@ export default function BusinessPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
@@ -300,7 +300,7 @@ export default function BusinessPage() {
             )}
             {!isLoading && businesses.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사업 정보가 없습니다.
                 </td>
               </tr>

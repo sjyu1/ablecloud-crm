@@ -24,10 +24,6 @@ export async function GET(request: Request) {
       apiUrl.searchParams.set('name', name);
     }
 
-    const response = await fetchWithAuth(apiUrl.toString());
-    const data = await response.json();
-    //log.info('GET /partner DATA ::: '+JSON.stringify(data));
-
     // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
     let data_user_com = []
     let user_companytype
@@ -37,18 +33,24 @@ export async function GET(request: Request) {
       if (!data_userinfo.error) {
         user_companytype = data_userinfo.attributes.type[0]
         user_companyid = data_userinfo.attributes.company_id[0]
+
+        apiUrl.searchParams.set('id', user_companyid);
       }
     }
 
-    for(var idx in data.partners) {
-      if (role && user_companytype == 'partner' && user_companyid == data.partners[idx].id) {
-        data_user_com.push(data.partners[idx])
-      }
-    }
+    const response = await fetchWithAuth(apiUrl.toString());
+    const data = await response.json();
+    //log.info('GET /partner DATA ::: '+JSON.stringify(data));
 
-    if (role && user_companytype == 'partner'){
-      data.partners = data_user_com
-    }
+    // for(var idx in data.partners) {
+    //   if (role && user_companytype == 'partner' && user_companyid == data.partners[idx].id) {
+    //     data_user_com.push(data.partners[idx])
+    //   }
+    // }
+
+    // if (role && user_companytype == 'partner'){
+    //   data.partners = data_user_com
+    // }
 
     if (!response.ok) {
       throw new Error(data.message || '파트너 조회에 실패했습니다.');

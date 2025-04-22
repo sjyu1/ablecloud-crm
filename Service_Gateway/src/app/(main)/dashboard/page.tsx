@@ -81,7 +81,7 @@ export default function DashboardPage() {
                 ))}
                 {recentPosts.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-4 text-center text-gray-500">
+                    <td colSpan={4} className="py-4 text-center text-gray-500 text-sm">
                       게시글이 없습니다.
                     </td>
                   </tr>

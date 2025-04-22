@@ -82,7 +82,7 @@ export default function ProductEditPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">로딩 중...</div>;
+    return <div className="text-center py-4 text-sm">로딩 중...</div>;
   }
 
   // if (error) {
@@ -90,7 +90,7 @@ export default function ProductEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4">제품 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">제품 정보를 찾을 수 없습니다.</div>;
   }
 
   return (

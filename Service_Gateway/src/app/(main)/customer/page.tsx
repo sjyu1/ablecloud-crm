@@ -209,7 +209,7 @@ export default function CustomerPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
@@ -247,7 +247,7 @@ export default function CustomerPage() {
             )}
             {!isLoading && customers.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   고객 정보가 없습니다.
                 </td>
               </tr>
@@ -257,7 +257,7 @@ export default function CustomerPage() {
       </div>
 
       {/* 페이지네이션 */}
-      {pagination.totalPages > 1 && (
+      {customers.length > 0 && (
         <div className="flex justify-center items-center mt-4">
           <div className="flex items-center gap-0">
             <button

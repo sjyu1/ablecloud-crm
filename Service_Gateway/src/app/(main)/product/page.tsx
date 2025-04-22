@@ -203,7 +203,7 @@ export default function ProductPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
@@ -238,7 +238,7 @@ export default function ProductPage() {
             )}
             {!isLoading && products.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
                   제품 정보가 없습니다.
                 </td>
               </tr>

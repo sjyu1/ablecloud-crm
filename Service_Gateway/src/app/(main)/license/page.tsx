@@ -63,7 +63,7 @@ export default function LicensePage() {
   const searchParams = useSearchParams();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [licenses_trial, setLicenses_trial] = useState<License[]>([]);
-  const [productName, setProductName] = useState('');
+  const [businessName, setBusinessName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -94,17 +94,17 @@ export default function LicensePage() {
     const fetchLicenses = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('productName');
+        const currentName = searchParams.get('businessName');
         
         // 전체 라이센스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=0&page=1&limit=10000`;
         if (currentName) {
-          totalUrl += `&name=${currentName}`;
+          totalUrl += `&businessName=${currentName}`;
         }
         if (role === 'User') {
           totalUrl += `&role=User`;
         }
-        
+
         const totalResponse = await fetch(totalUrl);
         const totalResult = await totalResponse.json();
         const totalCount = totalResult.data ? totalResult.data.length : 0;
@@ -161,12 +161,12 @@ export default function LicensePage() {
     const fetchLicenses_trial = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('productName');
-        
+        const currentName = searchParams.get('businessName');
+
         // 전체 라이센스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=1&page=1&limit=10000`;
         if (currentName) {
-          totalUrl += `&name=${currentName}`;
+          totalUrl += `&businessName=${currentName}`;
         }
         if (role === 'User') {
           totalUrl += `&role=User`;
@@ -229,11 +229,11 @@ export default function LicensePage() {
   }, [searchParams, pagination.itemsPerPage, pagination_trial.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
-  const handleSearchClick = () => {
+  const handleSearchClick = (trial:string) => {
     try {
       const params = new URLSearchParams();
-      if (productName.trim()) {  // 공백 제거 후 체크
-        params.set('productName', productName.trim());
+      if (businessName.trim()) {  // 공백 제거 후 체크
+        params.set('businessName', businessName.trim());
       }
       params.set('page', '1');
 
@@ -247,7 +247,7 @@ export default function LicensePage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setProductName('');
+    setBusinessName('');
     router.push('/license?page=1');
   };
 
@@ -280,37 +280,37 @@ export default function LicensePage() {
       </div>
 
       {/* 검색 필터 */}
-      {/* <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
+          value={businessName}
+          onChange={(e) => setBusinessName(e.target.value)}
           placeholder="제품명으로 검색"
-          className="px-3 py-2 border rounded-md"
+          className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              handleSearchClick();
+              handleSearchClick('0');
             }
           }}
         />
         <button
           type="button"
-          onClick={handleSearchClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          onClick={() => handleSearchClick('0')}
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
         </button>
-        {searchParams.get('productName') && (
+        {searchParams.get('businessName') && (
           <button
             type="button"
             onClick={handleResetClick}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
           >
             초기화
           </button>
         )}
-      </div> */}
+      </div>
 
       {/* 라이센스 목록 */}
       <Box sx={{ width: '100%' }}>
@@ -357,7 +357,7 @@ export default function LicensePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
@@ -415,7 +415,7 @@ export default function LicensePage() {
               )}
               {!isLoading && licenses.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     라이센스 정보가 없습니다.
                   </td>
                 </tr>
@@ -553,7 +553,7 @@ export default function LicensePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
@@ -611,7 +611,7 @@ export default function LicensePage() {
               )}
               {!isLoading && licenses_trial.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     라이센스 정보가 없습니다.
                   </td>
                 </tr>

@@ -136,7 +136,7 @@ export default function BusinessDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );

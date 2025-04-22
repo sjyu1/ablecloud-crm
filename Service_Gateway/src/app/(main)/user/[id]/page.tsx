@@ -87,7 +87,7 @@ export default function UserDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function UserDetailPage() {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">사용자를 찾을 수 없습니다.</div>
       </div>
     );

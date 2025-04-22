@@ -94,7 +94,7 @@ export default function CustomerEditPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">로딩 중...</div>;
+    return <div className="text-center py-4 text-sm">로딩 중...</div>;
   }
 
   // if (error) {
@@ -102,7 +102,7 @@ export default function CustomerEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4">고객 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">고객 정보를 찾을 수 없습니다.</div>;
   }
 
   return (

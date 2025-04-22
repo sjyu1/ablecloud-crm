@@ -157,7 +157,7 @@ export async function PUT(
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.error);
+      throw new Error(data.errorMessage);
     }
 
     if (!response) {
