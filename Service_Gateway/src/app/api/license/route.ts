@@ -17,13 +17,12 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const productName = searchParams.get('productName');
     const role = searchParams.get('role');  // User 회사 정보만 조회
-    const trial = searchParams.get('trial') || 0;
+    const trial = searchParams.get('trial');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    apiUrl.searchParams.set('trial', trial.toString());
     if (productName) {
       apiUrl.searchParams.set('productName', productName);
     }
@@ -32,6 +31,9 @@ export async function GET(request: Request) {
       if (!data_userinfo.error) {
         apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
       }
+    }
+    if (trial) {
+      apiUrl.searchParams.set('trial', trial.toString());
     }
 
     const response = await fetchWithAuth(apiUrl.toString());
