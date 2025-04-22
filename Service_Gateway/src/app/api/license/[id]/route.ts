@@ -17,7 +17,7 @@ export async function GET(
     log.info('API URL ::: GET /license/'+params.id);
     const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`);
     const data = await response.json();
-    log.info('GET /license/'+params.id+' DATA ::: '+JSON.stringify(data));
+    // log.info('GET /license/'+params.id+' DATA ::: '+JSON.stringify(data));
 
     // 라이센스 데이터에 발급자 정보 추가
     const data_userinfo = await userinfo_id(data.issued_id);
