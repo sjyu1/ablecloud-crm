@@ -20,7 +20,8 @@ export class PartnerService {
     page: number,
     limit: number,
     level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
-    name?: string
+    name?: string,
+    id?: string
   ): Promise<{ partners: Partner[]; total: number }> {
     try {
       const queryBuilder = this.partnerRepository.createQueryBuilder('partner')
@@ -32,6 +33,10 @@ export class PartnerService {
 
       if (name) {
         queryBuilder.andWhere('LOWER(partner.name) LIKE LOWER(:name)', { name: `%${name}%` });
+      }
+
+      if (id) {
+        queryBuilder.andWhere('partner.id = :id', { id });
       }
 
       // 페이지와 리미트가 숫자인지 확인
