@@ -23,9 +23,14 @@ export default function PartnerRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
+      // 전화번호 밸리데이션
+      if (!validateTelnum(formData.telnum)) {
+        throw new Error('전화번호 형식이 올바르지 않습니다.');
+      }
+  
+      setIsLoading(true);
       const response = await fetch('/api/partner', {
         method: 'POST',
         headers: {
@@ -54,6 +59,15 @@ export default function PartnerRegisterPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  // 전화번호 유효성 검사 함수
+  const validateTelnum = (telnum: string) => {
+    const phoneRegex = /^(\d{2,3})-(\d{3,4})-(\d{4})$/;
+    if (!phoneRegex.test(telnum)) {
+      return false;
+    }
+    return true;
   };
 
   return (

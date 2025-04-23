@@ -102,7 +102,7 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );
@@ -118,7 +118,7 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">제품을 찾을 수 없습니다.</div>
       </div>
     );
@@ -131,27 +131,24 @@ export default function ProductDetailPage() {
         <div className="space-x-2">
           <button
             onClick={handleDisabled}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             제품 비활성화
           </button>
           <button
-            onClick={() => window.location.href =(`/product/${product.id}/edit?page=${prevPage}`)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}`)}
+            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            className={role === 'Admin' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
           >
             삭제
           </button>
           <button
-            onClick={() => window.location.href =(`/product?page=${prevPage}`)}
+            onClick={() => router.push(`/product?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록

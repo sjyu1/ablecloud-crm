@@ -164,7 +164,7 @@ export default function PartnerDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );
@@ -180,7 +180,7 @@ export default function PartnerDetailPage() {
 
   if (!partner) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 text-sm">
         {/* <div className="text-gray-500">파트너를 찾을 수 없습니다.</div> */}
       </div>
     );
@@ -196,21 +196,19 @@ export default function PartnerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => window.location.href =(`/partner/${partner.id}/edit?page=${prevPage}`)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}`)}
+            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            style={{ display: role === 'Admin' ? '' : 'none' }}
+            className={role === 'Admin' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
           >
             삭제
           </button>
           <button
-            onClick={() => window.location.href =(`/partner?page=${prevPage}`)}
+            onClick={() => router.push(`/partner?page=${prevPage}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -256,7 +254,7 @@ export default function PartnerDetailPage() {
         </div>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -278,7 +276,7 @@ export default function PartnerDetailPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href =(`/user/${user.id}`)}>
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {user.username}
@@ -300,7 +298,7 @@ export default function PartnerDetailPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사용자 정보가 없습니다.
                 </td>
               </tr>

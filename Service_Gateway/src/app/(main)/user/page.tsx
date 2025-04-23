@@ -224,13 +224,13 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
                 users.filter(user => user.type === 'partner').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
@@ -259,7 +259,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'partner').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>
@@ -299,13 +299,13 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
                 users.filter(user => user.type === 'customer').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
@@ -334,7 +334,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'customer').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>
@@ -374,13 +374,13 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
                 users.filter(user => user.type === 'vendor').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/user/${user.id}`}>
+                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {user.username}
@@ -409,7 +409,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'vendor').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>

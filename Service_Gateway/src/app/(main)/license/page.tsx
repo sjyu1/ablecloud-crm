@@ -63,7 +63,7 @@ export default function LicensePage() {
   const searchParams = useSearchParams();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [licenses_trial, setLicenses_trial] = useState<License[]>([]);
-  const [productName, setProductName] = useState('');
+  const [businessName, setBusinessName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -94,35 +94,35 @@ export default function LicensePage() {
     const fetchLicenses = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('productName');
+        const currentName = searchParams.get('businessName');
         
         // 전체 라이센스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=0&page=1&limit=10000`;
         if (currentName) {
-          totalUrl += `&name=${currentName}`;
+          totalUrl += `&businessName=${currentName}`;
         }
         if (role === 'User') {
           totalUrl += `&role=User`;
         }
-        
+
         const totalResponse = await fetch(totalUrl);
         const totalResult = await totalResponse.json();
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/license?trial=0&page=${page}&limit=10`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          url += `&role=User`;
-        }
+        // let url = `/api/license?trial=0&page=${page}&limit=10`;
+        // if (currentName) {
+        //   url += `&name=${currentName}`;
+        // }
+        // if (role === 'User') {
+        //   url += `&role=User`;
+        // }
 
-        const response = await fetch(url);
-        const result = await response.json();
+        // const response = await fetch(url);
+        // const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.message || '오류가 발생했습니다.');
+        if (!totalResult.success) {
+          throw new Error(totalResult.message || '오류가 발생했습니다.');
         }
 
         // 현재 페이지의 데이터 설정
@@ -161,12 +161,12 @@ export default function LicensePage() {
     const fetchLicenses_trial = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('productName');
-        
+        const currentName = searchParams.get('businessName');
+
         // 전체 라이센스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=1&page=1&limit=10000`;
         if (currentName) {
-          totalUrl += `&name=${currentName}`;
+          totalUrl += `&businessName=${currentName}`;
         }
         if (role === 'User') {
           totalUrl += `&role=User`;
@@ -177,19 +177,19 @@ export default function LicensePage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        let url = `/api/license?trial=1&page=${page}&limit=10`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
-        if (role === 'User') {
-          url += `&role=User`;
-        }
+        // let url = `/api/license?trial=1&page=${page}&limit=10`;
+        // if (currentName) {
+        //   url += `&name=${currentName}`;
+        // }
+        // if (role === 'User') {
+        //   url += `&role=User`;
+        // }
 
-        const response = await fetch(url);
-        const result = await response.json();
+        // const response = await fetch(url);
+        // const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.message || '오류가 발생했습니다.');
+        if (!totalResult.success) {
+          throw new Error(totalResult.message || '오류가 발생했습니다.');
         }
 
         // 현재 페이지의 데이터 설정
@@ -229,11 +229,11 @@ export default function LicensePage() {
   }, [searchParams, pagination.itemsPerPage, pagination_trial.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
-  const handleSearchClick = () => {
+  const handleSearchClick = (trial:string) => {
     try {
       const params = new URLSearchParams();
-      if (productName.trim()) {  // 공백 제거 후 체크
-        params.set('productName', productName.trim());
+      if (businessName.trim()) {  // 공백 제거 후 체크
+        params.set('businessName', businessName.trim());
       }
       params.set('page', '1');
 
@@ -247,7 +247,7 @@ export default function LicensePage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setProductName('');
+    setBusinessName('');
     router.push('/license?page=1');
   };
 
@@ -280,37 +280,37 @@ export default function LicensePage() {
       </div>
 
       {/* 검색 필터 */}
-      {/* <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
-          value={productName}
-          onChange={(e) => setProductName(e.target.value)}
+          value={businessName}
+          onChange={(e) => setBusinessName(e.target.value)}
           placeholder="제품명으로 검색"
-          className="px-3 py-2 border rounded-md"
+          className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              handleSearchClick();
+              handleSearchClick('0');
             }
           }}
         />
         <button
           type="button"
-          onClick={handleSearchClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          onClick={() => handleSearchClick('0')}
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
         </button>
-        {searchParams.get('productName') && (
+        {searchParams.get('businessName') && (
           <button
             type="button"
             onClick={handleResetClick}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
           >
             초기화
           </button>
         )}
-      </div> */}
+      </div>
 
       {/* 라이센스 목록 */}
       <Box sx={{ width: '100%' }}>
@@ -357,13 +357,13 @@ export default function LicensePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
                 licenses.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}?page=${pagination.currentPage}`}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -415,7 +415,7 @@ export default function LicensePage() {
               )}
               {!isLoading && licenses.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     라이센스 정보가 없습니다.
                   </td>
                 </tr>
@@ -426,33 +426,92 @@ export default function LicensePage() {
 
         {/* 페이지네이션 */}
         {licenses.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            {/* 왼쪽: 페이지 이동 버튼 */}
-            <div className="flex items-center gap-2">
+          <div className="flex justify-center items-center mt-4">
+            <div className="flex items-center gap-0">
               <button
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                이전
+                &lt;
               </button>
           
-              <span className="px-4">
-                {pagination.currentPage} / {pagination.totalPages} 페이지
-              </span>
+              {(() => {
+                const pages = [];
+                const total = pagination.totalPages;
+                const current = pagination.currentPage;
+          
+                const createText = (num: number) => {
+                  if (num === current) {
+                    return (
+                      <button
+                        key={num}
+                        disabled
+                        className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
+
+                      >
+                        {num}
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <span
+                        key={num}
+                        onClick={() => handlePageChange(num)}
+                        className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
+                      >
+                        {num}
+                      </span>
+                    );
+                  }
+                };
+          
+                if (total <= 5) {
+                  for (let i = 1; i <= total; i++) {
+                    pages.push(createText(i));
+                  }
+                } else {
+                  if (current <= 3) {
+                    for (let i = 1; i <= 5; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  } else if (current >= total - 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = total - 4; i <= total; i++) {
+                      pages.push(createText(i));
+                    }
+                  } else {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = current - 2; i <= current + 2; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis2" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  }
+                }
+          
+                return pages;
+              })()}
           
               <button
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={!hasNextPage}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                다음
+                &gt;
               </button>
-            </div>
           
-            {/* 오른쪽: 총 개수 */}
-            <div className="text-sm text-gray-600">
-              총 {pagination.totalItems}개의 라이센스
+              <div className="text-sm text-gray-600 ml-4">
+                전체 {pagination.totalItems}개 항목
+              </div>
             </div>
           </div>
         )}
@@ -494,13 +553,13 @@ export default function LicensePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
                 licenses_trial.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/license/${license.id}?page=${pagination.currentPage}`}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -552,7 +611,7 @@ export default function LicensePage() {
               )}
               {!isLoading && licenses_trial.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                     라이센스 정보가 없습니다.
                   </td>
                 </tr>
@@ -563,33 +622,92 @@ export default function LicensePage() {
 
         {/* 페이지네이션 */}
         {licenses_trial.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            {/* 왼쪽: 페이지 이동 버튼 */}
-            <div className="flex items-center gap-2">
+          <div className="flex justify-center items-center mt-4">
+            <div className="flex items-center gap-0">
               <button
-                onClick={() => handlePageChange_trial(pagination_trial.currentPage - 1)}
+                onClick={() => handlePageChange(pagination_trial.currentPage - 1)}
                 disabled={pagination_trial.currentPage === 1}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                이전
+                &lt;
               </button>
           
-              <span className="px-4">
-                {pagination_trial.currentPage} / {pagination_trial.totalPages} 페이지
-              </span>
+              {(() => {
+                const pages = [];
+                const total = pagination_trial.totalPages;
+                const current = pagination_trial.currentPage;
+          
+                const createText = (num: number) => {
+                  if (num === current) {
+                    return (
+                      <button
+                        key={num}
+                        disabled
+                        className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
+
+                      >
+                        {num}
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <span
+                        key={num}
+                        onClick={() => handlePageChange(num)}
+                        className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
+                      >
+                        {num}
+                      </span>
+                    );
+                  }
+                };
+          
+                if (total <= 5) {
+                  for (let i = 1; i <= total; i++) {
+                    pages.push(createText(i));
+                  }
+                } else {
+                  if (current <= 3) {
+                    for (let i = 1; i <= 5; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  } else if (current >= total - 2) {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = total - 4; i <= total; i++) {
+                      pages.push(createText(i));
+                    }
+                  } else {
+                    pages.push(
+                      <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                    for (let i = current - 2; i <= current + 2; i++) {
+                      pages.push(createText(i));
+                    }
+                    pages.push(
+                      <span key="ellipsis2" className="text-sm px-2 text-gray-500">...</span>
+                    );
+                  }
+                }
+          
+                return pages;
+              })()}
           
               <button
-                onClick={() => handlePageChange_trial(pagination_trial.currentPage + 1)}
+                onClick={() => handlePageChange(pagination_trial.currentPage + 1)}
                 disabled={!hasNextPage_trial}
-                className="px-4 py-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                다음
+                &gt;
               </button>
-            </div>
           
-            {/* 오른쪽: 총 개수 */}
-            <div className="text-sm text-gray-600">
-              총 {pagination_trial.totalItems}개의 라이센스
+              <div className="text-sm text-gray-600 ml-4">
+                전체 {pagination_trial.totalItems}개 항목
+              </div>
             </div>
           </div>
         )}

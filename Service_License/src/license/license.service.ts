@@ -84,8 +84,8 @@ export class LicenseService {
       query.andWhere('license.trial = :trial', { trial: filters.trial });
     }
 
-    console.log('Final SQL Query:', query.getSql());
-    console.log('Query Parameters:', query.getParameters());
+    // console.log('Final SQL Query:', query.getSql());
+    // console.log('Query Parameters:', query.getParameters());
 
     const total = await query.getCount();
     const items = await query

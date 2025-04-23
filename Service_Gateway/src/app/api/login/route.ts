@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       username,
       password
     }
-
+    log.info('login username ::: '+username);
     const res = await fetch(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
       method: 'POST',
       headers: {

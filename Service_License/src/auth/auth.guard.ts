@@ -27,7 +27,7 @@ import { firstValueFrom } from 'rxjs';
       return true
 
     } catch (error) {
-      console.error('Authentication error:', error.message || error)
+      // console.error('Authentication error:', error.message || error)
       if (error instanceof UnauthorizedException) {
         throw error
       }
@@ -47,7 +47,7 @@ import { firstValueFrom } from 'rxjs';
       // console.log('User info fetched successfully:', data)
       return data
     } catch (error) {
-      console.error('Error fetching user info:', error.message || error)
+      // console.error('Error fetching user info:', error.message || error)
       throw new UnauthorizedException('Failed to fetch user information')
     }
   }

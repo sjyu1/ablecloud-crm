@@ -25,7 +25,7 @@ export async function encryptContent(content: string): Promise<string> {
 
     return encrypted.toString('base64');
   } catch (error) {
-    console.error('Encryption error:', error);
+    // console.error('Encryption error:', error);
     throw new Error('라이센스 데이터 암호화에 실패했습니다.');
   }
 } 
@@ -52,7 +52,7 @@ export async function decryptContent(encryptedContent: string): Promise<string> 
 
     return decrypted.toString('utf8');
   } catch (error) {
-    console.error('Decryption error:', error);
+    // console.error('Decryption error:', error);
     throw new Error('라이센스 데이터 복호화에 실패했습니다.');
   }
 } 

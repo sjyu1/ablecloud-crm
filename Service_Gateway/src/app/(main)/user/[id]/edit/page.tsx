@@ -62,7 +62,8 @@ export default function UserEditPage() {
       if (response.ok) {
         alert('사용자가 수정되었습니다.');
       } else {
-        throw new Error('사용자 수정에 실패했습니다.');
+        const err = await response.json();
+        throw new Error(err.message);
       }
 
       router.push(`/user/${params.id}`);
@@ -83,7 +84,7 @@ export default function UserEditPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-4">로딩 중...</div>;
+    return <div className="text-center py-4 text-sm">로딩 중...</div>;
   }
 
   // if (error) {
@@ -91,7 +92,7 @@ export default function UserEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4">사용자 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">사용자 정보를 찾을 수 없습니다.</div>;
   }
 
   return (

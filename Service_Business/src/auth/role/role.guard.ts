@@ -30,7 +30,7 @@ export class RolesGuard implements CanActivate {
       }
 
     } catch (error) {
-      console.error('Authentication error:', error.message || error)
+      // console.error('Authentication error:', error.message || error)
       if (error instanceof UnauthorizedException) {
         throw error
       }

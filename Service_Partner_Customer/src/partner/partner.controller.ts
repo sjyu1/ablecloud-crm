@@ -39,7 +39,7 @@ export class PartnerController {
 
       return await this.partnerService.findAll(validPage, validLimit, validLevel, validName);
     } catch (error) {
-      console.error('파트너 검색 요청 처리 중 오류 발생:', error);
+      // console.error('파트너 검색 요청 처리 중 오류 발생:', error);
       throw error;
     }
   }

@@ -46,7 +46,7 @@ export class PartnerService {
 
       return { partners, total };
     } catch (error) {
-      console.error('파트너 검색 중 오류 발생:', error);
+      // console.error('파트너 검색 중 오류 발생:', error);
       throw error;
     }
   }
