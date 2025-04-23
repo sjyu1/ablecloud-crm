@@ -152,13 +152,13 @@ export default function LicensePage() {
         });
 
       } catch (err) {
-        if (err instanceof Error) {
-          if (err.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          }
-        } else {
-          alert('라이센스 목록 조회에 실패했습니다.');
-        }
+        // if (err instanceof Error) {
+        //   if (err.message == 'Failed to fetch user information') {
+        //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        //   }
+        // } else {
+        // alert('라이센스 목록 조회에 실패했습니다.');
+        // }
       } finally {
         setIsLoading(false);
       }
@@ -296,7 +296,7 @@ export default function LicensePage() {
           type="text"
           value={businessName}
           onChange={(e) => setBusinessName(e.target.value)}
-          placeholder="제품명으로 검색"
+          placeholder="사업명으로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

@@ -102,7 +102,8 @@ export default function ProductRegisterPage() {
                 name="isoFilePath"
                 value={formData.isoFilePath}
                 onChange={handleChange}
-                className="w-3/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso (https://download.ablecloud.io/ABLESTACK-ISO 이후 경로 입력)"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
