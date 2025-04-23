@@ -94,7 +94,7 @@ export class LicenseService {
       .take(limit)
       .getRawMany();
 
-    console.log('Raw Query Results:', items);
+    // console.log('Raw Query Results:', items);
 
     const formattedItems = items.map(license => ({
       ...license,

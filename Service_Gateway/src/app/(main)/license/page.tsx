@@ -84,6 +84,13 @@ export default function LicensePage() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete('trial');
+    params.set('trial', newValue.toString());
+    params.set('page', '1');
+    router.push(`/license?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -255,15 +262,19 @@ export default function LicensePage() {
   const handlePageChange = (newPage: number) => {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('trial');
+    params.set('trial', '0');
     params.set('page', newPage.toString());
-    router.push(`/license?trial=0&${params.toString()}`);
+    router.push(`/license?${params.toString()}`);
   };
 
   const handlePageChange_trial = (newPage: number) => {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('trial');
+    params.set('trial', '1');
     params.set('page', newPage.toString());
-    router.push(`/license?trial=1&${params.toString()}`);
+    router.push(`/license?${params.toString()}`);
   };
 
   return (
