@@ -20,7 +20,7 @@ export class LicenseController {
       productId?: string;
       businessType?: string;
       company_id?: string;
-      productName?: string;
+      businessName?: string;
       trial?: string;
     },
     @Request() req: any
@@ -35,7 +35,7 @@ export class LicenseController {
       businessType: query.businessType || '',
       company_id: query.company_id || '',
       partnerId: partnerId,
-      productName: query.productName || '',
+      businessName: query.businessName || '',
       trial: query.trial || '0'
     };
 

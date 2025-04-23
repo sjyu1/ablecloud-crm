@@ -31,7 +31,7 @@ export class LicenseService {
     limit: number = 10,
     filters: {
       productId?: string;
-      productName?: string;
+      businessName?: string;
       businessType?: string;
       partnerId?: number;
       company_id?: string;
@@ -74,9 +74,9 @@ export class LicenseService {
       query.andWhere('license.company_id = :company_id', { company_id: filters.company_id });
     }
 
-    if (filters.productName) {
-      query.andWhere('product.name LIKE :productName', { 
-        productName: `%${filters.productName}%` 
+    if (filters.businessName) {
+      query.andWhere('business.name LIKE :businessName', { 
+        businessName: `%${filters.businessName}%` 
       });
     }
 
@@ -94,7 +94,7 @@ export class LicenseService {
       .take(limit)
       .getRawMany();
 
-    console.log('Raw Query Results:', items);
+    // console.log('Raw Query Results:', items);
 
     const formattedItems = items.map(license => ({
       ...license,

@@ -24,12 +24,15 @@ export class PartnerController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('level') level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
-    @Query('name') name?: string
+    @Query('name') name?: string,
+    @Query('id') id?: string
   ) {
     try {
       // 파라미터 유효성 검사
       const validPage = Math.max(1, Number(page));
       const validLimit = Math.max(1, Number(limit));
+
+      const validId = id && id !== 'undefined' && id !== '' ? id : undefined;
 
       // name이 유효한 문자열인지 확인
       const validName = name && name !== 'undefined' && name !== '' ? name : undefined;
@@ -37,9 +40,9 @@ export class PartnerController {
       // level이 유효한 값인지 확인
       const validLevel = level && ['PLATINUM', 'GOLD', 'SILVER', 'VAR'].includes(level) ? level : undefined;
 
-      return await this.partnerService.findAll(validPage, validLimit, validLevel, validName);
+      return await this.partnerService.findAll(validPage, validLimit, validLevel, validName, validId);
     } catch (error) {
-      // console.error('파트너 검색 요청 처리 중 오류 발생:', error);
+      //console.error('파트너 검색 요청 처리 중 오류 발생:', error);
       throw error;
     }
   }

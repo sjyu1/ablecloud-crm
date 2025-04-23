@@ -84,6 +84,13 @@ export default function LicensePage() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete('trial');
+    params.set('trial', newValue.toString());
+    params.set('page', '1');
+    router.push(`/license?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -145,13 +152,13 @@ export default function LicensePage() {
         });
 
       } catch (err) {
-        if (err instanceof Error) {
-          if (err.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          }
-        } else {
-          alert('라이센스 목록 조회에 실패했습니다.');
-        }
+        // if (err instanceof Error) {
+        //   if (err.message == 'Failed to fetch user information') {
+        //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        //   }
+        // } else {
+        // alert('라이센스 목록 조회에 실패했습니다.');
+        // }
       } finally {
         setIsLoading(false);
       }
@@ -255,15 +262,19 @@ export default function LicensePage() {
   const handlePageChange = (newPage: number) => {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('trial');
+    params.set('trial', '0');
     params.set('page', newPage.toString());
-    router.push(`/license?trial=0&${params.toString()}`);
+    router.push(`/license?${params.toString()}`);
   };
 
   const handlePageChange_trial = (newPage: number) => {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('trial');
+    params.set('trial', '1');
     params.set('page', newPage.toString());
-    router.push(`/license?trial=1&${params.toString()}`);
+    router.push(`/license?${params.toString()}`);
   };
 
   return (
@@ -285,7 +296,7 @@ export default function LicensePage() {
           type="text"
           value={businessName}
           onChange={(e) => setBusinessName(e.target.value)}
-          placeholder="제품명으로 검색"
+          placeholder="사업명으로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

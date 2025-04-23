@@ -9,8 +9,17 @@ interface ProductForm {
   name: string;
   version: string;
   level: string;
-  // rpmFilePath: string;
   isoFilePath: string;
+  cube_version: string;
+  mold_version: string;
+  glue_version: string;
+  iso_builddate: string;
+  cube_builddate: string;
+  glue_builddate: string;
+  mold_builddate: string;
+  add_function: string;
+  patch_function: string;
+  issue_function: string;
 }
 
 export default function ProductEditPage() {
@@ -72,7 +81,7 @@ export default function ProductEditPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
       
     setFormData(prev => prev ? {
@@ -137,23 +146,134 @@ export default function ProductEditPage() {
                 name="isoFilePath"
                 value={formData.isoFilePath}
                 onChange={handleChange}
-                className="w-3/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
-            {/* <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 RPM경로
+                ISO Build Date
               </label>
               <input
                 type="text"
-                name="rpmFilePath"
-                value={formData.rpmFilePath}
+                name="iso_builddate"
+                placeholder="Build Date (2025-01-01 형식)"
+                value={formData.iso_builddate}
                 onChange={handleChange}
-                className="w-3/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div> */}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cube
+              </label>
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  name="cube_version"
+                  placeholder="버전"
+                  value={formData.cube_version}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  name="cube_builddate"
+                  placeholder="Build Date (2025-01-01 형식)"
+                  value={formData.cube_builddate}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Glue
+              </label>
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  name="glue_version"
+                  placeholder="버전"
+                  value={formData.glue_version}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  name="glue_builddate"
+                  placeholder="Build Date (2025-01-01 형식)"
+                  value={formData.glue_builddate}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mold
+              </label>
+              <div className="flex space-x-4">
+                <input
+                  type="text"
+                  name="mold_version"
+                  placeholder="버전"
+                  value={formData.mold_version}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  name="mold_builddate"
+                  placeholder="Build Date (2025-01-01 형식)"
+                  value={formData.mold_builddate}
+                  onChange={handleChange}
+                  className="w-1/4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                추가 기능
+              </label>
+              <textarea
+                id="text-input"
+                name="add_function"
+                value={formData.add_function ?? ''}
+                onChange={handleChange}
+                placeholder="내용을 입력하세요"
+                rows={5}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                패치 기능
+              </label>
+              <textarea
+                id="text-input"
+                name="patch_function"
+                value={formData.patch_function ?? ''}
+                onChange={handleChange}
+                placeholder="내용을 입력하세요"
+                rows={5}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                알려진 이슈
+              </label>
+              <textarea
+                id="text-input"
+                name="issue_function"
+                value={formData.issue_function ?? ''}
+                onChange={handleChange}
+                placeholder="내용을 입력하세요"
+                rows={5}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
           {error && (
