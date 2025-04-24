@@ -21,11 +21,12 @@ export class CustomerController {
   @Get()
   // @Roles('Admin')
   async findAll(
-    @Query('page') page = '1',
+    @Query('page') page?: string,
     @Query('limit') limit = '10',
     @Query('name') name?: string
   ) {
-    const parsedPage = parseInt(page, 10);
+    const hasPage = typeof page !== 'undefined';
+    const parsedPage = hasPage ? parseInt(page, 10) : undefined
     const parsedLimit = parseInt(limit, 10);
 
     const { customers, total } = await this.customerService.findAll(
@@ -34,14 +35,19 @@ export class CustomerController {
       name
     );
 
+    const meta: any = {
+      total,
+      limit: parsedLimit,
+      totalPages: Math.ceil(total / parsedLimit),
+    };
+  
+    if (hasPage) {
+      meta.page = parsedPage;
+    }
+  
     return {
       data: customers,
-      meta: {
-        total,
-        page: parsedPage,
-        limit: parsedLimit,
-        totalPages: Math.ceil(total / parsedLimit)
-      }
+      meta,
     };
   }
 
