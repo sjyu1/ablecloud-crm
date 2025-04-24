@@ -17,8 +17,8 @@ export class CustomerService {
   }
 
   async findAll(
-    page: number,
-    limit: number,
+    page?: number,
+    limit?: number,
     name?: string
   ): Promise<{ customers: Customer[]; total: number }> {
     const queryBuilder = this.customerRepository.createQueryBuilder('customer')
@@ -27,13 +27,14 @@ export class CustomerService {
     if (name) {
       queryBuilder.andWhere('customer.name LIKE :name', { name: `%${name}%` });
     }
+  
+    queryBuilder.orderBy('customer.created', 'DESC');
 
-    const [customers, total] = await queryBuilder
-      .orderBy('customer.created', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
+    if (page && limit) {
+      queryBuilder.skip((page - 1) * limit).take(limit);
+    }
+    const [customers, total] = await queryBuilder.getManyAndCount();
+  
     return { customers, total };
   }
 

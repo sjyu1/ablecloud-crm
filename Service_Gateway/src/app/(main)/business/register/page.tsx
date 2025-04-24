@@ -111,7 +111,7 @@ export default function BusinessRegisterPage() {
 
     const fetchCustomers = async () => {
       try {
-        let url = `/api/customer`;
+        let url = `/api/customer/forCreateBusiness`;
 
         if (role == 'User') {
           url += `?role=User`;
