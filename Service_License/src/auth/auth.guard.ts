@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     try {
       const request = context.switchToHttp().getRequest()
       const { authorization } = request.headers
-      console.log(authorization+"authorization");
+      // console.log(authorization+"authorization");
       // console.log('User info fetched successfully:1')
       if (!authorization || authorization.trim() === '') {
         throw new UnauthorizedException('Please provide a valid token')
