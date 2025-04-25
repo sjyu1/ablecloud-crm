@@ -29,92 +29,10 @@ export class Product {
   })
   isoFilePath: string;
 
-  // @Column({
-  //   type: 'varchar',
-  //   length: 255,
-  //   nullable: false,
-  //   default: ''
-  // })
-  // rpmFilePath: string;
-
   @Column({
     type: 'tinyint'
   })
   enabled: boolean;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  cube_version: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  glue_version: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  mold_version: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  iso_builddate: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  cube_builddate: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  glue_builddate: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  mold_builddate: string;
-
-  @Column({
-    type: 'text',
-    nullable: true
-  })
-  add_function: string;
-
-  @Column({
-    type: 'text',
-    nullable: true
-  })
-  patch_function: string;
-
-  @Column({
-    type: 'text',
-    nullable: true
-  })
-  issue_function: string;
 
   @CreateDateColumn({
     type: 'timestamp',

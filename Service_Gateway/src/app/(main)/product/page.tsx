@@ -48,9 +48,6 @@ export default function ProductPage() {
         if (currentName) {
           totalUrl += `&name=${currentName}`;
         }
-        if (role === 'User') {
-          totalUrl += `&role=User`;
-        }
         
         const totalResponse = await fetch(totalUrl);
         const totalResult = await totalResponse.json();
