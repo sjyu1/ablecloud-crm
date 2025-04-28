@@ -1,0 +1,67 @@
+/* layout.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  /* font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  background-color: #f4f4f4;
+  padding: 20px; */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 2rem;
+  font-weight: 600;
+  /* margin-bottom: 16px; */
+  color: #333;
+}
+
+p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+  /* margin-bottom: 16px; */
+}
+
+ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  /* padding: 10px 0; */
+}
+
+ol {
+  list-style-type: decimal;
+  margin-left: 20px;
+  padding: 10px 0;
+}
+
+.contains-task-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.contains-task-list .task-list-item {
+  display: flex;
+  align-items: center;
+  /* margin-bottom: 8px; */
+}
+
+.contains-task-list .task-list-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.contains-task-list .task-list-item input[type="checkbox"]:disabled {
+  opacity: 0.5;
+}
+
+.info-block {
+  padding: 1rem;
+  background-color: #d1ecf1;
+  border-radius: 8px;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  margin-bottom: 1rem;
+}
