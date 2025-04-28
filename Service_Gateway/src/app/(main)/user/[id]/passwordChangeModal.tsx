@@ -81,7 +81,7 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       hasNumber: /[0-9]/, // 숫자 포함
       hasUpperCase: /[A-Z]/, // 대문자 포함
       hasLowerCase: /[a-z]/, // 소문자 포함
-      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/, // 특수문자 포함
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>-_]/, // 특수문자 포함
     };
 
     if (!regex.minLength.test(password) || !regex.hasNumber.test(password) || !regex.hasUpperCase.test(password) || !regex.hasLowerCase.test(password) || !regex.hasSpecialChar.test(password)) {
