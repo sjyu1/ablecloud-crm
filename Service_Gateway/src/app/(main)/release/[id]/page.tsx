@@ -134,7 +134,7 @@ export default function ReleaseDetailPage() {
         throw new Error('릴리즈노트 비활성화에 실패했습니다.');
       }
 
-      router.push(`/release/${params.id}?page=${prevPage}`);
+      router.push('/release');
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }

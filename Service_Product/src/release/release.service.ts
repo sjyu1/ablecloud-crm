@@ -20,14 +20,14 @@ export class ReleaseService {
   async findAll(
     page: number,
     limit: number,
-    name?: string
+    version?: string
   ): Promise<{ releases: Release[]; total: number }> {
     const queryBuilder = this.releaseRepository.createQueryBuilder('release')
       .andWhere('release.enabled = true')
       .andWhere('release.removed IS NULL');
 
-    if (name) {
-      queryBuilder.andWhere('release.name LIKE :name', { name: `%${name}%` });
+    if (version) {
+      queryBuilder.andWhere('release.version LIKE :version', { version: `%${version}%` });
     }
 
     const [releases, total] = await queryBuilder

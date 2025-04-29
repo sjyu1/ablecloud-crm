@@ -108,7 +108,7 @@ export default function ReleasePage() {
     try {
       const params = new URLSearchParams();
       if (name.trim()) {  // 공백 제거 후 체크
-        params.set('name', name.trim());
+        params.set('version', name.trim());
       }
       params.set('page', '1');
 
@@ -151,7 +151,7 @@ export default function ReleasePage() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="제품명으로 검색"
+          placeholder="제품버전으로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

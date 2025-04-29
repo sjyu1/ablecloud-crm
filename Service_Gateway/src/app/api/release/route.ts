@@ -12,14 +12,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const name = searchParams.get('name');
+    const version = searchParams.get('version');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.PRODUCT_API_URL}/release`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
+    if (version) {
+      apiUrl.searchParams.set('version', version);
     }
 
     const response = await fetchWithAuth(apiUrl.toString());

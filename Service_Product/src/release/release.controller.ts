@@ -22,7 +22,7 @@ export class ReleaseController {
   async findAll(
     @Query('page') page = '1',
     @Query('limit') limit = '10',
-    @Query('name') name?: string
+    @Query('version') version?: string
   ) {
     
     const parsedPage = parseInt(page, 10);
@@ -31,7 +31,7 @@ export class ReleaseController {
     const { releases, total } = await this.releaseService.findAll(
       parsedPage,
       parsedLimit,
-      name
+      version
     );
 
     return {

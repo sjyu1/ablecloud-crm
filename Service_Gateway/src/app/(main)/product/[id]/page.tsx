@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
         throw new Error('제품 비활성화에 실패했습니다.');
       }
 
-      router.push(`/product/${params.id}?page=${prevPage}`);
+      router.push('/product');
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
