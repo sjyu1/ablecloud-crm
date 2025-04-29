@@ -4,9 +4,12 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import { remark } from 'remark';
-import html from 'remark-html';
-import remarkGfm from 'remark-gfm';
 import MDEditor from '@uiw/react-md-editor';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
+import { visit } from 'unist-util-visit';
+import remarkRehype from 'remark-rehype'
 
 interface Release {
   id: number;
@@ -53,13 +56,53 @@ export default function ReleaseDetailPage() {
 
       setRelease(result.data);
 
-      // Markdown → HTML 변환 (remark-gfm 플러그인 적용)
+      // Markdown → HTML 변환       
       const processedContent = await remark()
       .use(remarkGfm)
-      .use()
-      .use(html)
+      .use(() => {
+        return (tree) => {
+          visit(tree, 'paragraph', (node: any, index: number, parent: any) => {
+            const firstChild = node.children?.[0];
+            if (
+              firstChild?.type === 'text' &&
+              firstChild.value.startsWith('!!! info')
+            ) {
+              const text = firstChild.value.replace(/^!!! info\s*/, '');
+
+              parent.children.splice(index, 1, {
+                type: 'html',
+                value: `<div class="info-block"><span class="info-icon">!</span><strong>INFO:&nbsp;</strong> ${text}</div>`,
+              });
+            } else if (
+              firstChild?.type === 'text' &&
+              firstChild.value.startsWith('!!! warning')
+            ) {
+              const text = firstChild.value.replace(/^!!! warning\s*/, '');
+
+              parent.children.splice(index, 1, {
+                type: 'html',
+                value: `<div class="warn-block"><span class="warn-icon">!</span><strong>WARN:&nbsp;</strong> ${text}</div>`,
+              });
+            } else if (
+              firstChild?.type === 'text' &&
+              firstChild.value.startsWith('!!! danger')
+            ) {
+              const text = firstChild.value.replace(/^!!! danger\s*/, '');
+
+              parent.children.splice(index, 1, {
+                type: 'html',
+                value: `<div class="danger-block"><span class="danger-icon">!</span><strong>DANGER:&nbsp;</strong> ${text}</div>`,
+              });
+            }
+          });
+        };
+      })
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeRaw)
+      .use(rehypeStringify)
       .process(result.data.contents);
-        
+
+
       const contentHtml = processedContent.toString();
       console.log(contentHtml)
       setReleaseHtml(contentHtml);
@@ -186,7 +229,7 @@ export default function ReleaseDetailPage() {
             <div>
               <h3 className="text-sm font-medium text-gray-500">릴리즈</h3> */}
               {/* <div className="prose prose-sm max-w-none text-gray-900"/> */}
-              <MDEditor.Markdown style={{ padding: 10 }} source={releaseHtml} />
+              <MDEditor.Markdown style={{ padding: 10 }} source={releaseHtml} rehypePlugins={[rehypeRaw]}/>
               {/* </div> */}
             {/* </div> */}
           </div>

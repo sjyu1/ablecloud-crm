@@ -59,9 +59,75 @@ ol {
 
 .info-block {
   padding: 1rem;
-  background-color: #d1ecf1;
+  background-color: #e6f0fa;
   border-radius: 8px;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
+  color: #1e3a8a;
+  border: 1px solid #93c5fd;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.info-icon {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: center;
+  border-radius: 9999px;
+  background-color: #1d4ed8;
+  color: white;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.warn-block {
+  padding: 1rem;
+  background-color: #ffe8cc;
+  border-radius: 8px;
+  color: #8a4b00;
+  border: 1px solid #ffbb66;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.warn-icon {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: center;
+  border-radius: 9999px;
+  background-color: #f97316;
+  color: white;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.danger-block {
+  padding: 1rem;
+  background-color: #f8d7da;
+  border-radius: 8px;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.danger-icon {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: center;
+  border-radius: 9999px;
+  background-color: #dc2626;
+  color: white;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  font-size: 0.75rem;
 }
