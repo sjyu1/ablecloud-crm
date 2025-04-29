@@ -6,10 +6,10 @@ import { getCookie, logoutIfTokenExpired } from '../../store/authStore';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
-interface Product {
+interface Release {
   id: number;
-  name: string;
   version: string;
+  contents: string;
   created: string;
 }
 
@@ -20,8 +20,8 @@ interface Pagination {
   itemsPerPage: number;
 }
 
-export default function ProductPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function ReleasePage() {
+  const [releases, setReleases] = useState<Release[]>([]);
   const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
@@ -39,12 +39,12 @@ export default function ProductPage() {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
-    const fetchProducts = async () => {
+    const fetchReleases = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('name');
         
-        let totalUrl = `/api/product?page=1&limit=1000`;
+        let totalUrl = `/api/release?page=1&limit=1000`;
         if (currentName) {
           totalUrl += `&name=${currentName}`;
         }
@@ -54,7 +54,7 @@ export default function ProductPage() {
         const totalCount = totalResult.data ? totalResult.data.length : 0;
 
         // 현재 페이지 데이터 가져오기
-        // let url = `/api/product?page=${page}&limit=10`;
+        // let url = `/api/release?page=${page}&limit=10`;
         // if (currentName) {
         //   url += `&name=${currentName}`;
         // }
@@ -73,7 +73,7 @@ export default function ProductPage() {
         const startIndex = (page - 1) * 10;
         const endIndex = startIndex + 10;
         const pageData = totalResult.data.slice(startIndex, endIndex);
-        setProducts(pageData);
+        setReleases(pageData);
 
         // 다음 페이지 존재 여부 확인
         const hasNext = endIndex < totalCount;
@@ -93,14 +93,14 @@ export default function ProductPage() {
           logoutIfTokenExpired(); // 토큰 만료시 로그아웃
         }
       } else {
-          alert('제품 목록 조회에 실패했습니다.');
+          alert('릴리즈노트 목록 조회에 실패했습니다.');
         }
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchReleases();
   }, [searchParams, pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
@@ -113,7 +113,7 @@ export default function ProductPage() {
       params.set('page', '1');
 
       // URL 업데이트
-      router.push(`/product?${params.toString()}`);
+      router.push(`/release?${params.toString()}`);
     } catch (error) {
       // alert('검색 중 오류가 발생했습니다.');
       alert(error);
@@ -123,25 +123,25 @@ export default function ProductPage() {
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
     setName('');
-    router.push('/product?page=1');
+    router.push('/release?page=1');
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    router.push(`/product?${params.toString()}`);
+    router.push(`/release?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">제품 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">릴리즈노트</h1>
         <Link
-          href="/product/register"
+          href="/release/register"
           className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
         >
-          제품 등록
+          릴리즈노트 등록
         </Link>
       </div>
 
@@ -178,17 +178,17 @@ export default function ProductPage() {
         )}
       </div>
 
-      {/* 제품 목록 */}
+      {/* 릴리즈노트 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품명
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 제품버전
               </th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                제품버전
+              </th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 생성일
               </th>
@@ -205,20 +205,20 @@ export default function ProductPage() {
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/product/${product.id}?page=${pagination.currentPage}`)}>
+              releases.map((release) => (
+                <tr key={release.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/release/${release.id}?page=${pagination.currentPage}`)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.name}
+                    {release.version}
                   </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {release.name}
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.version}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
+                    {format(release.created, 'yyyy-MM-dd HH:mm:ss')}
                   </td>
                   {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={`/product/${product.id}`}
+                    href={`/release/${release.id}`}
                     className="text-blue-600 hover:text-blue-900 mr-4"
                   >
                     상세
@@ -233,10 +233,10 @@ export default function ProductPage() {
                 </tr>
               ))
             )}
-            {!isLoading && products.length === 0 && (
+            {!isLoading && releases.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
-                  제품 정보가 없습니다.
+                <td colSpan={2} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  릴리즈노트 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -245,7 +245,7 @@ export default function ProductPage() {
       </div>
 
       {/* 페이지네이션 */}
-      {products.length > 0 && (
+      {releases.length > 0 && (
         <div className="flex justify-center items-center mt-4">
           <div className="flex items-center gap-0">
             <button

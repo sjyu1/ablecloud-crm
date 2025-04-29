@@ -1,40 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import {Editor} from "../../../../../components/ui/editor";
 
-interface ProductForm {
+interface ReleaseForm {
   id: number;
-  name: string;
   version: string;
-  level: string;
-  isoFilePath: string;
+  contents: string;
 }
 
-export default function ProductEditPage() {
+export default function ReleaseEditPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
-  const [formData, setFormData] = useState<ProductForm | null>(null);
+  const [formData, setFormData] = useState<ReleaseForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [value, setValue] = useState('');
+
 
   useEffect(() => {
-    fetchProductDetail();
+    fetchReleaseDetail();
   }, []);
 
-  const fetchProductDetail = async () => {
+  const fetchReleaseDetail = async () => {
     try {
-      const response = await fetch(`/api/product/${params.id}`);
+      const response = await fetch(`/api/release/${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || '제품 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '릴리즈노트 정보를 불러올 수 없습니다.');
       }
 
       setFormData(result.data);
+
+      // Editor 값 세팅
+      if (result.data?.contents) {
+        setValue(result.data.contents);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -49,7 +55,7 @@ export default function ProductEditPage() {
 
     try {
       const updateFormData = { ...formData}
-      const response = await fetch(`/api/product/${params.id}`, {
+      const response = await fetch(`/api/release/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -58,12 +64,12 @@ export default function ProductEditPage() {
       });
 
       if (response.ok) {
-        alert('제품이 수정되었습니다.');
+        alert('릴리즈노트가 수정되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 제품명입니다.' : '제품 수정에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 제품버전입니다.' : '릴리즈노트 수정에 실패했습니다.');
       }
 
-      router.push(`/product/${params.id}?page=${prevPage}`);
+      router.push(`/release/${params.id}?page=${prevPage}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -71,13 +77,19 @@ export default function ProductEditPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
       
     setFormData(prev => prev ? {
       ...prev,
       [name]: value
     } : null);
+  };
+
+  const handleEditorChange = (newValue: string | undefined) => {
+    setValue(newValue ?? '');
+
+    setFormData((prev) => prev ? { ...prev, contents: newValue ?? '' } : null);
   };
 
   if (isLoading) {
@@ -89,31 +101,18 @@ export default function ProductEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4 text-sm">제품 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">릴리즈노트 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">제품 수정</h1>
+        <h1 className="text-2xl font-bold text-gray-800">릴리즈노트 수정</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품명
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제품버전
@@ -129,15 +128,20 @@ export default function ProductEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ISO경로
+                릴리즈 내용 (Markdown 가능)
               </label>
-              <input
-                type="text"
-                name="isoFilePath"
-                value={formData.isoFilePath}
+              {/* <textarea
+                name="contents"
+                value={formData.contents}
                 onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={10}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="# 릴리즈 노트 제목\n내용을 여기에 작성하세요..."
                 required
+              /> */}
+              <Editor
+                value={value}
+                onChange={handleEditorChange}
               />
             </div>
           </div>
@@ -150,7 +154,7 @@ export default function ProductEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/product/${params.id}?page=${prevPage}`}
+              href={`/release/${params.id}?page=${prevPage}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

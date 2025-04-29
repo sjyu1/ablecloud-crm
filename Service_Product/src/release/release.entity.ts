@@ -1,17 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
-@Entity('product')
-export class Product {
+@Entity('release')
+export class Release {
   @PrimaryGeneratedColumn('increment')
   id: number;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
-  })
-  name: string;
 
   @Column({
     type: 'varchar',
@@ -22,12 +14,10 @@ export class Product {
   version: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    default: ''
+    type: 'text',
+    nullable: true
   })
-  isoFilePath: string;
+  contents: string;
 
   @Column({
     type: 'tinyint'

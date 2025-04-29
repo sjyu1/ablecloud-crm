@@ -1,6 +1,5 @@
 import { createLogger, transports, format } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import fs from 'fs';
 import path from 'path';
 
 // 로그 경로 설정
