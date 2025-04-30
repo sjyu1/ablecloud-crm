@@ -4,7 +4,7 @@ import { userinfo_id } from '@/utils/userinfo';
 import log from '@/utils/logger';
 
 /**
- * 라이센스 상세 조회
+ * 라이선스 상세 조회
  * @param request 
  * @param params 
  * @returns 
@@ -19,7 +19,7 @@ export async function GET(
     const data = await response.json();
     // log.info('GET /license/'+params.id+' DATA ::: '+JSON.stringify(data));
 
-    // 라이센스 데이터에 발급자 정보 추가
+    // 라이선스 데이터에 발급자 정보 추가
     const data_userinfo = await userinfo_id(data.issued_id);
     if (!data_userinfo.error) {
       data.issued_name = data_userinfo.username
@@ -37,7 +37,7 @@ export async function GET(
     }
 
     if (!data) {
-      throw new Error('라이센스를 찾을 수 없습니다.');
+      throw new Error('라이선스를 찾을 수 없습니다.');
     }
 
     return NextResponse.json({ 
@@ -48,14 +48,14 @@ export async function GET(
     log.info('GET /license/'+params.id+' ERROR ::: '+error);
     const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: errorMessage || '라이센스 조회 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이선스 조회 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
 }
 
 /**
- * 라이센스 수정
+ * 라이선스 수정
  * @param request 
  * @param params 
  * @returns 
@@ -83,14 +83,14 @@ export async function PUT(
     log.info('PUT /license/'+params.id+' ERROR::: '+error);
     const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: errorMessage || '라이센스 수정 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이선스 수정 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
 }
 
 /**
- * 라이센스 삭제
+ * 라이선스 삭제
  * @param request 
  * @param params 
  * @returns 
@@ -110,13 +110,13 @@ export async function DELETE(
 
     return NextResponse.json({ 
       status: 200,
-      message: '라이센스가 삭제되었습니다.' 
+      message: '라이선스가 삭제되었습니다.' 
     });
   } catch (error) {
     log.info('DELETE /license/'+params.id+' ERROR::: '+error);
     const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
     return NextResponse.json(
-      { message: errorMessage || '라이센스 삭제 중 오류가 발생했습니다.' },
+      { message: errorMessage || '라이선스 삭제 중 오류가 발생했습니다.' },
       { status: 500 }
     );
   }

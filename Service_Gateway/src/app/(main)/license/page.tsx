@@ -99,13 +99,13 @@ export default function LicensePage() {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
-    // 일반 라이센스
+    // 일반 라이선스
     const fetchLicenses = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('businessName');
         
-        // 전체 라이센스 목록을 가져오는 API 호출
+        // 전체 라이선스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=0&page=1&limit=10000`;
         if (currentName) {
           totalUrl += `&businessName=${currentName}`;
@@ -159,20 +159,20 @@ export default function LicensePage() {
         //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
         //   }
         // } else {
-        // alert('라이센스 목록 조회에 실패했습니다.');
+        // alert('라이선스 목록 조회에 실패했습니다.');
         // }
       } finally {
         setIsLoading(false);
       }
     };
 
-    // 트라이얼 라이센스
+    // 트라이얼 라이선스
     const fetchLicenses_trial = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('businessName');
 
-        // 전체 라이센스 목록을 가져오는 API 호출
+        // 전체 라이선스 목록을 가져오는 API 호출
         let totalUrl = `/api/license?trial=1&page=1&limit=10000`;
         if (currentName) {
           totalUrl += `&businessName=${currentName}`;
@@ -226,7 +226,7 @@ export default function LicensePage() {
             logoutIfTokenExpired(); // 토큰 만료시 로그아웃
           }
         } else {
-          alert('라이센스 목록 조회에 실패했습니다.');
+          alert('라이선스 목록 조회에 실패했습니다.');
         }
       } finally {
         setIsLoading(false);
@@ -283,12 +283,12 @@ export default function LicensePage() {
     <div className="space-y-6">
       
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이선스 관리</h1>
         <Link
           href="/license/register"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
-          라이센스 생성
+          라이선스 생성
         </Link>
       </div>
 
@@ -325,7 +325,7 @@ export default function LicensePage() {
         )}
       </div>
 
-      {/* 라이센스 목록 */}
+      {/* 라이선스 목록 */}
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
@@ -339,7 +339,7 @@ export default function LicensePage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  라이센스 키
+                  라이선스 키
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   제품명
@@ -429,7 +429,7 @@ export default function LicensePage() {
               {!isLoading && licenses.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    라이센스 정보가 없습니다.
+                    라이선스 정보가 없습니다.
                   </td>
                 </tr>
               )}
@@ -535,7 +535,7 @@ export default function LicensePage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  라이센스 키
+                  라이선스 키
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   제품명
@@ -625,7 +625,7 @@ export default function LicensePage() {
               {!isLoading && licenses_trial.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    라이센스 정보가 없습니다.
+                    라이선스 정보가 없습니다.
                   </td>
                 </tr>
               )}

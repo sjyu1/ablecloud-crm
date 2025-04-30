@@ -49,7 +49,7 @@ export default function LicenseDetailPage() {
       const response = await fetch(`/api/license/${params.id}`);
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || '라이센스 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '라이선스 정보를 불러올 수 없습니다.');
       }
 
       if (result.data.error) {
@@ -70,7 +70,7 @@ export default function LicenseDetailPage() {
   };
 
   const handleApprove = async () => {
-    if (!confirm('정말 이 라이센스를 승인하시겠습니까?')) {
+    if (!confirm('정말 이 라이선스를 승인하시겠습니까?')) {
       return;
     }
 
@@ -80,9 +80,9 @@ export default function LicenseDetailPage() {
       });
 
       if (response.ok) {
-        alert('라이센스가 승인되었습니다.');
+        alert('라이선스가 승인되었습니다.');
       } else {
-        throw new Error('라이센스 승인에 실패했습니다.');
+        throw new Error('라이선스 승인에 실패했습니다.');
       }
 
       router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
@@ -92,7 +92,7 @@ export default function LicenseDetailPage() {
   };
 
   const handleDownload = async () => {
-    if (!confirm('라이센스를 다운로드 하시겠습니까?')) {
+    if (!confirm('라이선스를 다운로드 하시겠습니까?')) {
       return;
     }
 
@@ -102,7 +102,7 @@ export default function LicenseDetailPage() {
       });
 
       if (!response.ok) {
-        throw new Error('라이센스 다운로드에 실패했습니다.');
+        throw new Error('라이선스 다운로드에 실패했습니다.');
       }
 
       // 파일명을 위한 UUID 생성
@@ -122,7 +122,7 @@ export default function LicenseDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('정말 이 라이센스를 삭제하시겠습니까?')) {
+    if (!confirm('정말 이 라이선스를 삭제하시겠습니까?')) {
       return;
     }
 
@@ -132,9 +132,9 @@ export default function LicenseDetailPage() {
       });
 
       if (response.ok) {
-        alert('라이센스가 삭제되었습니다.');
+        alert('라이선스가 삭제되었습니다.');
       } else {
-        throw new Error('라이센스 삭제에 실패했습니다.');
+        throw new Error('라이선스 삭제에 실패했습니다.');
       }
 
       router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
@@ -162,7 +162,7 @@ export default function LicenseDetailPage() {
   if (!license) {
     return (
       <div className="flex justify-center items-center h-64 text-sm">
-        <div className="text-gray-500">라이센스를 찾을 수 없습니다.</div>
+        <div className="text-gray-500">라이선스를 찾을 수 없습니다.</div>
       </div>
     );
   }
@@ -170,7 +170,7 @@ export default function LicenseDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 상세정보</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이선스 상세정보</h1>
         <div className="space-x-2">
           <button
             onClick={handleApprove}
@@ -209,7 +209,7 @@ export default function LicenseDetailPage() {
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">라이센스키</h3>
+              <h3 className="text-sm font-medium text-gray-500">라이선스키</h3>
               <p className="mt-1 text-lg text-gray-900">{license.license_key}</p>
             </div>
             <div>

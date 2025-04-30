@@ -4,9 +4,9 @@
 
 - keycloak : 인증 서버(포트 8080)
 - Service_Gateway : crm 프론트엔드 프로젝트(포트 3000)
-- Service_License : 라이센스 백엔드 프로젝트(포트 3001)
-- Service_Partner_Customer : 라이센스 백엔드 프로젝트(포트 3002)
-- Service_Product : 라이센스 백엔드 프로젝트(포트 3003)
+- Service_License : 라이선스 백엔드 프로젝트(포트 3001)
+- Service_Partner_Customer : 라이선스 백엔드 프로젝트(포트 3002)
+- Service_Product : 라이선스 백엔드 프로젝트(포트 3003)
 - Service_Business : 사업 백엔드 프로젝트(포트 3004)
 
 ## 서비스 실행
@@ -38,5 +38,5 @@
 ## 그 외 파일
 - backup_script.sh : Database backup 스크립트
 - schema.sql : Database schema
-- service_start_script.sh : 라이센스 프로그램 서비스 시작 스크립트
-- service_stop_script.sh : 라이센스 프로그램 서비스 정지 스크립트
+- service_start_script.sh : 라이선스 프로그램 서비스 시작 스크립트
+- service_stop_script.sh : 라이선스 프로그램 서비스 정지 스크립트

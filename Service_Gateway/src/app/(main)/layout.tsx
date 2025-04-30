@@ -45,7 +45,7 @@ export default function MainLayout({
 
   // 메뉴 아이템 정의 (아이콘 참조 형태)
   const menuItems = [
-    { name: '라이센스', path: '/license', icon: license_svg },
+    { name: '라이선스', path: '/license', icon: license_svg },
     { name: '사업', path: '/business', icon: business_svg },
     { name: '제품', path: '/product', icon: product_svg },
     { name: '릴리즈노트', path: '/release', icon: note_svg },
@@ -125,7 +125,7 @@ export default function MainLayout({
       <footer className="bg-white border-t ml-64">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © 2025 ABLECLOUD 라이센스 관리 시스템. All rights reserved.
+            © 2025 ABLECLOUD 라이선스 관리 시스템. All rights reserved.
           </p>
         </div>
       </footer>

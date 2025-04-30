@@ -6,7 +6,7 @@ import { userinfo_id } from '@/utils/userinfo';
 import log from '@/utils/logger';
 
 /**
- * 라이센스 목록 조회
+ * 라이선스 목록 조회
  * @returns 
  */
 export async function GET(request: Request) {
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     const data = await response.json();
     //log.info('GET /license DATA ::: '+JSON.stringify(data));
 
-    // 라이센스 데이터에 발급자 정보 추가
+    // 라이선스 데이터에 발급자 정보 추가
     for(var idx in data.items) {
       const data_userinfo = await userinfo_id(data.items[idx].issued_id);
       if (data_userinfo.error)  continue;
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
     }
 
     if (!response.ok) {
-      throw new Error(data.message || '라이센스 조회에 실패했습니다.');
+      throw new Error(data.message || '라이선스 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: errorMessage || '라이센스 조회에 실패했습니다.'
+        message: errorMessage || '라이선스 조회에 실패했습니다.'
       },
       { status: 500 }
     );
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * 라이센스 생성
+ * 라이선스 생성
  * @param request 
  * @returns 
  */
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
     let company_id;
     let issued_id;
     
-    // company_id 조회한 후 라이센스등록
+    // company_id 조회한 후 라이선스등록
     // if (role == 'User'){
     const data_userinfo = await userinfo();
     if (!data_userinfo.error) {
@@ -125,10 +125,10 @@ export async function POST(request: Request) {
     //log.info('POST /license DATA ::: '+JSON.stringify(data));
 
     if (!response.ok) {
-      throw new Error(data.message || '라이센스 생성에 실패했습니다.');
+      throw new Error(data.message || '라이선스 생성에 실패했습니다.');
     }
 
-    //라이센스 등록 후 사업에 license_id 등록
+    //라이선스 등록 후 사업에 license_id 등록
     const submitData_business = {
       license_id: data.id,
     }
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
     //log.info('POST /license DATA ::: '+JSON.stringify(response_business));
 
     if (!response_business.ok) {
-      throw new Error(data_business.message || '사업에 라이센스 등록을 실패했습니다.');
+      throw new Error(data_business.message || '사업에 라이선스 등록을 실패했습니다.');
     }
 
     return NextResponse.json({ 
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         success: false,
-        message: errorMessage || '라이센스 생성 중 오류가 발생했습니다.'
+        message: errorMessage || '라이선스 생성 중 오류가 발생했습니다.'
       },
       { status: 500 }
     );

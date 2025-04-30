@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
-    const available = searchParams.get('available');  // 라이센스 없는 사업 조회
+    const available = searchParams.get('available');  // 라이선스 없는 사업 조회
     const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출

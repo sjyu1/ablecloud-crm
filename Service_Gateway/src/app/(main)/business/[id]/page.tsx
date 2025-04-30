@@ -113,7 +113,7 @@ export default function BusinessDetailPage() {
     }
 
     if (business?.license_key) {
-      alert('사업에 대한 라이센스가 존재합니다. 라이센스를 삭제하세요.');
+      alert('사업에 대한 라이선스가 존재합니다. 라이선스를 삭제하세요.');
       return;
     }
 
@@ -188,7 +188,7 @@ export default function BusinessDetailPage() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
-            <Tab label="라이센스 정보" {...tabProps(1)} />
+            <Tab label="라이선스 정보" {...tabProps(1)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -273,7 +273,7 @@ export default function BusinessDetailPage() {
           <div className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">라이센스 키</h3>
+                <h3 className="text-sm font-medium text-gray-500">라이선스 키</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {business.license_key}
                 </p>
@@ -316,7 +316,7 @@ export default function BusinessDetailPage() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="p-6 space-y-6">
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-500">라이센스 정보가 없습니다.</h3>
+              <h3 className="text-sm font-medium text-gray-500">라이선스 정보가 없습니다.</h3>
             </div>
           </div>
         </div>

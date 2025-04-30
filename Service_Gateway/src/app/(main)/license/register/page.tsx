@@ -92,9 +92,9 @@ export default function LicenseRegisterPage() {
       });
 
       if (response.ok) {
-        alert('라이센스가 등록되었습니다.');
+        alert('라이선스가 등록되었습니다.');
       } else {
-        throw new Error('라이센스 생성에 실패했습니다.');
+        throw new Error('라이선스 생성에 실패했습니다.');
       }
 
       router.push('/license');
@@ -126,13 +126,13 @@ export default function LicenseRegisterPage() {
     }
 
     if (name === 'issued') {
-      setIsChecked(false);  // 영구 라이센스 체크박스 해제
+      setIsChecked(false);  // 영구 라이선스 체크박스 해제
       setIsCheckedToTrial(false); // Trial 체크박스 해제
       formData.expired = ''
     }
   };
 
-  //영구 라이센스 체크
+  //영구 라이선스 체크
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
     setIsCheckedToTrial(false); // Trial 체크박스 해제
@@ -146,10 +146,10 @@ export default function LicenseRegisterPage() {
     }
   };
   
-  //Trial 라이센스 체크
+  //Trial 라이선스 체크
   const handleCheckboxTrialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsCheckedToTrial(event.target.checked);
-    setIsChecked(false); // 영구 라이센스 체크박스 해제
+    setIsChecked(false); // 영구 라이선스 체크박스 해제
     if (event.target.checked) {
       if (!formData.issued) {
         setError('시작일을 선택하세요.');
@@ -178,7 +178,7 @@ export default function LicenseRegisterPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 생성</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이선스 생성</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -249,7 +249,7 @@ export default function LicenseRegisterPage() {
                 style={{marginLeft: '10px'}}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                영구 라이센스
+                영구 라이선스
               </label>
               <input
                 type="checkbox"
@@ -260,7 +260,7 @@ export default function LicenseRegisterPage() {
                 disabled={formData.product_name.includes('Trial 제외')}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                Trial (Trial 라이센스는 시작일부터 한달 사용가능합니다.)
+                Trial (Trial 라이선스는 시작일부터 한달 사용가능합니다.)
               </label>
             </div>
           </div>
