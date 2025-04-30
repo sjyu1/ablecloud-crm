@@ -31,6 +31,7 @@ export default function LicenseDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevTrial = searchParams.get('trial') || '1';
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -84,7 +85,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이센스 승인에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}`);
+      router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -136,7 +137,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이센스 삭제에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}`);
+      router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -184,7 +185,7 @@ export default function LicenseDetailPage() {
             다운로드
           </button>
           <button
-            onClick={() => router.push(`/license/${license.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/license/${license.id}/edit?page=${prevPage}&trial=${prevTrial}`)}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
@@ -196,7 +197,7 @@ export default function LicenseDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/license?page=${prevPage}`)}
+            onClick={() => router.push(`/license?page=${prevPage}&trial=${prevTrial}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록

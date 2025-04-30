@@ -80,7 +80,9 @@ export default function LicensePage() {
   const [hasNextPage_trial, setHasNextPage_trial] = useState(true);
   const [role, setRole] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
-  const [value, setValue] = useState(0);
+  const prevTrial = searchParams.get('trial');
+  const initialTab = prevTrial === '1' ? 1 : 0;
+  const [value, setValue] = useState(initialTab);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -374,7 +376,7 @@ export default function LicensePage() {
                 </tr>
               ) : (
                 licenses.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}&trial=${value}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -636,7 +638,7 @@ export default function LicensePage() {
           <div className="flex justify-center items-center mt-4">
             <div className="flex items-center gap-0">
               <button
-                onClick={() => handlePageChange(pagination_trial.currentPage - 1)}
+                onClick={() => handlePageChange_trial(pagination_trial.currentPage - 1)}
                 disabled={pagination_trial.currentPage === 1}
                 className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -664,7 +666,7 @@ export default function LicensePage() {
                     return (
                       <span
                         key={num}
-                        onClick={() => handlePageChange(num)}
+                        onClick={() => handlePageChange_trial(num)}
                         className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
                       >
                         {num}
@@ -709,7 +711,7 @@ export default function LicensePage() {
               })()}
           
               <button
-                onClick={() => handlePageChange(pagination_trial.currentPage + 1)}
+                onClick={() => handlePageChange_trial(pagination_trial.currentPage + 1)}
                 disabled={!hasNextPage_trial}
                 className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
