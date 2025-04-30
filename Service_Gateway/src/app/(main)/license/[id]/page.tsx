@@ -214,8 +214,10 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">제품명</h3>
-              <p className="mt-1 text-lg text-gray-900">
-              {license.product_name} (v{license.product_version})
+              <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
+                <a href={`/product/${license.product_id}`} target="_self" rel="noopener noreferrer">
+                  {license.product_name} (v{license.product_version})
+                </a>
               </p>
             </div>
             <div>

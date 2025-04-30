@@ -22,6 +22,7 @@ interface Product {
   version: string;
   contents: string;
   created: string;
+  enabled: string;
 }
 
 interface TabPanelProps {
@@ -160,7 +161,6 @@ export default function ProductDetailPage() {
 
 
     const contentHtml = processedContent.toString();
-    console.log(contentHtml)
     setReleaseHtml(contentHtml);
   };
 
@@ -242,25 +242,25 @@ export default function ProductDetailPage() {
         <div className="space-x-2">
           <button
             onClick={() => router.push(`/product/${product.id}/register_release?page=${prevPage}`)}
-            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+            className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             릴리즈노트 등록
           </button>
           <button
             onClick={handleDisabled}
-            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+            className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             제품 비활성화
           </button>
           <button
             onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}`)}
-            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+            className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className={role === 'Admin' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
+            className={role === 'Admin' && product.enabled == '1' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
           >
             삭제
           </button>
@@ -320,7 +320,7 @@ export default function ProductDetailPage() {
               </div> */}
               <div>
                 <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-                <p className="mt-1 text-lg text-gray-900">{format(product.created, 'yyyy-MM-dd HH:mm:ss')}</p>
+                <p className="mt-1 text-lg text-gray-900">{product.created}</p>
               </div>
             </div>
           </div>
