@@ -11,7 +11,6 @@ import '../layout.css';
 import license_svg from '../../../public/icons/license.svg';
 import business_svg from '../../../public/icons/business.svg';
 import product_svg from '../../../public/icons/product.svg';
-import note_svg from '../../../public/icons/note.svg';
 import partner_svg from '../../../public/icons/partner.svg';
 import customer_svg from '../../../public/icons/customer.svg';
 import user_svg from '../../../public/icons/user.svg';
@@ -48,7 +47,6 @@ export default function MainLayout({
     { name: '라이선스', path: '/license', icon: license_svg },
     { name: '사업', path: '/business', icon: business_svg },
     { name: '제품', path: '/product', icon: product_svg },
-    { name: '릴리즈노트', path: '/release', icon: note_svg },
     { name: '파트너', path: '/partner', icon: partner_svg },
     { name: '고객', path: '/customer', icon: customer_svg },
     { name: '사용자', path: '/user', icon: user_svg },

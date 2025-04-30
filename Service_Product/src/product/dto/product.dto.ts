@@ -10,4 +10,5 @@ export class UpdateProductDto {
   version?: string;
   isoFilePath?: string;
   enabled?: boolean;
+  contents?: string;
 }
