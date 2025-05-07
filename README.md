@@ -24,6 +24,7 @@
 - Service_License / Service_Partner_Customer / Service_Product / Service_Business
 
     npm install 또는 npm audit fix --force
+    npm run build
     npm run start:dev   (개발모드.)
 
     - 버전정보
@@ -40,3 +41,4 @@
 - schema.sql : Database schema
 - service_start_script.sh : 라이선스 프로그램 서비스 시작 스크립트
 - service_stop_script.sh : 라이선스 프로그램 서비스 정지 스크립트
+- web-health-check.md : 서비스 실행 타이머 관련
