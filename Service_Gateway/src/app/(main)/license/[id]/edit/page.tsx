@@ -55,7 +55,7 @@ export default function LicenseEditPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || '라이센스 정보를 불러올 수 없습니다.');
+        throw new Error(result.message || '라이선스 정보를 불러올 수 없습니다.');
       }
 
       setFormData(result.data);
@@ -87,7 +87,7 @@ export default function LicenseEditPage() {
     }
   };
 
-  //영구 라이센스 체크
+  //영구 라이선스 체크
   // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   setIsChecked(event.target.checked);
 
@@ -134,10 +134,10 @@ export default function LicenseEditPage() {
       });
 
       if (response.ok) {
-        alert('라이센스가 수정되었습니다.');
+        alert('라이선스가 수정되었습니다.');
         router.push(`/license/${params.id}?page=${prevPage}`);
       } else {
-        throw new Error('라이센스 수정에 실패했습니다.');
+        throw new Error('라이선스 수정에 실패했습니다.');
       }
 
     } catch (err) {
@@ -156,13 +156,13 @@ export default function LicenseEditPage() {
     } : null);
 
     if (name === 'issued') {
-      setIsChecked(false);  // 영구 라이센스 체크박스 해제
+      setIsChecked(false);  // 영구 라이선스 체크박스 해제
       setIsCheckedToTrial(false); // Trial 체크박스 해제
       formData.expired = ''
     }
   };
 
-  //영구 라이센스 체크
+  //영구 라이선스 체크
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
     setIsCheckedToTrial(false); // Trial 체크박스 해제
@@ -176,10 +176,10 @@ export default function LicenseEditPage() {
     }
   };
   
-  //Trial 라이센스 체크
+  //Trial 라이선스 체크
   const handleCheckboxTrialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsCheckedToTrial(event.target.checked);
-    setIsChecked(false); // 영구 라이센스 체크박스 해제
+    setIsChecked(false); // 영구 라이선스 체크박스 해제
     if (event.target.checked) {
       if (!formData.issued) {
         setError('시작일을 선택하세요.');
@@ -214,13 +214,13 @@ export default function LicenseEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4 text-sm">라이센스 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">라이선스 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">라이센스 수정</h1>
+        <h1 className="text-2xl font-bold text-gray-800">라이선스 수정</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -228,7 +228,7 @@ export default function LicenseEditPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                라이센스 키
+                라이선스 키
               </label>
               <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-gray-900">
@@ -292,7 +292,7 @@ export default function LicenseEditPage() {
                 style={{marginLeft: '10px'}}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                영구 라이센스
+                영구 라이선스
               </label>
               <input
                 type="checkbox"
@@ -303,7 +303,7 @@ export default function LicenseEditPage() {
                 disabled={formData.product_name.includes('Trial 제외')}
               />
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                Trial (Trial 라이센스는 시작일부터 한달 사용가능합니다.)
+                Trial (Trial 라이선스는 시작일부터 한달 사용가능합니다.)
               </label>
             </div>
           </div>

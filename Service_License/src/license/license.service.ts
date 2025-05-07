@@ -135,6 +135,7 @@ export class LicenseService {
         // 'issuer.level as issuer_company_level',
         'business.id as business_id',
         'business.name as business_name',
+        'product.id as product_id',
         'product.name as product_name',
         'product.version as product_version'
       ])

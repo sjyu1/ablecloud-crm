@@ -70,10 +70,6 @@ export default function PartnerDetailPage() {
   const [value, setValue] = useState(0);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
@@ -160,6 +156,10 @@ export default function PartnerDetailPage() {
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
+  };
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
   };
 
   if (isLoading) {

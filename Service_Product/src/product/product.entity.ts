@@ -34,6 +34,12 @@ export class Product {
   })
   enabled: boolean;
 
+  @Column({
+    type: 'text',
+    nullable: true
+  })
+  contents: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

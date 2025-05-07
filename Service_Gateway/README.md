@@ -10,11 +10,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 src/
 ├── app/                     # Next.js 13+ App Router
 │   ├── api/                 # API 라우트
-│   │   └── license/         # 라이센스 관련 API
+│   │   └── license/         # 라이선스 관련 API
 │   │   └── login/           # 로그인 관련 API
 │   │
 │   ├── (main)/              # 페이지
-│   │   └── license/         # 라이센스 페이지
+│   │   └── license/         # 라이선스 페이지
 │   │   └── layout.tsx       # 루트 레이아웃
 │   │
 │   ├── login/               # 로그인 페이지
