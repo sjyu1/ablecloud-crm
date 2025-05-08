@@ -253,13 +253,13 @@ export default function BusinessPage() {
             ) : (
               businesses.map((business) => (
                 <tr key={business.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/business/${business.id}?page=${pagination.currentPage}`)}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate block max-w-[300px]">
                     {business.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {business.manager_name} ({business.manager_company})
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate block max-w-[200px]">
                     {business.customer_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -276,10 +276,10 @@ export default function BusinessPage() {
                     {business.core_cnt}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(business.issued, 'yyyy-MM-dd')}
+                    {business.issued}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(business.expired, 'yyyy-MM-dd')}
+                    {business.expired}
                   </td>
                   {/* <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
