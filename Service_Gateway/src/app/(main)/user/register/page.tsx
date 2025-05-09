@@ -122,7 +122,7 @@ export default function UserRegisterPage() {
 
   const fetchCompanyDetail = async (type: string) => {
     try {
-      let url = `/api/${type}`;
+      let url = `/api/${type}?page=1&limit=10000`;
       if (role == 'User') {
         url += `?role=User`;
       }

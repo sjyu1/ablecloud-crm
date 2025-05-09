@@ -104,7 +104,12 @@ export async function DELETE(
     const { searchParams } = new URL(request.url);
     const business_id = searchParams.get('business_id');
 
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}?business_id=${business_id}`,{
+    // 사업에 라이선스 정보 삭제
+    const response_business = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${business_id}/deleteLicense`,{
+      method: 'PUT',
+    })
+
+    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`,{
       method: 'DELETE',
     })
 

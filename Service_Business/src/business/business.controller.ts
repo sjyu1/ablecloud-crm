@@ -4,49 +4,38 @@ import { Business } from './business.entity';
 import { CreateBusinessDto, UpdateBusinessDto } from './dto/business.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role/role.guard';
-// import { Roles } from 'src/auth/role/role.decorator';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('business')
 export class BusinessController {
   constructor(private readonly businessService: BusinessService) {}
 
-  @Post()
-  // @Roles('Admin')
-  async create(@Body() createBusinessDto: CreateBusinessDto): Promise<Business> {
-    return this.businessService.create(createBusinessDto);
-  }
-
   @Get()
   // @Roles('Admin')
   async findAll(
-    @Query('page') page = '1',
-    @Query('limit') limit = '10',
+    @Query('page') currentPage = '1',
+    @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('available') available?: string,
-  ) {
-    const parsedPage = parseInt(page, 10);
-    const parsedLimit = parseInt(limit, 10);
-  
+  ): Promise<{ items: Business[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
       available: available || ''
     };
 
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-
-    if (isNaN(pageNumber) || isNaN(limitNumber)) {
-      throw new Error('Invalid page or limit format');
-    }
-
-    return this.businessService.findAll(parsedPage, parsedLimit, filters);
+    return this.businessService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
   }
 
   @Get(':id')
   // @Roles('Admin')
   async findOne(@Param('id') id: string): Promise<Business> {
-    return this.businessService.getBusinessById(parseInt(id, 10));
+    return this.businessService.findOne(parseInt(id, 10));
+  }
+
+  @Post()
+  // @Roles('Admin')
+  async create(@Body() createBusinessDto: CreateBusinessDto): Promise<Business> {
+    return this.businessService.create(createBusinessDto);
   }
 
   @Put(':id')
@@ -60,8 +49,8 @@ export class BusinessController {
 
   @Delete(':id')
   // @Roles('Admin')
-  async remove(@Param('id') id: string): Promise<void> {
-    return this.businessService.remove(parseInt(id, 10));
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.businessService.delete(parseInt(id, 10));
   }
 
   @Put(':id/registerLicense')
@@ -70,10 +59,14 @@ export class BusinessController {
     @Param('id') id: string,
     @Body('license_id') license_id: string,
   ): Promise<Business> {
-    const numericId = parseInt(id, 10);
-    if (isNaN(numericId)) throw new Error('Invalid ID format');
-    return this.businessService.registerLicense(numericId, license_id);
+    return this.businessService.registerLicense(parseInt(id, 10), license_id);
+  }
+
+  @Put(':id/deleteLicense')
+  // @Roles('Admin')
+  async deleteLicense(
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.businessService.deleteLicense(parseInt(id, 10));
   }
 }
-
-

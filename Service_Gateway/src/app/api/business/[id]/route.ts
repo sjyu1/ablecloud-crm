@@ -18,7 +18,7 @@ export async function GET(
     const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`);
     const business = await response.json();
     //('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
-    
+
     // 사업 데이터에 사업담당자 정보 추가
     const data_userinfo = await userinfo_id(business.manager_id);
     if (!data_userinfo.error) {

@@ -11,49 +11,60 @@ export class PartnerService {
     private readonly partnerRepository: Repository<Partner>,
   ) {}
 
-  async create(createPartnerDto: CreatePartnerDto): Promise<Partner> {
-    const partner = this.partnerRepository.create(createPartnerDto);
-    return await this.partnerRepository.save(partner);
-  }
-
   async findAll(
-    page: number,
-    limit: number,
-    level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
-    name?: string,
-    id?: string
-  ): Promise<{ partners: Partner[]; total: number }> {
-    try {
-      const queryBuilder = this.partnerRepository.createQueryBuilder('partner')
-        .where('partner.removed IS NULL');
-
-      if (level) {
-        queryBuilder.andWhere('partner.level = :level', { level });
-      }
-
-      if (name) {
-        queryBuilder.andWhere('LOWER(partner.name) LIKE LOWER(:name)', { name: `%${name}%` });
-      }
-
-      if (id) {
-        queryBuilder.andWhere('partner.id = :id', { id });
-      }
-
-      // 페이지와 리미트가 숫자인지 확인
-      const skip = (Math.max(1, Number(page)) - 1) * Number(limit);
-      const take = Math.max(1, Number(limit));
-
-      const [partners, total] = await queryBuilder
-        .orderBy('partner.created', 'DESC')
-        .skip(skip)
-        .take(take)
-        .getManyAndCount();
-
-      return { partners, total };
-    } catch (error) {
-      // console.error('파트너 검색 중 오류 발생:', error);
-      throw error;
+    currentPage: number = 1,
+    itemsPerPage: number = 10,
+    filters: {
+      id?: string;
+      name?: string;
     }
+  ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
+    // Step 1: ID만 추출
+    const subQuery = this.partnerRepository.createQueryBuilder('partner')
+      .select('partner.id', 'id')
+      .where('partner.removed IS NULL')
+      .orderBy('partner.created', 'DESC');
+
+    if (filters.id) {
+      subQuery.andWhere('partner.id = :id', { id: filters.id });
+    }
+
+    if (filters.name) {
+      subQuery.andWhere('partner.name LIKE :name', { name: `%${filters.name}%` });
+    }
+
+    const totalItems = await subQuery.getCount();
+
+    const ids = await subQuery
+      .skip((currentPage - 1) * itemsPerPage)
+      .take(itemsPerPage)
+      .getRawMany();
+
+    const partnerIds = ids.map(item => item.partner_id || item.id);
+    if (partnerIds.length === 0) {
+      return { items: [], currentPage, totalItems, totalPages: 0 };
+    }
+
+    // Step 2: ID 기준 상세 데이터 조회
+    const data = await this.partnerRepository
+      .createQueryBuilder('partner')
+      .select([
+        'partner.id as id',
+        'partner.name as name',
+        'partner.telnum as telnum',
+        'partner.level as level',
+        'partner.created as created',
+      ])
+      .whereInIds(partnerIds)
+      .orderBy('partner.created', 'DESC')
+      .getRawMany();
+
+    return {
+      items: data,
+      currentPage,
+      totalItems,
+      totalPages: Math.ceil(totalItems / itemsPerPage),
+    };
   }
 
   async findOne(id: number): Promise<Partner> {
@@ -69,6 +80,11 @@ export class PartnerService {
     return partner;
   }
 
+  async create(createPartnerDto: CreatePartnerDto): Promise<Partner> {
+    const partner = this.partnerRepository.create(createPartnerDto);
+    return await this.partnerRepository.save(partner);
+  }
+
   async update(id: number, updatePartnerDto: UpdatePartnerDto): Promise<Partner> {
     const partner = await this.findOne(id);
     const updatedPartner = {
@@ -78,8 +94,7 @@ export class PartnerService {
     return this.partnerRepository.save(updatedPartner);
   }
 
-  async remove(id: number): Promise<void> {
-    const partner = await this.findOne(id);
+  async delete(id: number): Promise<void> {
     await this.partnerRepository.softDelete(id);
   }
 }

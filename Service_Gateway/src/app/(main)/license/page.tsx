@@ -63,7 +63,7 @@ export default function LicensePage() {
   const searchParams = useSearchParams();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [licenses_trial, setLicenses_trial] = useState<License[]>([]);
-  const [businessName, setBusinessName] = useState('');
+  const [licenseKey, setLicenseKey] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
@@ -99,59 +99,38 @@ export default function LicensePage() {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
+    // 검색필터 존재여부(새로고침시 사용)
+    const currentName = searchParams.get('licenseKey');
+    setLicenseKey(currentName ?? '');
+
     // 일반 라이선스
     const fetchLicenses = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('businessName');
-        
-        // 전체 라이선스 목록을 가져오는 API 호출
-        let totalUrl = `/api/license?trial=0&page=1&limit=10000`;
+        const currentName = searchParams.get('licenseKey');
+
+        let url = `/api/license?trial=0&page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
-          totalUrl += `&businessName=${currentName}`;
+          url += `&licenseKey=${currentName}`;
         }
         if (role === 'User') {
-          totalUrl += `&role=User`;
+          url += `&role=User`;
         }
 
-        const totalResponse = await fetch(totalUrl);
-        const totalResult = await totalResponse.json();
-        const totalCount = totalResult.data ? totalResult.data.length : 0;
+        const response = await fetch(url);
+        const result = await response.json();
 
-        // 현재 페이지 데이터 가져오기
-        // let url = `/api/license?trial=0&page=${page}&limit=10`;
-        // if (currentName) {
-        //   url += `&name=${currentName}`;
-        // }
-        // if (role === 'User') {
-        //   url += `&role=User`;
-        // }
-
-        // const response = await fetch(url);
-        // const result = await response.json();
-
-        if (!totalResult.success) {
-          throw new Error(totalResult.message || '오류가 발생했습니다.');
+        if (!result.success) {
+          throw new Error(result.message || '오류가 발생했습니다.');
         }
 
-        // 현재 페이지의 데이터 설정
-        const startIndex = (page - 1) * 10;
-        const endIndex = startIndex + 10;
-        const pageData = totalResult.data.slice(startIndex, endIndex);
-        setLicenses(pageData);
-
-        // 다음 페이지 존재 여부 확인
-        const hasNext = endIndex < totalCount;
-        setHasNextPage(hasNext);
-
-       // 페이지네이션 정보 업데이트
-        const totalPages = Math.ceil(totalCount / 10);
-        setPagination({
-          currentPage: page,
-          totalPages: totalPages,
-          totalItems: totalCount,
-          itemsPerPage: 10
-        });
+        setLicenses(result.data);
+        setPagination(prev => ({
+          ...prev,
+          totalItems: result.pagination.totalItems,
+          totalPages: result.pagination.totalPages,
+          currentPage: result.pagination.currentPage,
+        }));
 
       } catch (err) {
         // if (err instanceof Error) {
@@ -170,55 +149,30 @@ export default function LicensePage() {
     const fetchLicenses_trial = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('businessName');
+        const currentName = searchParams.get('licenseKey');
 
-        // 전체 라이선스 목록을 가져오는 API 호출
-        let totalUrl = `/api/license?trial=1&page=1&limit=10000`;
+        let url = `/api/license?trial=1&page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
-          totalUrl += `&businessName=${currentName}`;
+          url += `&licenseKey=${currentName}`;
         }
         if (role === 'User') {
-          totalUrl += `&role=User`;
-        }
-        
-        const totalResponse = await fetch(totalUrl);
-        const totalResult = await totalResponse.json();
-        const totalCount = totalResult.data ? totalResult.data.length : 0;
-
-        // 현재 페이지 데이터 가져오기
-        // let url = `/api/license?trial=1&page=${page}&limit=10`;
-        // if (currentName) {
-        //   url += `&name=${currentName}`;
-        // }
-        // if (role === 'User') {
-        //   url += `&role=User`;
-        // }
-
-        // const response = await fetch(url);
-        // const result = await response.json();
-
-        if (!totalResult.success) {
-          throw new Error(totalResult.message || '오류가 발생했습니다.');
+          url += `&role=User`;
         }
 
-        // 현재 페이지의 데이터 설정
-        const startIndex = (page - 1) * 10;
-        const endIndex = startIndex + 10;
-        const pageData = totalResult.data.slice(startIndex, endIndex);
-        setLicenses_trial(pageData);
+        const response = await fetch(url);
+        const result = await response.json();
 
-        // 다음 페이지 존재 여부 확인
-        const hasNext = endIndex < totalCount;
-        setHasNextPage_trial(hasNext);
+        if (!result.success) {
+          throw new Error(result.message || '오류가 발생했습니다.');
+        }
 
-       // 페이지네이션 정보 업데이트
-        const totalPages = Math.ceil(totalCount / 10);
-        setPagination_trial({
-          currentPage: page,
-          totalPages: totalPages,
-          totalItems: totalCount,
-          itemsPerPage: 10
-        });
+        setLicenses_trial(result.data);
+        setPagination_trial(prev => ({
+          ...prev,
+          totalItems: result.pagination.totalItems,
+          totalPages: result.pagination.totalPages,
+          currentPage: result.pagination.currentPage,
+        }));
 
       } catch (err) {
         if (err instanceof Error) {
@@ -241,22 +195,20 @@ export default function LicensePage() {
   const handleSearchClick = (trial:string) => {
     try {
       const params = new URLSearchParams();
-      if (businessName.trim()) {  // 공백 제거 후 체크
-        params.set('businessName', businessName.trim());
+      if (licenseKey.trim()) {
+        params.set('licenseKey', licenseKey.trim());
       }
       params.set('page', '1');
 
-      // URL 업데이트
       router.push(`/license?${params.toString()}`);
     } catch (error) {
-      // alert('검색 중 오류가 발생했습니다.');
       alert(error);
     }
   };
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setBusinessName('');
+    setLicenseKey('');
     router.push('/license?page=1');
   };
 
@@ -281,7 +233,6 @@ export default function LicensePage() {
 
   return (
     <div className="space-y-6">
-      
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">라이선스 관리</h1>
         <Link
@@ -296,9 +247,9 @@ export default function LicensePage() {
       <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
-          value={businessName}
-          onChange={(e) => setBusinessName(e.target.value)}
-          placeholder="사업명으로 검색"
+          value={licenseKey}
+          onChange={(e) => setLicenseKey(e.target.value)}
+          placeholder="라이선스 키로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -314,7 +265,7 @@ export default function LicensePage() {
         >
           검색
         </button>
-        {searchParams.get('businessName') && (
+        {/* {searchParams.get('licenseKey') && (
           <button
             type="button"
             onClick={handleResetClick}
@@ -322,7 +273,7 @@ export default function LicensePage() {
           >
             초기화
           </button>
-        )}
+        )} */}
       </div>
 
       {/* 라이선스 목록 */}
@@ -461,7 +412,6 @@ export default function LicensePage() {
                         key={num}
                         disabled
                         className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
-
                       >
                         {num}
                       </button>
@@ -572,7 +522,7 @@ export default function LicensePage() {
                 </tr>
               ) : (
                 licenses_trial.map((license) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}`)}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}&trial=${value}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}

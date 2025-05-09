@@ -11,38 +11,66 @@ export class CustomerService {
     private readonly customerRepository: Repository<Customer>,
   ) {}
 
-  async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
-    const customer = this.customerRepository.create(createCustomerDto);
-    return this.customerRepository.save(customer);
-  }
-
   async findAll(
-    page?: number,
-    limit?: number,
-    name?: string
-  ): Promise<{ customers: Customer[]; total: number }> {
-    const queryBuilder = this.customerRepository.createQueryBuilder('customer')
-      .where('customer.removed IS NULL');
-
-    if (name) {
-      queryBuilder.andWhere('customer.name LIKE :name', { name: `%${name}%` });
+    currentPage: number = 1,
+    itemsPerPage: number = 10,
+    filters: {
+      name?: string;
     }
-  
-    queryBuilder.orderBy('customer.created', 'DESC');
+  ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
+    // Step 1: ID만 추출
+    const subQuery = this.customerRepository.createQueryBuilder('customer')
+      .select('customer.id', 'id')
+      .where('customer.removed IS NULL')
+      .orderBy('customer.created', 'DESC');
 
-    if (page && limit) {
-      queryBuilder.skip((page - 1) * limit).take(limit);
+    if (filters.name) {
+      subQuery.andWhere('customer.name LIKE :name', { name: `%${filters.name}%` });
     }
-    const [customers, total] = await queryBuilder.getManyAndCount();
-  
-    return { customers, total };
+
+    const totalItems = await subQuery.getCount();
+
+    const ids = await subQuery
+      .skip((currentPage - 1) * itemsPerPage)
+      .take(itemsPerPage)
+      .getRawMany();
+
+    const customerIds = ids.map(item => item.customer_id || item.id);
+    if (customerIds.length === 0) {
+      return { items: [], currentPage, totalItems, totalPages: 0 };
+    }
+
+    // Step 2: ID 기준 상세 데이터 조회
+    const data = await this.customerRepository
+      .createQueryBuilder('customer')
+      .select([
+        'customer.id as id',
+        'customer.name as name',
+        'customer.telnum as telnum',
+        'customer.manager_id as manager_id',
+        'customer.created as created',
+      ])
+      .whereInIds(customerIds)
+      .orderBy('customer.created', 'DESC')
+      .getRawMany();
+
+    return {
+      items: data,
+      currentPage,
+      totalItems,
+      totalPages: Math.ceil(totalItems / itemsPerPage),
+    };
   }
 
-  async getCustomerById(id: number): Promise<Customer | null> {
+  async findOne(id: number): Promise<Customer | null> {
     const query = this.customerRepository.createQueryBuilder('customer')
       .leftJoin('business', 'business', 'customer.id = business.customer_id')
       .select([
-        'customer.*',
+        'customer.id as id',
+        'customer.name as name',
+        'customer.telnum as telnum',
+        'customer.manager_id as manager_id',
+        'customer.created as created',
         'business.id as business_id',
         'business.name as business_name',
         'business.status as business_status',
@@ -68,17 +96,29 @@ export class CustomerService {
     };
   }
 
-  async findOne(id: number): Promise<Customer> {
-    const customer = await this.customerRepository.findOne({
-      where: { id },
-      withDeleted: false
-    });
+  async findAll_noLimit(
+  ): Promise<{ items: Customer[]; }> {
+    const data = await this.customerRepository
+      .createQueryBuilder('customer')
+      .select([
+        'customer.id as id',
+        'customer.name as name',
+        'customer.telnum as telnum',
+        'customer.manager_id as manager_id',
+        'customer.created as created',
+      ])
+      // .whereInIds(customerIds)
+      .orderBy('customer.created', 'DESC')
+      .getRawMany();
 
-    if (!customer) {
-      throw new NotFoundException(`고객 ID ${id}를 찾을 수 없습니다.`);
-    }
+    return {
+      items: data
+    };
+  }
 
-    return customer;
+  async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
+    const customer = this.customerRepository.create(createCustomerDto);
+    return this.customerRepository.save(customer);
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<Customer> {
@@ -90,7 +130,7 @@ export class CustomerService {
     return this.customerRepository.save(updatedCustomer);
   }
 
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     const customer = await this.findOne(id);
     await this.customerRepository.softDelete(id);
   }
