@@ -33,12 +33,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.data || [],
+      data: data.items || [],
       pagination: {
-        currentPage: page,
+        currentPage: data.currentPage,
+        itemsPerPage: data.itemsPerPage,
         totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0,
-        itemsPerPage: limit
+        totalItems: data.totalItems || 0
       }
     });
   } catch (error) {

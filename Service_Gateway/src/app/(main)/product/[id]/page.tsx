@@ -241,10 +241,10 @@ export default function ProductDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">제품 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/product/${product.id}/register_release?page=${prevPage}`)}
+            onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}`)}
             className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
-            릴리즈노트 등록
+            수정
           </button>
           <button
             onClick={handleDisabled}
@@ -253,10 +253,10 @@ export default function ProductDetailPage() {
             제품 비활성화
           </button>
           <button
-            onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/product/${product.id}/register_release?page=${prevPage}`)}
             className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
-            수정
+            릴리즈노트 등록 및 수정
           </button>
           <button
             onClick={handleDelete}

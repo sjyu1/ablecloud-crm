@@ -12,45 +12,32 @@ import { RolesGuard } from '../auth/role/role.guard';
 export class PartnerController {
   constructor(private readonly partnerService: PartnerService) {}
 
-  @Post()
-  // @Roles('Admin')
-  async create(@Body() createPartnerDto: CreatePartnerDto): Promise<Partner> {
-    return this.partnerService.create(createPartnerDto);
-  }
-
   @Get()
   // @Roles('Admin')
-  async findAllHttp(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('level') level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR',
+  async findAll(
+    @Query('page') currentPage = '1',
+    @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('id') id?: string
-  ) {
-    try {
-      // 파라미터 유효성 검사
-      const validPage = Math.max(1, Number(page));
-      const validLimit = Math.max(1, Number(limit));
+  ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
+    const filters = {
+      id: id || '',
+      name: name || ''
+    };
 
-      const validId = id && id !== 'undefined' && id !== '' ? id : undefined;
-
-      // name이 유효한 문자열인지 확인
-      const validName = name && name !== 'undefined' && name !== '' ? name : undefined;
-
-      // level이 유효한 값인지 확인
-      const validLevel = level && ['PLATINUM', 'GOLD', 'SILVER', 'VAR'].includes(level) ? level : undefined;
-
-      return await this.partnerService.findAll(validPage, validLimit, validLevel, validName, validId);
-    } catch (error) {
-      //console.error('파트너 검색 요청 처리 중 오류 발생:', error);
-      throw error;
-    }
+    return this.partnerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
   }
 
   @Get(':id')
   // @Roles('Admin')
-  async findOneHttp(@Param('id') id: number) {
+  async findOne(@Param('id') id: number) {
     return this.partnerService.findOne(id);
+  }
+
+  @Post()
+  // @Roles('Admin')
+  async create(@Body() createPartnerDto: CreatePartnerDto): Promise<Partner> {
+    return this.partnerService.create(createPartnerDto);
   }
 
   @Put(':id')
@@ -64,23 +51,7 @@ export class PartnerController {
 
   @Delete(':id')
   // @Roles('Admin')
-  async remove(@Param('id') id: string): Promise<void> {
-    return this.partnerService.remove(parseInt(id, 10));
-  }
-
-  @MessagePattern({ cmd: 'get_partners' })
-  async findAll(data: {
-    page: number;
-    limit: number;
-    level?: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR';
-    name?: string;
-  }) {
-    const { page = 1, limit = 10, level, name } = data;
-    return this.partnerService.findAll(page, limit, level, name);
-  }
-
-  @MessagePattern({ cmd: 'get_partner' })
-  async findOne(id: number) {
-    return this.partnerService.findOne(id);
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.partnerService.delete(parseInt(id, 10));
   }
 }

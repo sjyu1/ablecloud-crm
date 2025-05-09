@@ -39,31 +39,31 @@ export async function GET(request: Request) {
     }
 
     // 고객 데이터에 사업담당자 정보 추가
-    for(var idx in data.data) {
-      const data_userinfo = await userinfo_id(data.data[idx].manager_id);
+    for(var idx in data.items) {
+      const data_userinfo = await userinfo_id(data.items[idx].manager_id);
       if (data_userinfo.error)  continue;
-      data.data[idx].manager_name = data_userinfo.username
-      data.data[idx].manager_type = data_userinfo.attributes.type[0]
-      data.data[idx].manager_company_id = data_userinfo.attributes.company_id[0]
+      data.items[idx].manager_name = data_userinfo.username
+      data.items[idx].manager_type = data_userinfo.attributes.type[0]
+      data.items[idx].manager_company_id = data_userinfo.attributes.company_id[0]
 
-      if (data.data[idx].manager_type == 'vendor') {
-        data.data[idx].manager_company = 'ABLECLOUD'
+      if (data.items[idx].manager_type == 'vendor') {
+        data.items[idx].manager_company = 'ABLECLOUD'
       } else {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.data[idx].manager_type}/${data.data[idx].manager_company_id}`);
+        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.items[idx].manager_type}/${data.items[idx].manager_company_id}`);
         const company = await response.json();
-        data.data[idx].manager_company = company.name
+        data.items[idx].manager_company = company.name
       }
 
       if (role && user_companytype !== 'vendor'){
         const data_user = await userinfo();
-        if (data_user.attributes.type[0] == data.data[idx].manager_type && data_user.attributes.company_id[0] == data.data[idx].manager_company_id){
-          data_user_com.push(data.data[idx])
+        if (data_user.attributes.type[0] == data.items[idx].manager_type && data_user.attributes.company_id[0] == data.items[idx].manager_company_id){
+          data_user_com.push(data.items[idx])
         }
       }
     }
 
     if (role && user_companytype !== 'vendor'){
-      data.data = data_user_com
+      data.items = data_user_com
     }
 
     if (!response.ok) {
@@ -73,12 +73,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.data || [],
+      data: data.items || [],
       pagination: {
-        currentPage: page,
+        currentPage: data.currentPage,
+        itemsPerPage: data.itemsPerPage,
         totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0,
-        itemsPerPage: limit
+        totalItems: data.totalItems || 0
       }
     });
   } catch (error) {

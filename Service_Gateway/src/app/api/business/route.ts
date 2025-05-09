@@ -27,6 +27,7 @@ export async function GET(request: Request) {
     if (available) {
       apiUrl.searchParams.set('available', available);
     }
+
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
     //log.info('GET /business DATA ::: '+JSON.stringify(data));
@@ -84,10 +85,10 @@ export async function GET(request: Request) {
       status: 200,
       data: data.items || [],
       pagination: {
-        currentPage: page,
+        currentPage: data.currentPage,
+        itemsPerPage: data.itemsPerPage,
         totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0,
-        itemsPerPage: limit
+        totalItems: data.totalItems || 0
       }
     });
   } catch (error) {

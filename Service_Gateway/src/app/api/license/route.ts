@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const businessName = searchParams.get('businessName');
+    const licenseKey = searchParams.get('licenseKey');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const trial = searchParams.get('trial');
 
@@ -23,8 +23,8 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (businessName) {
-      apiUrl.searchParams.set('businessName', businessName);
+    if (licenseKey) {
+      apiUrl.searchParams.set('licenseKey', licenseKey);
     }
     if (role) {
       const data_userinfo = await userinfo();
@@ -66,10 +66,10 @@ export async function GET(request: Request) {
       status: 200,
       data: data.items || [],
       pagination: {
-        currentPage: page,
+        currentPage: data.currentPage,
+        itemsPerPage: data.itemsPerPage,
         totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0,
-        itemsPerPage: limit
+        totalItems: data.totalItems || 0
       }
     });
   } catch (error) {

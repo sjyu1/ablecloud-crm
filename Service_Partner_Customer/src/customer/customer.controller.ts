@@ -4,57 +4,36 @@ import { Customer } from './customer.entity';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role/role.guard';
-// import { Roles } from 'src/auth/role/role.decorator';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('customer')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
-  @Post()
-  // @Roles('Admin')
-  async create(@Body() createCustomerDto: CreateCustomerDto): Promise<Customer> {
-    return this.customerService.create(createCustomerDto);
-  }
-
-
   @Get()
   // @Roles('Admin')
   async findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit = '10',
+    @Query('page') currentPage = '1',
+    @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string
-  ) {
-    const hasPage = typeof page !== 'undefined';
-    const parsedPage = hasPage ? parseInt(page, 10) : undefined
-    const parsedLimit = parseInt(limit, 10);
-
-    const { customers, total } = await this.customerService.findAll(
-      parsedPage,
-      parsedLimit,
-      name
-    );
-
-    const meta: any = {
-      total,
-      limit: parsedLimit,
-      totalPages: Math.ceil(total / parsedLimit),
+  ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
+    const filters = {
+      name: name || ''
     };
-  
-    if (hasPage) {
-      meta.page = parsedPage;
-    }
-  
-    return {
-      data: customers,
-      meta,
-    };
+
+    return this.customerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
   }
 
   @Get(':id')
   // @Roles('Admin')
   async findOne(@Param('id') id: string): Promise<Customer> {
-    return this.customerService.getCustomerById(parseInt(id, 10));
+    return this.customerService.findOne(parseInt(id, 10));
+  }
+
+  @Post()
+  // @Roles('Admin')
+  async create(@Body() createCustomerDto: CreateCustomerDto): Promise<Customer> {
+    return this.customerService.create(createCustomerDto);
   }
 
   @Put(':id')
@@ -68,7 +47,7 @@ export class CustomerController {
 
   @Delete(':id')
   // @Roles('Admin')
-  async remove(@Param('id') id: string): Promise<void> {
-    return this.customerService.remove(parseInt(id, 10));
+  async delete(@Param('id') id: string): Promise<void> {
+    return this.customerService.delete(parseInt(id, 10));
   }
 }

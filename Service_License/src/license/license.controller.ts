@@ -13,73 +13,53 @@ export class LicenseController {
 
   @Get()
   // @Roles('Admin', 'User')
-  async getLicenses(
-    @Query() query: {
-      page?: string;
-      limit?: string;
-      productId?: string;
-      businessType?: string;
-      company_id?: string;
-      businessName?: string;
-      trial?: string;
-    },
-    @Request() req: any
-  ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
-    const page = query.page || '1';
-    const limit = query.limit || '10';
-
-    const partnerId = req.user?.partnerId;
-
+  async findAll(
+    @Query('page') currentPage = '1',
+    @Query('limit') itemsPerPage = '10',
+    @Query('productId') productId?: string,
+    @Query('businessType') businessType?: string,
+    @Query('company_id') company_id?: string,
+    @Query('licenseKey') licenseKey?: string,
+    @Query('trial') trial?: string,
+  ): Promise<{ items: License[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
-      productId: query.productId || '',
-      businessType: query.businessType || '',
-      company_id: query.company_id || '',
-      partnerId: partnerId,
-      businessName: query.businessName || '',
-      trial: query.trial || '0'
+      productId: productId || '',
+      businessType: businessType || '',
+      company_id: company_id || '',
+      licenseKey: licenseKey || '',
+      trial: trial || '0'
     };
 
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-
-    if (isNaN(pageNumber) || isNaN(limitNumber)) {
-      throw new Error('Invalid page or limit format');
-    }
-
-    return this.licenseService.getAllLicenses(pageNumber, limitNumber, filters);
+    return this.licenseService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
   }
 
   @Get(':id')
   // @Roles('Admin', 'User')
-  async getLicenseById(@Param('id') id: string): Promise<License> {
-    const numericId = parseInt(id, 10)
-    if (isNaN(numericId)) throw new Error('Invalid ID format')
-    return this.licenseService.getLicenseById(numericId)
+  async findOne(@Param('id') id: string): Promise<License> {
+    return this.licenseService.findOne(parseInt(id, 10))
   }
 
   @Post()
   // @Roles('Admin')
-  async createLicense(@Body() createData: Partial<License>): Promise<License> {
-    return this.licenseService.createLicense(createData)
+  async create(@Body() createData: Partial<License>): Promise<License> {
+    return this.licenseService.create(createData)
   }
 
   @Put(':id')
   // @Roles('Admin')
-  async updateLicense(
+  async update(
     @Param('id') id: string,
     @Body() updateData: Partial<License>,
   ): Promise<License> {
-    const numericId = parseInt(id, 10)
-    if (isNaN(numericId)) throw new Error('Invalid ID format')
-    return this.licenseService.updateLicense(numericId, updateData)
+    return this.licenseService.update(parseInt(id, 10), updateData)
   }
 
   @Delete(':id')
   // @Roles('Admin')
-  async deleteLicense(@Param('id') id: string): Promise<void> {
-    const numericId = parseInt(id, 10)
-    if (isNaN(numericId)) throw new Error('Invalid ID format')
-    await this.licenseService.deleteLicense(numericId)
+  async delete(
+    @Param('id') id: string
+  ): Promise<void> {
+    await this.licenseService.delete(parseInt(id, 10))
   }
 
   @Put(':id/approve')
@@ -88,8 +68,6 @@ export class LicenseController {
     @Param('id') id: string,
     @Body('approve_user') approveUser: string,
   ): Promise<License> {
-    const numericId = parseInt(id, 10);
-    if (isNaN(numericId)) throw new Error('Invalid ID format');
-    return this.licenseService.approveLicense(numericId, approveUser);
+    return this.licenseService.approveLicense(parseInt(id, 10), approveUser);
   }
 }

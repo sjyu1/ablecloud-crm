@@ -12,112 +12,94 @@ export class LicenseService {
     private readonly licenseRepository: Repository<License>,
   ) {}
 
-  private formatDateToYYYYMMDD(date: string | Date): string {
-    if (!date) return '0000-00-00'
-    const d = new Date(date)
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
-
-  private removeMicrosecondsFromTimestamp(timestamp: string | Date): string {
-    const date = new Date(timestamp)
-    return date.toISOString().replace(/\.\d{3}Z$/, 'Z')
-  }
-
-  async getAllLicenses(
-    page: number = 1,
-    limit: number = 10,
+  async findAll(
+    currentPage: number = 1,
+    itemsPerPage: number = 10,
     filters: {
       productId?: string;
-      businessName?: string;
+      licenseKey?: string;
       businessType?: string;
-      partnerId?: number;
       company_id?: string;
       trial?: string;
     }
-  ): Promise<{ items: License[]; total: number; page: number; totalPages: number }> {
-    const query = this.licenseRepository.createQueryBuilder('license')
-                  // .leftJoin('product', 'product', 'license.product_id = product.id')
-                  // .leftJoin('partner', 'partner', 'license.partner_id = partner.id')
-                  .leftJoin('business', 'business', 'license.business_id = business.id')
-                  .leftJoin('product', 'product', 'business.product_id = product.id')
-                  .select([
-                    'license.*',
-                    // 'product.name as product_name',
-                    // 'partner.name as partner_name',
-                    'license.approved as approved',
-                    'business.name as business_name',
-                    'product.name as product_name',
-                    'product.version as product_version'
-                  ])
-                  .orderBy('license.created', 'DESC')
-                  .where('license.removed IS NULL');
+  ): Promise<{ items: License[]; currentPage: number; totalItems: number; totalPages: number }> {
+    // Step 1: ID만 추출
+    const subQuery = this.licenseRepository
+      .createQueryBuilder('license')
+      .select('license.id', 'id')
+      .where('license.removed is null')
+      .orderBy('license.created', 'DESC');
 
-    // if (filters.partnerId) {
-    //   query.andWhere('license.issued_user IN (SELECT id FROM user WHERE partner_id = :partnerId)', { 
-    //     partnerId: filters.partnerId 
+    // if (filters.productId) {
+    //   subQuery.andWhere('product.id = :productId', { 
+    //     productId: filters.productId 
     //   });
     // }
 
-    if (filters.productId) {
-      query.andWhere('product.id = :productId', { 
-        productId: filters.productId 
-      });
-    }
     if (filters.businessType) {
-      query.andWhere('license.business_type = :businessType', { businessType: filters.businessType });
+      subQuery.andWhere('license.business_type = :businessType', { businessType: filters.businessType });
     }
 
     if (filters.company_id) {
-      query.andWhere('license.company_id = :company_id', { company_id: filters.company_id });
+      subQuery.andWhere('license.company_id = :company_id', { company_id: filters.company_id });
     }
 
-    if (filters.businessName) {
-      query.andWhere('business.name LIKE :businessName', { 
-        businessName: `%${filters.businessName}%` 
-      });
+    if (filters.licenseKey) {
+      subQuery.andWhere('license.license_key LIKE :licenseKey', { licenseKey: `%${filters.licenseKey}%` });
     }
 
     if (filters.trial) {
-      query.andWhere('license.trial = :trial', { trial: filters.trial });
+      subQuery.andWhere('license.trial = :trial', { trial: filters.trial });
     }
 
-    // console.log('Final SQL Query:', query.getSql());
-    // console.log('Query Parameters:', query.getParameters());
+    const totalItems = await subQuery.getCount();
 
-    const total = await query.getCount();
-    const items = await query
-      .orderBy('license.created', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
+    const ids = await subQuery
+      .skip((currentPage - 1) * itemsPerPage)
+      .take(itemsPerPage)
       .getRawMany();
 
-    // console.log('Raw Query Results:', items);
+    const licenseIds = ids.map(item => item.license_id || item.id);
+    if (licenseIds.length === 0) {
+      return { items: [], currentPage, totalItems, totalPages: 0 };
+    }
 
-    const formattedItems = items.map(license => ({
-      ...license,
-      product_name: license.product_name || license.business_name,
-      product_version: license.product_version,
-      partner_name: license.partner_name,
-      issued: this.formatDateToYYYYMMDD(license.issued),
-      expired: this.formatDateToYYYYMMDD(license.expired),
-      created: this.removeMicrosecondsFromTimestamp(license.created),
-      updated: this.removeMicrosecondsFromTimestamp(license.updated),
-      approved: license.approve_user ? license.approved : null,
-      approve_user: license.approve_user
-    }));
+    // Step 2: ID 기준 상세 데이터 조회
+    const data = await this.licenseRepository
+      .createQueryBuilder('license')
+      .leftJoin('business', 'business', 'license.business_id = business.id')
+      .leftJoin('product', 'product', 'business.product_id = product.id')
+      .select([
+        'license.id as id',
+        'license.license_key as license_key',
+        'license.issued as issued',
+        'license.expired as expired',
+        'license.status as status',
+        'license.company_id as company_id',
+        'license.approve_user as approve_user',
+        'license.approved as approved',
+        'license.business_id as business_id',
+        'license.issued_id as issued_id',
+        'license.trial as trial',
+        'license.created as created',
+        'license.approved as approved',
+        'business.name as business_name',
+        'product.name as product_name',
+        'product.version as product_version'
+      ])
+      .whereInIds(licenseIds)
+      .orderBy('license.created', 'DESC')
+      .getRawMany();
 
     return {
-      items: formattedItems,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit)
+      items: data,
+      currentPage,
+      totalItems,
+      totalPages: Math.ceil(totalItems / itemsPerPage),
     };
   }
 
-  async getLicenseById(id: number): Promise<License | null> {
+  async findOne(id: number): Promise<License | null> {
     const query = this.licenseRepository.createQueryBuilder('license')
       // .leftJoin('product', 'product', 'license.product_id = product.id')
       .leftJoinAndSelect('partner', 'company', 'license.company_id = company.id')
@@ -162,13 +144,13 @@ export class LicenseService {
     };
   }
 
-  async createLicense(data: Partial<License>): Promise<License> {
+  async create(data: Partial<License>): Promise<License> {
     const license = this.licenseRepository.create({
       ...data,
       license_key: uuidv4(),
       issued: data.issued || '0000-00-00',
       expired: data.expired || '0000-00-00',
-      approved: new Date().toISOString(), // 문자열로 변환하여 저장
+      approved: new Date().toISOString(),
       // status: data.user_type === 'Admin' ? 'active' : 'inactive'
       status: data.status
     })
@@ -183,7 +165,7 @@ export class LicenseService {
     }
   }
 
-  async updateLicense(id: number, updateData: Partial<License>): Promise<License | null> {
+  async update(id: number, updateData: Partial<License>): Promise<License | null> {
     const license = await this.licenseRepository.findOne({ where: { id } })
     if (!license) throw new Error(`License with ID ${id} not found`)
     const updatedLicense = {
@@ -193,84 +175,61 @@ export class LicenseService {
       expired: updateData.expired || license.expired,
     }
     await this.licenseRepository.save(updatedLicense)
-    return this.getLicenseById(id)
+    return this.findOne(id)
   }
 
-  async deleteLicense(id: number): Promise<void> {
+  async delete(
+    id: number
+  ): Promise<void> {
     const license = await this.licenseRepository.findOne({ where: { id } })
     if (!license) throw new Error(`License with ID ${id} not found`)
     await this.licenseRepository.softDelete(id)
   }
 
-  async create(createLicenseDto: CreateLicenseDto) {
-    const license = new License();
-    // license.cpu_core = createLicenseDto.cpu_core;
-    // license.business_type = createLicenseDto.business_type;
-    // license.business_name = createLicenseDto.business_name;
-    // license.user_type = createLicenseDto.user_type;
-    // license.partner_id = createLicenseDto.partner_id;
-    // license.issued_user = createLicenseDto.issued_user;
-    license.status = createLicenseDto.status;
+  // async update(id: number, updateLicenseDto: UpdateLicenseDto) {
+  //   const license = await this.licenseRepository.findOne({ where: { id } });
+  //   if (updateLicenseDto.approve_user) {
+  //     license.approved = new Date().toISOString();
+  //     license.approve_user = updateLicenseDto.approve_user;
+  //     license.status = 'active';
+  //   }
 
-    // approve_user가 있는 경우 approved 시간도 함께 설정
-    if (createLicenseDto.approve_user) {
-        license.approve_user = createLicenseDto.approve_user;
-        license.approved = new Date().toISOString(); // 문자열로 변환하여 저장
-        license.status = 'active';
-    }
+  //   // if (updateLicenseDto.cpu_core !== undefined) {
+  //   //   license.cpu_core = updateLicenseDto.cpu_core;
+  //   // }
+  //   // if (updateLicenseDto.business_type) {
+  //   //   license.business_type = updateLicenseDto.business_type as "POC" | "BMT" | "TEMP";
+  //   // }
+  //   // if (updateLicenseDto.business_name) {
+  //   //   license.business_name = updateLicenseDto.business_name;
+  //   // }
+  //   // if (updateLicenseDto.user_type) {
+  //   //   license.user_type = updateLicenseDto.user_type;
+  //   //   // license.status = updateLicenseDto.user_type === 'Admin' ? 'active' : 'inactive';
+  //   // }
+  //   // if (updateLicenseDto.partner_id !== undefined) {
+  //   //   license.partner_id = updateLicenseDto.partner_id;
+  //   // }
+  //   // if (updateLicenseDto.issued_user) {
+  //   //   license.issued_user = updateLicenseDto.issued_user;
+  //   // }
+  //   if (updateLicenseDto.status) {
+  //     license.status = updateLicenseDto.status;
+  //     if (updateLicenseDto.status !== 'active') {
+  //       license.approved = null;
+  //       license.approve_user = null;
+  //     }
+  //   }
 
-    const savedLicense = await this.licenseRepository.save(license);
+  //   const savedLicense = await this.licenseRepository.save(license);
     
-    return {
-      ...savedLicense,
-      approved: savedLicense.approved ? this.formatDateToYYYYMMDD(savedLicense.approved) : null
-    } as unknown as License;
-  }
+  //   const formattedLicense = {
+  //     ...savedLicense,
+  //     approved: savedLicense.approved ? this.formatDateToYYYYMMDD(savedLicense.approved) : null
+  //   };
 
-  async update(id: number, updateLicenseDto: UpdateLicenseDto) {
-    const license = await this.licenseRepository.findOne({ where: { id } });
-    if (updateLicenseDto.approve_user) {
-      license.approved = new Date().toISOString(); // 문자열로 변환하여 저장
-      license.approve_user = updateLicenseDto.approve_user;
-      license.status = 'active';
-    }
-
-    // if (updateLicenseDto.cpu_core !== undefined) {
-    //   license.cpu_core = updateLicenseDto.cpu_core;
-    // }
-    // if (updateLicenseDto.business_type) {
-    //   license.business_type = updateLicenseDto.business_type as "POC" | "BMT" | "TEMP";
-    // }
-    // if (updateLicenseDto.business_name) {
-    //   license.business_name = updateLicenseDto.business_name;
-    // }
-    // if (updateLicenseDto.user_type) {
-    //   license.user_type = updateLicenseDto.user_type;
-    //   // license.status = updateLicenseDto.user_type === 'Admin' ? 'active' : 'inactive';
-    // }
-    // if (updateLicenseDto.partner_id !== undefined) {
-    //   license.partner_id = updateLicenseDto.partner_id;
-    // }
-    // if (updateLicenseDto.issued_user) {
-    //   license.issued_user = updateLicenseDto.issued_user;
-    // }
-    if (updateLicenseDto.status) {
-      license.status = updateLicenseDto.status;
-      if (updateLicenseDto.status !== 'active') {
-        license.approved = null;
-        license.approve_user = null;
-      }
-    }
-
-    const savedLicense = await this.licenseRepository.save(license);
-    
-    const formattedLicense = {
-      ...savedLicense,
-      approved: savedLicense.approved ? this.formatDateToYYYYMMDD(savedLicense.approved) : null
-    };
-
-    return formattedLicense as unknown as License;
-  }
+  //   return formattedLicense as unknown as License;
+  // }
 
   async approveLicense(id: number, approveUser: string): Promise<License> {
     const license = await this.licenseRepository.findOne({ where: { id } });
@@ -278,7 +237,7 @@ export class LicenseService {
       throw new Error(`License with ID ${id} not found`);
     }
     license.approve_user = approveUser;
-    license.approved = new Date().toISOString(); // 문자열로 변환하여 저장
+    license.approved = new Date().toISOString();
     license.status = 'active';
 
     const savedLicense = await this.licenseRepository.save(license);
@@ -292,5 +251,19 @@ export class LicenseService {
     };
 
     return formattedLicense as unknown as License;
+  }
+
+  private formatDateToYYYYMMDD(date: string | Date): string {
+    if (!date) return '0000-00-00'
+    const d = new Date(date)
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  private removeMicrosecondsFromTimestamp(timestamp: string | Date): string {
+    const date = new Date(timestamp)
+    return date.toISOString().replace(/\.\d{3}Z$/, 'Z')
   }
 }

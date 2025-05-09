@@ -28,6 +28,7 @@ export default function LicenseEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevTrial = searchParams.get('trial') || '1';
   const [formData, setFormData] = useState<LicenseForm | null>({
     id: 0,
     license_key: '',
@@ -135,7 +136,7 @@ export default function LicenseEditPage() {
 
       if (response.ok) {
         alert('라이선스가 수정되었습니다.');
-        router.push(`/license/${params.id}?page=${prevPage}`);
+        router.push(`/license/${params.id}?page=${prevPage}&trial=${prevTrial}`);
       } else {
         throw new Error('라이선스 수정에 실패했습니다.');
       }
@@ -316,7 +317,7 @@ export default function LicenseEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/license/${params.id}?page=${prevPage}`}
+              href={`/license/${params.id}?page=${prevPage}&trial=${prevTrial}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

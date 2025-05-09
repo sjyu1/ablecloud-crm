@@ -11,32 +11,58 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
-    createProductDto.enabled = true;
-    const product = this.productRepository.create(createProductDto);
-    return this.productRepository.save(product);
-  }
-
   async findAll(
-    page: number,
-    limit: number,
-    name?: string
-  ): Promise<{ products: Product[]; total: number }> {
-    const queryBuilder = this.productRepository.createQueryBuilder('product')
+    currentPage: number = 1,
+    itemsPerPage: number = 10,
+    filters: {
+      name?: string;
+    }
+  ): Promise<{ items: Product[]; currentPage: number; totalItems: number; totalPages: number }> {
+    // Step 1: ID만 추출
+    const subQuery = this.productRepository.createQueryBuilder('product')
+      .select('product.id', 'id')
       .andWhere('product.enabled = true')
-      .andWhere('product.removed IS NULL');
+      .andWhere('product.removed is null')
+      .orderBy('product.created', 'DESC');
 
-    if (name) {
-      queryBuilder.andWhere('product.name LIKE :name', { name: `%${name}%` });
+    if (filters.name) {
+      subQuery.andWhere('product.name LIKE :name', { name: `%${filters.name}%` });
     }
 
-    const [products, total] = await queryBuilder
-      .orderBy('product.created', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    const totalItems = await subQuery.getCount();
 
-    return { products, total };
+    const ids = await subQuery
+      .skip((currentPage - 1) * itemsPerPage)
+      .take(itemsPerPage)
+      .getRawMany();
+
+    const productIds = ids.map(item => item.product_id || item.id);
+    if (productIds.length === 0) {
+      return { items: [], currentPage, totalItems, totalPages: 0 };
+    }
+
+    // Step 2: ID 기준 상세 데이터 조회
+    const data = await this.productRepository
+      .createQueryBuilder('product')
+      .select([
+        'product.id as id',
+        'product.name as name',
+        'product.version as version',
+        'product.isoFilePath as isoFilePath',
+        'product.enabled as enabled',
+        'product.contents as contents',
+        'product.created as created',
+      ])
+      .whereInIds(productIds)
+      .orderBy('product.created', 'DESC')
+      .getRawMany();
+
+    return {
+      items: data,
+      currentPage,
+      totalItems,
+      totalPages: Math.ceil(totalItems / itemsPerPage),
+    };
   }
 
   async findOne(id: number): Promise<Product> {
@@ -52,6 +78,12 @@ export class ProductService {
     return product;
   }
 
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    createProductDto.enabled = true;
+    const product = this.productRepository.create(createProductDto);
+    return this.productRepository.save(product);
+  }
+
   async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
     const product = await this.findOne(id);
     const updatedProduct = {
@@ -61,8 +93,7 @@ export class ProductService {
     return this.productRepository.save(updatedProduct);
   }
 
-  async remove(id: number): Promise<void> {
-    const product = await this.findOne(id);
+  async delete(id: number): Promise<void> {
     await this.productRepository.softDelete(id);
   }
 
