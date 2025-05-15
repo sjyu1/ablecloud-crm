@@ -240,13 +240,13 @@ export default function BusinessDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">사업 시작일</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                  {format(business.issued, 'yyyy-MM-dd')}
+                  {business.issued}
                 </p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">사업 종료일</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                  {format(business.expired, 'yyyy-MM-dd')}
+                  {business.expired}
                 </p>
               </div>
               <div>
@@ -300,13 +300,13 @@ export default function BusinessDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">시작일</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                  {format(business.license_issued, 'yyyy-MM-dd')}
+                  {business.license_issued}
                 </p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">만료일</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                  {format(business.license_expired, 'yyyy-MM-dd')}
+                  {business.license_expired}
                 </p>
               </div>
             </div>
