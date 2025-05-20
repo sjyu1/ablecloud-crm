@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
       // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
       if (type !== 'vendor' && type == data_user[idx].type && company_id == data_user[idx].company_id) {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${type}/${data_user[idx].company_id}`);
+        const response = await fetchWithAuth(`${process.env.API_URL}/${type}/${data_user[idx].company_id}`);
         const company = await response.json();
         data_user[idx].company = company.name
 

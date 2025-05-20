@@ -31,12 +31,14 @@ export default function LoginPage() {
       } else {
         // alert('아이디 또는 비밀번호가 올바르지 않습니다.');
         setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+        setIsLoading(false);
       }
     } catch (err) {
       // alert('로그인에 실패했습니다. 다시 시도해주세요.');
       setError('로그인에 실패했습니다. 다시 시도해주세요.');
-    } finally {
       setIsLoading(false);
+    } finally {
+      // setIsLoading(false);
     }
   };
 
@@ -97,6 +99,13 @@ export default function LoginPage() {
             ) : (
               ''
             )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+              문의사항은 아래 이메일로 문의바랍니다.<br/>
+              영업 : sales@ablestack.co.kr<br/>
+              기술지원 : support@ablestack.co.kr
+            </label>
+          </div>
         </form>
       </div>
     </div>

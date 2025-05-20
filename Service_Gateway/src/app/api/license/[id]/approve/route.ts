@@ -21,7 +21,7 @@ export async function PUT(
       status: 'active'
     }
 
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}/approve`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/license/${params.id}/approve`, {
       method: 'PUT',
       body: JSON.stringify(submitData),
     });

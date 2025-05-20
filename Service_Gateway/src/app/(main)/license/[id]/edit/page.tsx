@@ -28,7 +28,7 @@ export default function LicenseEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
-  const prevTrial = searchParams.get('trial') || '1';
+  const prevTrial = searchParams.get('trial') || '0';
   const [formData, setFormData] = useState<LicenseForm | null>({
     id: 0,
     license_key: '',

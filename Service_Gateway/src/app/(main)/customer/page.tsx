@@ -42,14 +42,16 @@ export default function CustomerPage() {
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name');
-    setName(currentName ?? '');
+    const currentName = searchParams.get('name') ?? '';
+    if (name !== currentName) {
+      setName(currentName);
+    }
 
     const fetchCustomers = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('name');
-
+  
         let url = `/api/customer?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
@@ -60,11 +62,11 @@ export default function CustomerPage() {
         
         const response = await fetch(url);
         const result = await response.json();
-
+  
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-
+  
         setCustomers(result.data);
         setPagination(prev => ({
           ...prev,
@@ -72,7 +74,7 @@ export default function CustomerPage() {
           totalPages: result.pagination.totalPages,
           currentPage: result.pagination.currentPage,
         }));
-
+  
       } catch (err) {
         if (err instanceof Error) {
           if (err.message == 'Failed to fetch user information') {
@@ -87,7 +89,7 @@ export default function CustomerPage() {
     };
 
     fetchCustomers();
-  }, [searchParams, pagination.itemsPerPage]);
+  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {

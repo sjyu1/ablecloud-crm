@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const name = searchParams.get('name');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.PRODUCT_API_URL}/product`);
+    const apiUrl = new URL(`${process.env.API_URL}/product`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
     if (name) {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
   try {
     log.info('API URL ::: POST /product');
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/product`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

@@ -76,18 +76,18 @@ export default function UserPage() {
     const fetchUsers = async () => {
       try {
         let url = `/api/user`;
-
+  
         if (role == 'User') {
           url += `?role=User&username=`+username;
         }
-
+  
         const response = await fetch(url);
         const result = await response.json();
-
+  
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-
+  
         setUsers(result.data);
         setLoginUserType(result.data[result.data.length - 1].loginuser_type)
       } catch (err) {

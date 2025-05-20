@@ -40,8 +40,10 @@ export default function ProductPage() {
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name');
-    setName(currentName ?? '');
+    const currentName = searchParams.get('name') ?? '';
+    if (name !== currentName) {
+      setName(currentName);
+    }
 
     const fetchProducts = async () => {
       try {
@@ -55,11 +57,11 @@ export default function ProductPage() {
         
         const response = await fetch(url);
         const result = await response.json();
-
+  
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-
+  
         setProducts(result.data);
         setPagination(prev => ({
           ...prev,
@@ -67,7 +69,7 @@ export default function ProductPage() {
           totalPages: result.pagination.totalPages,
           currentPage: result.pagination.currentPage,
         }));
-
+  
     } catch (err) {
       if (err instanceof Error) {
         if (err.message == 'Failed to fetch user information') {
@@ -82,7 +84,7 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, [searchParams, pagination.itemsPerPage]);
+  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {

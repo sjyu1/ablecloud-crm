@@ -15,23 +15,27 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
     const role = searchParams.get('role');
+    const level = searchParams.get('level');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.PARTNER_API_URL}/partner`);
+    const apiUrl = new URL(`${process.env.API_URL}/partner`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
     if (name) {
       apiUrl.searchParams.set('name', name);
     }
+    if (level) {
+      apiUrl.searchParams.set('level', level);
+    }
 
     // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
-    let data_user_com = []
-    let user_companytype
+    // let data_user_com = []
+    // let user_companytype
     let user_companyid
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error) {
-        user_companytype = data_userinfo.attributes.type[0]
+        // user_companytype = data_userinfo.attributes.type[0]
         user_companyid = data_userinfo.attributes.company_id[0]
 
         apiUrl.searchParams.set('id', user_companyid);
@@ -40,17 +44,6 @@ export async function GET(request: Request) {
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
-    //log.info('GET /partner DATA ::: '+JSON.stringify(data));
-
-    // for(var idx in data.partners) {
-    //   if (role && user_companytype == 'partner' && user_companyid == data.partners[idx].id) {
-    //     data_user_com.push(data.partners[idx])
-    //   }
-    // }
-
-    // if (role && user_companytype == 'partner'){
-    //   data.partners = data_user_com
-    // }
 
     if (!response.ok) {
       throw new Error(data.message || '파트너 조회에 실패했습니다.');
@@ -89,7 +82,7 @@ export async function POST(request: Request) {
   try {
     log.info('API URL ::: POST /partner');
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/partner`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

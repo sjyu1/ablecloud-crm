@@ -100,7 +100,7 @@ export default function ProductRegisterPage() {
                 name="isoFilePath"
                 value={formData.isoFilePath}
                 onChange={handleChange}
-                placeholder="/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso (https://download.ablecloud.io/ABLESTACK-ISO 이후 경로 입력)"
+                placeholder="http://isodownload.ablecloud.io/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso"
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />

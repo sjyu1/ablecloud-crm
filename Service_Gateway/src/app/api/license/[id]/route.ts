@@ -15,26 +15,27 @@ export async function GET(
 ) {
   try {
     log.info('API URL ::: GET /license/'+params.id);
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`);
+    const response = await fetchWithAuth(`${process.env.API_URL}/license/${params.id}`);
     const data = await response.json();
+
     // log.info('GET /license/'+params.id+' DATA ::: '+JSON.stringify(data));
 
     // 라이선스 데이터에 발급자 정보 추가
-    const data_userinfo = await userinfo_id(data.issued_id);
-    if (!data_userinfo.error) {
-      data.issued_name = data_userinfo.username
-      data.issued_type = data_userinfo.attributes.type[0]
-      data.issued_company_id = data_userinfo.attributes.company_id[0]
-    }
+    // const data_userinfo = await userinfo_id(data.issued_id);
+    // if (!data_userinfo.error) {
+    //   data.issued_name = data_userinfo.username
+    //   data.issued_type = data_userinfo.attributes.type[0]
+    //   data.issued_company_id = data_userinfo.attributes.company_id[0]
+    // }
 
-    if (data.issued_type == 'vendor') {
-      data.issued_company = 'ABLECLOUD'
-    } else {
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.issued_type}/${data.issued_company_id}`);
-      const company = await response.json();
-      //log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
-      data.issued_company = company.name
-    }
+    // if (data.issued_type == 'vendor') {
+    //   data.issued_company = 'ABLECLOUD'
+    // } else {
+    //   const response = await fetchWithAuth(`${process.env.API_URL}/${data.issued_type}/${data.issued_company_id}`);
+    //   const company = await response.json();
+    //   //log.info('GET /license/'+params.id+' company DATA ::: '+JSON.stringify(company));
+    //   data.issued_company = company.name
+    // }
 
     if (!data) {
       throw new Error('라이선스를 찾을 수 없습니다.');
@@ -42,7 +43,7 @@ export async function GET(
 
     return NextResponse.json({ 
       status: 200,
-      data: data 
+      data: data
     });
   } catch (error) {
     log.info('GET /license/'+params.id+' ERROR ::: '+error);
@@ -67,7 +68,7 @@ export async function PUT(
   try {
     log.info('API URL ::: PUT /license/'+params.id);
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/license/${params.id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
@@ -101,15 +102,7 @@ export async function DELETE(
 ) {
   try {
     log.info('API URL ::: DELETE /license/'+params.id);
-    const { searchParams } = new URL(request.url);
-    const business_id = searchParams.get('business_id');
-
-    // 사업에 라이선스 정보 삭제
-    const response_business = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${business_id}/deleteLicense`,{
-      method: 'PUT',
-    })
-
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`,{
+    const response = await fetchWithAuth(`${process.env.API_URL}/license/${params.id}`,{
       method: 'DELETE',
     })
 

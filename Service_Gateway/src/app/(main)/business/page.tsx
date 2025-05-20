@@ -57,14 +57,16 @@ export default function BusinessPage() {
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name');
-    setName(currentName ?? '');
+    const currentName = searchParams.get('name') ?? '';
+    if (name !== currentName) {
+      setName(currentName);
+    }
 
     const fetchBusiness = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('name');
-
+  
         let url = `/api/business?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
@@ -72,14 +74,14 @@ export default function BusinessPage() {
         if (role === 'User') {
           url += `&role=User`;
         }
-
+  
         const response = await fetch(url);
         const result = await response.json();
-
+  
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-
+  
         setBusiness(result.data);
         setPagination(prev => ({
           ...prev,
@@ -102,7 +104,7 @@ export default function BusinessPage() {
     };
 
     fetchBusiness();
-  }, [searchParams, pagination.itemsPerPage]);
+  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {

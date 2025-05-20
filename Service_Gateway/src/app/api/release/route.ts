@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const version = searchParams.get('version');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.PRODUCT_API_URL}/release`);
+    const apiUrl = new URL(`${process.env.API_URL}/release`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
     if (version) {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
   try {
     log.info('API URL ::: POST /release');
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/release`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/release`, {
       method: 'POST',
       body: JSON.stringify(body),
     });

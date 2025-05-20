@@ -13,6 +13,7 @@ interface LicenseForm {
   issued: string;
   expired: string;
   trial: boolean;
+  oem: string;
 }
 
 interface Business {
@@ -31,7 +32,8 @@ export default function LicenseRegisterPage() {
     product_version: '',
     issued: '',
     expired: '',
-    trial: false
+    trial: false,
+    oem: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -212,6 +214,22 @@ export default function LicenseRegisterPage() {
                   {formData.product_name ? `${formData.product_name} (v${formData.product_version})` : '사업명을 선택하세요'}
                 </span>
               </div>
+            </div>
+            <div className={role === 'Admin' ? '' : 'hidden'}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                OEM
+              </label>
+              <select
+                name="oem"
+                value={formData.oem}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="null">ABLESTACK</option>
+                <option value="clostack">CLOSTACK</option>
+                <option value="hv">HV</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

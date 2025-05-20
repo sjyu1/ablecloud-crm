@@ -136,6 +136,7 @@ export default function ProductEditPage() {
                 name="isoFilePath"
                 value={formData.isoFilePath}
                 onChange={handleChange}
+                placeholder="http://isodownload.ablecloud.io/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso"
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />

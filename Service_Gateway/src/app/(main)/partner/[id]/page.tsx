@@ -61,6 +61,7 @@ export default function PartnerDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevLevel = searchParams.get('level') || 'PLATINUM';
   const [partner, setPartner] = useState<Partner | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -149,7 +150,7 @@ export default function PartnerDetailPage() {
 
       if (response.ok) {
         alert('파트너가 삭제되었습니다.');
-        router.push(`/partner?page=${prevPage}`);
+        router.push(`/partner?page=${prevPage}&level=${prevLevel}`);
       } else {
         throw new Error('파트너 삭제에 실패했습니다.');
       }
@@ -196,7 +197,7 @@ export default function PartnerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}&level=${prevLevel}`)}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
@@ -208,7 +209,7 @@ export default function PartnerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/partner?page=${prevPage}`)}
+            onClick={() => router.push(`/partner?page=${prevPage}&level=${prevLevel}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록

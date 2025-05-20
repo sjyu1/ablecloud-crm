@@ -21,6 +21,7 @@ interface Business {
   license_status: string;
   license_issued: string;
   license_expired: string;
+  license_trial: string;
   manager_id: string;
   manager_name: string;
   manager_company: string;
@@ -291,12 +292,10 @@ export default function BusinessDetailPage() {
                   </span>
                 </p>
               </div>
-              {/* <div>
-                <h3 className="text-sm font-medium text-gray-500">코어수</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                  {business.license_cpu_core}
-                </p>
-              </div> */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Trial</h3>
+                <p className="mt-1 text-lg text-gray-900">{business.license_trial == '1' ? 'O' : '-'}</p>
+              </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">시작일</h3>
                 <p className="mt-1 text-lg text-gray-900">

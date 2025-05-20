@@ -16,6 +16,7 @@ export default function PartnerEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevLevel = searchParams.get('level') || 'PLATINUM';
   const [formData, setFormData] = useState<PartnerForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +64,7 @@ export default function PartnerEditPage() {
 
       if (response.ok) {
         alert('파트너가 수정되었습니다.');
-        router.push(`/partner/${params.id}?page=${prevPage}`);
+        router.push(`/partner/${params.id}?page=${prevPage}&level=${prevLevel}`);
       } else {
         throw new Error(response.status == 409? '이미 존재하는 회사이름입니다.' : '파트너 수정에 실패했습니다.');
       }
@@ -167,7 +168,7 @@ export default function PartnerEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/partner/${params.id}?page=${prevPage}`}
+              href={`/partner/${params.id}?page=${prevPage}&level=${prevLevel}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
