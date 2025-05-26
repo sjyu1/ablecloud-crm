@@ -292,6 +292,8 @@ export class LicenseService {
     const [partner] = await this.licenseRepository.query(rawQuery_partner, [data.company_id]);
     if (partner.name == '클로잇') {
       data.oem = 'clostack';
+    } else if (partner.name == '효성') {
+      data.oem = 'hv';
     }
 
     const license = this.licenseRepository.create({
