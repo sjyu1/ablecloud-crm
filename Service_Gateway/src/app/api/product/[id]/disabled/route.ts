@@ -14,7 +14,7 @@ export async function PUT(
 ) {
   try {
     log.info('API URL ::: PUT /product/'+params.id+'/disabled');
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${params.id}/disabled`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/product/${params.id}/disabled`, {
       method: 'PUT',
     });
 

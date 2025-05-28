@@ -15,28 +15,28 @@ export async function GET(
 ) {
   try {
     log.info('API URL ::: GET /business/'+params.id);
-    const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`);
+    const response = await fetchWithAuth(`${process.env.API_URL}/business/${params.id}`);
     const business = await response.json();
     //('GET /business/'+params.id+' DATA ::: '+JSON.stringify(business));
 
     // 사업 데이터에 사업담당자 정보 추가
-    const data_userinfo = await userinfo_id(business.manager_id);
-    if (!data_userinfo.error) {
-      business.manager_name = data_userinfo.username
-      business.manager_type = data_userinfo.attributes.type[0]
-      business.manager_company_id = data_userinfo.attributes.company_id[0]
-    }
+    // const data_userinfo = await userinfo_id(business.manager_id);
+    // if (!data_userinfo.error) {
+    //   business.manager_name = data_userinfo.username
+    //   business.manager_type = data_userinfo.attributes.type[0]
+    //   business.manager_company_id = data_userinfo.attributes.company_id[0]
+    // }
 
-    if (business.manager_type == 'vendor') {
-      business.manager_company = 'ABLECLOUD'
-    } else {
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${business.manager_type}/${business.manager_company_id}`);
-      const company = await response.json();
-      business.manager_company = company.name
-    }
+    // if (business.manager_type == 'vendor') {
+    //   business.manager_company = 'ABLECLOUD'
+    // } else {
+    //   const response = await fetchWithAuth(`${process.env.API_URL}/${business.manager_type}/${business.manager_company_id}`);
+    //   const company = await response.json();
+    //   business.manager_company = company.name
+    // }
 
     // product_id를 이용해 제품명/제품버전 가져오기
-    // const response_product = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/product/${business.product_id}`);
+    // const response_product = await fetchWithAuth(`${process.env.API_URL}/product/${business.product_id}`);
     // const product = await response_product.json();
     // business.product_name = product.name
     // business.product_version = product.version
@@ -75,7 +75,7 @@ export async function PUT(
   try {
     log.info('API URL ::: PUT /business/'+params.id);
     const body = await request.json();
-    const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/business/${params.id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
@@ -121,7 +121,7 @@ export async function DELETE(
 ) {
   try {
     log.info('API URL ::: DELETE /business/'+params.id);
-    const response = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${params.id}`,{
+    const response = await fetchWithAuth(`${process.env.API_URL}/business/${params.id}`,{
       method: 'DELETE',
     })
 

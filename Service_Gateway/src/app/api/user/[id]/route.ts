@@ -55,7 +55,7 @@ export async function GET(
     if (data_user.type == 'vendor') {
       data_user.company = 'ABLECLOUD'
     } else {
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data_user.type}/${data_user.company_id}`);
+      const response = await fetchWithAuth(`${process.env.API_URL}/${data_user.type}/${data_user.company_id}`);
       const company = await response.json();
       data_user.company = company.name
     }

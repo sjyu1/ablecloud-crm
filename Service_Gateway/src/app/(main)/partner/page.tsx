@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../store/authStore';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 
 interface Partner {
   id: number;
@@ -21,6 +24,35 @@ interface Pagination {
   itemsPerPage: number;
 }
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+function tabProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export default function PartnerPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [name, setName] = useState('');
@@ -35,20 +67,33 @@ export default function PartnerPage() {
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  let prevLevel = searchParams.get('level');
+  let tab_level = 0
+  if (prevLevel == 'PLATINUM') tab_level = 0
+  else if (prevLevel == 'GOLD') tab_level = 1
+  else if (prevLevel == 'SILVER') tab_level = 2
+  else if (prevLevel == 'VAR') tab_level = 3
+  const initialTab = tab_level;
+  const [value, setValue] = useState(initialTab);
+  const level = searchParams.get('level') || 'PLATINUM';
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name');
-    setName(currentName ?? '');
+    const currentName = searchParams.get('name') ?? '';
+    if (name !== currentName) {
+      setName(currentName);
+    }
+
+    setPartners([]);
 
     const fetchPartners = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         const currentName = searchParams.get('name');
-
+  
         let url = `/api/partner?page=${page}&limit=${pagination.itemsPerPage}`;
         if (currentName) {
           url += `&name=${currentName}`;
@@ -56,14 +101,17 @@ export default function PartnerPage() {
         if (role === 'User') {
           url += `&role=User`;
         }
-        
+        if (level) {
+          url += `&level=${level}`;
+        }
+
         const response = await fetch(url);
         const result = await response.json();
-
+  
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-
+  
         setPartners(result.data);
         setPagination(prev => ({
           ...prev,
@@ -71,7 +119,7 @@ export default function PartnerPage() {
           totalPages: result.pagination.totalPages,
           currentPage: result.pagination.currentPage,
         }));
-
+  
       } catch (err) {
         if (err instanceof Error) {
           if (err.message == 'Failed to fetch user information') {
@@ -86,7 +134,7 @@ export default function PartnerPage() {
     };
 
     fetchPartners();
-  }, [searchParams, pagination.itemsPerPage]);
+  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage, level]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
@@ -96,6 +144,7 @@ export default function PartnerPage() {
         params.set('name', name.trim());
       }
       params.set('page', '1');
+      params.set('level', level);
 
       router.push(`/partner?${params.toString()}`);
     } catch (error) {
@@ -109,12 +158,92 @@ export default function PartnerPage() {
     router.push('/partner?page=1');
   };
 
+  // 탭 핸들러
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+
+    let level = 'PLATINUM'
+    if (newValue == 0) level = 'PLATINUM'
+    else if (newValue == 1) level = 'GOLD'
+    else if (newValue == 2) level = 'SILVER'
+    else if (newValue == 3) level = 'VAR'
+
+    const params = new URLSearchParams(searchParams.toString());
+    
+    params.delete('level');
+    params.set('level', level);
+    params.set('page', '1');
+    
+    router.push(`/partner?${params.toString()}`);
+  };
+
   // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
     router.push(`/partner?${params.toString()}`);
   };
+
+  // 렌더링 데이터
+  const renderPartnerTable = () => (
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              회사이름
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              전화번호
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              등급
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              생성일
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {isLoading ? (
+            <tr>
+              <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                로딩 중...
+              </td>
+            </tr>
+          ) : (
+            partners.map((partner) => (
+              <tr
+                key={partner.id}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => router.push(`/partner/${partner.id}?page=${pagination.currentPage}&level=${prevLevel=prevLevel==null?'PLATINUM':prevLevel}`)}
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {partner.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {partner.telnum}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {partner.level}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {format(partner.created, 'yyyy-MM-dd HH:mm:ss')}
+                </td>
+              </tr>
+            ))
+          )}
+          {!isLoading && partners.length === 0 && (
+            <tr>
+              <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                파트너 정보가 없습니다.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -162,59 +291,32 @@ export default function PartnerPage() {
       </div>
 
       {/* 파트너 목록 */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                회사이름
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                전화번호
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                등급
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                생성일
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
-                  로딩 중...
-                </td>
-              </tr>
-            ) : (
-              partners.map((partner) => (
-                <tr key={partner.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/partner/${partner.id}?page=${pagination.currentPage}`)}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {partner.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {partner.telnum}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {partner.level}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(partner.created, 'yyyy-MM-dd HH:mm:ss')}
-                  </td>
-                </tr>
-              ))
-            )}
-            {!isLoading && partners.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
-                  파트너 정보가 없습니다.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {role !== 'User' ? (
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Tab label="PLATINUM" {...tabProps(0)} />
+          <Tab label="GOLD" {...tabProps(1)} />
+          <Tab label="SILVER" {...tabProps(2)} />
+          <Tab label="VAR" {...tabProps(3)} />
+        </Tabs>
+        </Box>
+        <CustomTabPanel value={value} index={0}>
+          {renderPartnerTable()}
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          {renderPartnerTable()}
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+          {renderPartnerTable()}
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+          {renderPartnerTable()}
+        </CustomTabPanel>
+      </Box>
+      ) : (
+        renderPartnerTable()
+      )}
 
       {/* 페이지네이션 수정 */}
       {partners.length > 0 && (
@@ -308,5 +410,4 @@ export default function PartnerPage() {
       )}
     </div>
   );
-} 
-
+}

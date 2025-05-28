@@ -15,7 +15,7 @@ export async function GET(
   try {
     log.info('API URL ::: GET /license/'+params.id+'/download');
 
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license/${params.id}`);
+    const response = await fetchWithAuth(`${process.env.API_URL}/license/${params.id}`);
 
     const license = await response.json();
 

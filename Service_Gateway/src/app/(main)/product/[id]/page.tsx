@@ -305,7 +305,7 @@ export default function ProductDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">제품 다운로드</h3>
                 <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
-                  <a href={"/iso"+product.isoFilePath} target="_self" rel="noopener noreferrer">
+                  <a href={product.isoFilePath} download rel="noopener noreferrer">
                     [ 다운로드 ]
                   </a>
                 </p>

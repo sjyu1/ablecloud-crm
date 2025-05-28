@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     log.info('API URL ::: GET /release/'+params.id);
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/release/${params.id}`);
+    const response = await fetchWithAuth(`${process.env.API_URL}/release/${params.id}`);
     const release = await response.json();
     //log.info('GET /release/'+params.id+' DATA ::: '+JSON.stringify(release));
     
@@ -50,7 +50,7 @@ export async function PUT(
     log.info('API URL ::: PUT /release/'+params.id);
     const body = await request.json();
 
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/release/${params.id}`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/release/${params.id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
     });
@@ -88,7 +88,7 @@ export async function DELETE(
 ) {
   try {
     log.info('API URL ::: DELETE /release/'+params.id);
-    const response = await fetchWithAuth(`${process.env.PRODUCT_API_URL}/release/${params.id}`,{
+    const response = await fetchWithAuth(`${process.env.API_URL}/release/${params.id}`,{
       method: 'DELETE',
     })
 

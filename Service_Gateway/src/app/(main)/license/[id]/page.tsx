@@ -31,7 +31,7 @@ export default function LicenseDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
-  const prevTrial = searchParams.get('trial') || '1';
+  const prevTrial = searchParams.get('trial') || '0';
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -127,7 +127,7 @@ export default function LicenseDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/license/${params.id}?business_id=${license?.business_id}`, {
+      const response = await fetch(`/api/license/${params.id}`, {
         method: 'DELETE',
       });
 
@@ -250,20 +250,20 @@ export default function LicenseDetailPage() {
               <p className="mt-1 text-lg text-gray-900">{license.expired}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">발급자</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
-            </div>
-            <div>
               <h3 className="text-sm font-medium text-gray-500">Trial</h3>
               <p className="mt-1 text-lg text-gray-900">{license.trial == '1' ? 'O' : '-'}</p>
             </div>
             <div>
+              <h3 className="text-sm font-medium text-gray-500">발급자</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
+            </div>
+            <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.company_name? license.company_name : 'ABLECLOUD'}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.company_name}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급일</h3>
-              <p className="mt-1 text-lg text-gray-900">{format(license.created, 'yyyy-MM-dd HH:mm:ss')}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.created}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인자</h3>
@@ -271,7 +271,7 @@ export default function LicenseDetailPage() {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">승인일</h3>
-              <p className="mt-1 text-lg text-gray-900">{format(license.approved, 'yyyy-MM-dd HH:mm:ss')}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.approved}</p>
             </div>
           </div>
         </div>

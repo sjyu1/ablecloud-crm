@@ -15,20 +15,22 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const licenseKey = searchParams.get('licenseKey');
+    const businessName = searchParams.get('businessName');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const trial = searchParams.get('trial');
 
     // 페이징 파라미터를 포함한 API 호출
-    const apiUrl = new URL(`${process.env.LICENSE_API_URL}/license`);
+    const apiUrl = new URL(`${process.env.API_URL}/license`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (licenseKey) {
-      apiUrl.searchParams.set('licenseKey', licenseKey);
+    if (businessName) {
+      apiUrl.searchParams.set('businessName', businessName);
     }
     if (role) {
       const data_userinfo = await userinfo();
-      if (!data_userinfo.error) {
+      console.log('test1')
+      if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
+        console.log('test2')
         apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
       }
     }
@@ -41,21 +43,21 @@ export async function GET(request: Request) {
     //log.info('GET /license DATA ::: '+JSON.stringify(data));
 
     // 라이선스 데이터에 발급자 정보 추가
-    for(var idx in data.items) {
-      const data_userinfo = await userinfo_id(data.items[idx].issued_id);
-      if (data_userinfo.error)  continue;
-      data.items[idx].issued_name = data_userinfo.username
-      data.items[idx].issued_type = data_userinfo.attributes.type[0]
-      data.items[idx].issued_company_id = data_userinfo.attributes.company_id[0]
+    // for(var idx in data.items) {
+    //   const data_userinfo = await userinfo_id(data.items[idx].issued_id);
+    //   if (data_userinfo.error)  continue;
+    //   data.items[idx].issued_name = data_userinfo.username
+    //   data.items[idx].issued_type = data_userinfo.attributes.type[0]
+    //   data.items[idx].issued_company_id = data_userinfo.attributes.company_id[0]
   
-      if (data.items[idx].issued_type == 'vendor') {
-        data.items[idx].issued_company = 'ABLECLOUD'
-      } else {
-        const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/${data.items[idx].issued_type}/${data.items[idx].issued_company_id}`);
-        const company = await response.json();
-        data.items[idx].issued_company = company.name
-      }
-    }
+    //   if (data.items[idx].issued_type == 'vendor') {
+    //     data.items[idx].issued_company = 'ABLECLOUD'
+    //   } else {
+    //     const response = await fetchWithAuth(`${process.env.API_URL}/${data.items[idx].issued_type}/${data.items[idx].issued_company_id}`);
+    //     const company = await response.json();
+    //     data.items[idx].issued_company = company.name
+    //   }
+    // }
 
     if (!response.ok) {
       throw new Error(data.message || '라이선스 조회에 실패했습니다.');
@@ -116,7 +118,7 @@ export async function POST(request: Request) {
       issued_id: issued_id
     }
 
-    const response = await fetchWithAuth(`${process.env.LICENSE_API_URL}/license`, {
+    const response = await fetchWithAuth(`${process.env.API_URL}/license`, {
       method: 'POST',
       body: JSON.stringify(submitData),
     });
@@ -133,7 +135,7 @@ export async function POST(request: Request) {
       license_id: data.id,
     }
 
-    const response_business = await fetchWithAuth(`${process.env.BUSINESS_API_URL}/business/${data.business_id}/registerLicense`, {
+    const response_business = await fetchWithAuth(`${process.env.API_URL}/business/${data.business_id}/registerLicense`, {
       method: 'PUT',
       body: JSON.stringify(submitData_business),
     });

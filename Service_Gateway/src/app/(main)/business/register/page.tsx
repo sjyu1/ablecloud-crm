@@ -114,7 +114,7 @@ export default function BusinessRegisterPage() {
         let url = `/api/customer?page=1&limit=10000`;
 
         if (role == 'User') {
-          url += `?role=User`;
+          url += `&role=User`;
         }
 
         const response = await fetch(url);
