@@ -260,7 +260,7 @@ export default function LicenseDetailPage() {
             </div>
             <div className={role === 'Admin' ? '' : 'hidden'}>
               <h3 className="text-sm font-medium text-gray-500">oem</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.oem? license.oem : '-'}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.oem? license.oem : 'ABLESTACK'}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
