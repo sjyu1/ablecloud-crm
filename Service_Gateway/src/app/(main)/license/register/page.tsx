@@ -41,6 +41,7 @@ export default function LicenseRegisterPage() {
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isCheckedToTrial, setIsCheckedToTrial] = useState<boolean>(false);
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [partner, setPartner] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -71,6 +72,22 @@ export default function LicenseRegisterPage() {
         alert('제품 목록 조회에 실패했습니다.');
       }
     };
+
+    if (role == 'User') {
+      const fetchUserinfo = async () => {
+        try {
+          let url = `/api/user/userinfo?`;
+  
+          const response = await fetch(url);
+          const result = await response.json();
+          setPartner(result.data.name)
+      
+        } catch (err) {
+          console.error('userinfo 호출 실패:', err);
+        }
+      };
+      fetchUserinfo();
+    }
 
     fetchBusiness();
   }, []);
@@ -231,6 +248,36 @@ export default function LicenseRegisterPage() {
                 <option value="hv">HV</option>
               </select>
             </div>
+            <div className={partner === '클로잇' ? '' : 'hidden'}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                OEM
+              </label>
+              <select
+                name="oem"
+                value={formData.oem}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="null">ABLESTACK</option>
+                <option value="clostack">CLOSTACK</option>
+              </select>
+            </div>
+            <div className={partner === '효성' ? '' : 'hidden'}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                OEM
+              </label>
+              <select
+                name="oem"
+                value={formData.oem}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="null">ABLESTACK</option>
+                <option value="hv">HV</option>
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 시작일
@@ -310,4 +357,4 @@ export default function LicenseRegisterPage() {
       </div>
     </div>
   );
-} 
+}
