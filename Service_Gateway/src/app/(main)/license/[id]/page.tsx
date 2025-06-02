@@ -24,6 +24,7 @@ interface License {
   business_name: string;
   issued_name: string;
   trial: string;
+  oem: string;
 }
 
 export default function LicenseDetailPage() {
@@ -127,7 +128,7 @@ export default function LicenseDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/license/${params.id}`, {
+      const response = await fetch(`/api/license/${params.id}?business_id=${license?.business_id}`, {
         method: 'DELETE',
       });
 
@@ -250,16 +251,20 @@ export default function LicenseDetailPage() {
               <p className="mt-1 text-lg text-gray-900">{license.expired}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Trial</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.trial == '1' ? 'O' : '-'}</p>
-            </div>
-            <div>
               <h3 className="text-sm font-medium text-gray-500">발급자</h3>
               <p className="mt-1 text-lg text-gray-900">{license.issued_name}</p>
             </div>
             <div>
+              <h3 className="text-sm font-medium text-gray-500">Trial</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.trial == '1' ? 'O' : '-'}</p>
+            </div>
+            <div className={role === 'Admin' ? '' : 'hidden'}>
+              <h3 className="text-sm font-medium text-gray-500">oem</h3>
+              <p className="mt-1 text-lg text-gray-900">{license.oem}</p>
+            </div>
+            <div>
               <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
-              <p className="mt-1 text-lg text-gray-900">{license.company_name}</p>
+              <p className="mt-1 text-lg text-gray-900">{license.company_name? license.company_name : 'ABLECLOUD'}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-500">발급일</h3>
