@@ -170,7 +170,7 @@ export async function POST(request: Request) {
 
     // 2. 사용자 생성
     const body = await request.json();
-    const { username, password, firstName, lastName, email, telnum, role, type, company_id} = body;
+    const { username, password, firstName, email, telnum, role, type, company_id} = body;
     const attributes = {
       telnum,
       type,
@@ -180,7 +180,7 @@ export async function POST(request: Request) {
       username,
       credentials: [{"type": "password", "value": password, "temporary": false}],
       firstName,
-      lastName,
+      lastName: firstName,
       email,
       enabled: true,
       emailVerified: false,

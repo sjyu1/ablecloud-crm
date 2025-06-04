@@ -10,7 +10,7 @@ interface UserForm {
   password: string;
   passwordCheck: string;
   firstName: string;
-  lastName: string;
+  // lastName: string;
   email: string;
   telnum: string;
   role: string;
@@ -35,7 +35,7 @@ export default function UserRegisterPage() {
     password: '',
     passwordCheck: '',
     firstName: '',
-    lastName: '',
+    // lastName: '',
     email: '',
     telnum: '',
     role: 'User',
@@ -229,7 +229,7 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 성
               </label>
@@ -241,7 +241,7 @@ export default function UserRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
+            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 이메일
@@ -348,4 +348,4 @@ export default function UserRegisterPage() {
       </div>
     </div>
   );
-} 
+}

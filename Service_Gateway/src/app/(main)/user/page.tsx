@@ -13,7 +13,7 @@ interface User {
   username: string;
   email: string;
   firstName: string;
-  lastName: string;
+  // lastName: string;
   type: string;
   role: string;
   company: string;
@@ -207,9 +207,9 @@ export default function UserPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   이름
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   성
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   타입
                 </th>
@@ -224,7 +224,7 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
@@ -242,9 +242,9 @@ export default function UserPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.firstName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.lastName}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.type}
                     </td>
@@ -259,7 +259,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'partner').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>
@@ -282,9 +282,9 @@ export default function UserPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   이름
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   성
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   타입
                 </th>
@@ -299,7 +299,7 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
@@ -317,9 +317,9 @@ export default function UserPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.firstName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.lastName}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.type}
                     </td>
@@ -334,7 +334,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'customer').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>
@@ -357,9 +357,9 @@ export default function UserPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   이름
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   성
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   타입
                 </th>
@@ -374,7 +374,7 @@ export default function UserPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
@@ -392,9 +392,9 @@ export default function UserPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.firstName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.lastName}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.type}
                     </td>
@@ -409,7 +409,7 @@ export default function UserPage() {
               )}
               {!isLoading && users.filter(user => user.type === 'vendor').length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                     사용자 정보가 없습니다.
                   </td>
                 </tr>
@@ -426,4 +426,4 @@ export default function UserPage() {
       </div> */}
     </div>
   );
-} 
+}
