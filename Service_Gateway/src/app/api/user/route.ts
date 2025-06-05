@@ -5,122 +5,149 @@ import log from '@/utils/logger';
 
 /**
  * 사용자 목록 조회
- * 1. client_credentials token 가져오기
- * 2. 사용자 목록 조회
- * 3. 사용자 데이터에 role 추가
  * @returns 
  */
 export async function GET(request: Request) {
   try {
     log.info('API URL ::: GET /user');
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get('role');
-    const username = searchParams.get('username');
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 10;
+    const name = searchParams.get('name');
+    const role = searchParams.get('role');  // User 회사 정보만 조회
+    const type = searchParams.get('type');
 
-    // 1. client_credentials token 가져오기
-    const submitData_token = {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      scope: process.env.SCOPE,
-      grant_type: 'client_credentials',
+    // 페이징 파라미터를 포함한 API 호출
+    const apiUrl = new URL(`${process.env.API_URL}/user`);
+    apiUrl.searchParams.set('page', page.toString());
+    apiUrl.searchParams.set('limit', limit.toString());
+    if (name) {
+      apiUrl.searchParams.set('name', name);
     }
-
-    const res_token = await fetchWithAuthValid(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(submitData_token).toString()
-    });
-
-    const client_token = await res_token.json();
-
-    // 2. 사용자 목록 조회
-    const res_user = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${client_token.access_token}`,
-      },
-    });
-
-    let data_user = await res_user.json();
-
-    // 3. 사용자 데이터에 role 추가 및 같은 회사 담당자 조회 추가
-    let loginuser_companay_id
-    let loginuser_type
-    let partner_company_type
-    let partner_company_id
-    let data_user_partner = []
-    for(var idx in data_user){
-      // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
-      data_user[idx].type = data_user[idx].attributes.type[0]
-      data_user[idx].telnum = data_user[idx].attributes.telnum[0]
-      data_user[idx].company_id = data_user[idx].attributes.company_id[0]
-
-      const res = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${data_user[idx].id}/role-mappings/realm`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${client_token.access_token}`,
-        }
-      });
-      const data_role = await res.json();
-
-      for (var idx2 in data_role){
-        if (data_role[idx2].name === "Admin" || data_role[idx2].name === "User"){
-          data_user[idx].role = data_role[idx2].name
-        }
-      }
-
-      // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
-      if (data_user[idx].type == 'vendor') {
-        data_user[idx].company = 'ABLECLOUD'
-      } else {
-        const response = await fetchWithAuth(`${process.env.API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
-        const company = await response.json();
-        data_user[idx].company = company.name
-        data_user[idx].user_company_id = company.id
-        data_user[idx].user_manager_id = company.manager_id      
-      }
-
-      // Role이 User인 경우, 같은 회사 담당자 모두 조회
-      if (role && username == data_user[idx].username) {
-        loginuser_type = data_user[idx].type
-        loginuser_companay_id = data_user[idx].company_id
+    if (type) {
+      apiUrl.searchParams.set('type', type);
+    }
+    
+    // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
+    if (role) {
+      const data_userinfo = await userinfo();
+      if (!data_userinfo.error) {
+        apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
       }
     }
 
-    for(var idx in data_user){
-      // 파트너 로그인시, 관리 고객 사용자 조회
-      if (data_user[idx].user_manager_id) {
-        const data_userinfo = await userinfo_id(data_user[idx].user_manager_id);
-        if (data_userinfo.error)  continue;
-        partner_company_type = data_userinfo.attributes.type[0]
-        partner_company_id = data_userinfo.attributes.company_id[0]
-      }
+    const response = await fetchWithAuth(apiUrl.toString());
+    const data = await response.json();
+    // // 1. client_credentials token 가져오기
+    // const submitData_token = {
+    //   client_id: process.env.CLIENT_ID,
+    //   client_secret: process.env.CLIENT_SECRET,
+    //   scope: process.env.SCOPE,
+    //   grant_type: 'client_credentials',
+    // }
 
-      if ((loginuser_type == data_user[idx].type && loginuser_companay_id == data_user[idx].company_id) || data_user[idx].type == 'customer' && loginuser_companay_id == partner_company_id) {
-        data_user_partner.push(data_user[idx])
-      }
-    }
+    // const res_token = await fetchWithAuthValid(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/token`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //   },
+    //   body: new URLSearchParams(submitData_token).toString()
+    // });
 
-    if (role && loginuser_type !== 'vendor') {
-      data_user = data_user_partner
-    } else {
-      data_user.push({'loginuser_type':loginuser_type})
-    }
+    // const client_token = await res_token.json();
+
+    // // 2. 사용자 목록 조회
+    // const res_user = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${client_token.access_token}`,
+    //   },
+    // });
+
+    // let data_user = await res_user.json();
+
+    // // 3. 사용자 데이터에 role 추가 및 같은 회사 담당자 조회 추가
+    // let loginuser_companay_id
+    // let loginuser_type
+    // let partner_company_type
+    // let partner_company_id
+    // let data_user_partner = []
+    // for(var idx in data_user){
+    //   // json 항목 담기(attributes: { type: [ 'vendor' ], telnum: [ '02-000-0000' ] })
+    //   data_user[idx].type = data_user[idx].attributes.type[0]
+    //   data_user[idx].telnum = data_user[idx].attributes.telnum[0]
+    //   data_user[idx].company_id = data_user[idx].attributes.company_id[0]
+
+    //   const res = await fetch(`${process.env.KEYCLOAK_API_URL}/admin/realms/${process.env.KEYCLOAK_REALM}/users/${data_user[idx].id}/role-mappings/realm`, {
+    //     method: 'GET',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${client_token.access_token}`,
+    //     }
+    //   });
+    //   const data_role = await res.json();
+
+    //   for (var idx2 in data_role){
+    //     if (data_role[idx2].name === "Admin" || data_role[idx2].name === "User"){
+    //       data_user[idx].role = data_role[idx2].name
+    //     }
+    //   }
+
+    //   // 파트너/고객 메뉴에서 담당자 목록 조회 (파트너/고객 id를 통해 회사이름 가져오기)
+    //   if (data_user[idx].type == 'vendor') {
+    //     data_user[idx].company = 'ABLECLOUD'
+    //   } else {
+    //     const response = await fetchWithAuth(`${process.env.API_URL}/${data_user[idx].type}/${data_user[idx].company_id}`);
+    //     const company = await response.json();
+    //     data_user[idx].company = company.name
+    //     data_user[idx].user_company_id = company.id
+    //     data_user[idx].user_manager_id = company.manager_id      
+    //   }
+
+    //   // Role이 User인 경우, 같은 회사 담당자 모두 조회
+    //   if (role && username == data_user[idx].username) {
+    //     loginuser_type = data_user[idx].type
+    //     loginuser_companay_id = data_user[idx].company_id
+    //   }
+    // }
+
+    // for(var idx in data_user){
+    //   // 파트너 로그인시, 관리 고객 사용자 조회
+    //   if (data_user[idx].user_manager_id) {
+    //     const data_userinfo = await userinfo_id(data_user[idx].user_manager_id);
+    //     if (data_userinfo.error)  continue;
+    //     partner_company_type = data_userinfo.attributes.type[0]
+    //     partner_company_id = data_userinfo.attributes.company_id[0]
+    //   }
+
+    //   if ((loginuser_type == data_user[idx].type && loginuser_companay_id == data_user[idx].company_id) || data_user[idx].type == 'customer' && loginuser_companay_id == partner_company_id) {
+    //     data_user_partner.push(data_user[idx])
+    //   }
+    // }
+
+    // if (role && loginuser_type !== 'vendor') {
+    //   data_user = data_user_partner
+    // } else {
+    //   data_user.push({'loginuser_type':loginuser_type})
+    // }
 
     //log.info('GET /user DATA ::: '+JSON.stringify(data_user));
 
-    if (!res_user.ok) {
-      throw new Error(data_user.message || '사용자 조회에 실패했습니다.');
+    if (!response.ok) {
+      throw new Error(data.message || '사용자 조회에 실패했습니다.');
     }
 
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data_user || []
+      data: data.items || [],
+      pagination: {
+        currentPage: data.currentPage,
+        itemsPerPage: data.itemsPerPage,
+        totalPages: data.totalPages || 1,
+        totalItems: data.totalItems || 0
+      }
     });
   } catch (error) {
     log.info('GET /user ERROR ::: '+error);
@@ -170,12 +197,18 @@ export async function POST(request: Request) {
 
     // 2. 사용자 생성
     const body = await request.json();
-    const { username, password, firstName, email, telnum, role, type, company_id} = body;
+    let { username, password, firstName, email, telnum, role, type, company_id} = body;
     const attributes = {
       telnum,
       type,
       company_id
     }
+
+    // type=customer인 경우, 임의의값으로 등록
+    if (password == ''){
+      password= 'QWEasd123!@#';
+    }
+
     const submitData = {
       username,
       credentials: [{"type": "password", "value": password, "temporary": false}],

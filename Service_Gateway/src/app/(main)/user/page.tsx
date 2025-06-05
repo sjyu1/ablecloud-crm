@@ -19,6 +19,13 @@ interface User {
   company: string;
 }
 
+interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -55,13 +62,22 @@ export default function UserPage() {
   const searchParams = useSearchParams();
   const [role, setRole] = useState<string | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>(undefined);
-  const [value, setValue] = useState(0);
-  const [loginUserType, setLoginUserType] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  const [pagination, setPagination] = useState<Pagination>({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10
+  });
+  const [hasNextPage, setHasNextPage] = useState(true);
+  let prevType = searchParams.get('type');
+  let tab_type = 0
+  if (prevType == 'partner') tab_type = 0
+  else if (prevType == 'customer') tab_type = 1
+  else if (prevType == 'vendor') tab_type = 2
+  const initialTab = tab_type;
+  const [value, setValue] = useState(initialTab);
+  const type = searchParams.get('type') || 'partner';
 
   useEffect(() => {
     const role = getCookie('role');
@@ -75,21 +91,31 @@ export default function UserPage() {
 
     const fetchUsers = async () => {
       try {
-        let url = `/api/user`;
+        const page = Number(searchParams.get('page')) || 1;
+
+        let url = `/api/user?page=${page}&limit=${pagination.itemsPerPage}`;
   
         if (role == 'User') {
-          url += `?role=User&username=`+username;
+          url += `&role=User&username=`+username;
+        }
+        if (type) {
+          url += `&type=${type}`;
         }
   
         const response = await fetch(url);
         const result = await response.json();
-  
+
         if (!result.success) {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
-  
+
         setUsers(result.data);
-        setLoginUserType(result.data[result.data.length - 1].loginuser_type)
+        setPagination(prev => ({
+          ...prev,
+          totalItems: result.pagination.totalItems,
+          totalPages: result.pagination.totalPages,
+          currentPage: result.pagination.currentPage,
+        }));
       } catch (err) {
         if (err instanceof Error) {
           if (err.message == 'Failed to fetch user information') {
@@ -104,7 +130,7 @@ export default function UserPage() {
     };
 
     fetchUsers();
-  }, [searchParams]);
+  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage, type]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
@@ -114,6 +140,7 @@ export default function UserPage() {
         params.set('productId', productId.trim());
       }
       params.set('page', '1');
+      params.set('type', type);
 
       // URL 업데이트
       router.push(`/user?${params.toString()}`);
@@ -129,11 +156,107 @@ export default function UserPage() {
     router.push('/user?page=1');
   };
 
+  // 탭 핸들러
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+
+    let type = 'partner'
+    if (newValue == 0) type = 'partner'
+    else if (newValue == 1) type = 'customer'
+    else if (newValue == 2) type = 'vendor'
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete('type');
+    params.set('type', type);
+    params.set('page', '1');
+    router.push(`/user?${params.toString()}`);
+  };
+
+  // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams);
+    if (newPage < 1) return;
+    const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
     router.push(`/user?${params.toString()}`);
   };
+
+  // 렌더링 데이터
+  const renderPartnerTable = () => (
+    <div className="bg-white rounded-lg shadow overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              아이디
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              이메일
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              이름
+            </th>
+            {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              성
+            </th> */}
+            {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              타입
+            </th> */}
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              role
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              company
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {isLoading ? (
+            <tr>
+              <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+                로딩 중...
+              </td>
+            </tr>
+          ) : (
+            users.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}?page=${pagination.currentPage}&type=${prevType=prevType==null?'partner':prevType}`)}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">
+                    {user.username}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.firstName}
+                </td>
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.lastName}
+                </td> */}
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.type}
+                </td> */}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.role}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.company}
+                </td>
+              </tr>
+            ))
+          )}
+          {!isLoading && users.length === 0 && (
+            <tr>
+              <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+                사용자 정보가 없습니다.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -186,244 +309,113 @@ export default function UserPage() {
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-          <Tab label="파트너" {...tabProps(0)} />
-          <Tab label="고객" {...tabProps(1)} />
-          {(role === 'Admin' || (role === 'User' && loginUserType === 'vendor')) && users.filter(user => user.type === 'vendor').length > 0 && (
-            <Tab label="벤더" {...tabProps(2)} />
-          )}
+          <Tab label="partner" {...tabProps(0)} />
+          <Tab label="customer" {...tabProps(1)} />
+          {/* <Tab label="vendor" {...tabProps(2)} disabled={role !== 'Admin'}/> */}
+          {role !== 'User' && <Tab label="vendor" {...tabProps(2)} />}
         </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  아이디
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이메일
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이름
-                </th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  성
-                </th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  타입
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  company
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    로딩 중...
-                  </td>
-                </tr>
-              ) : (
-                users.filter(user => user.type === 'partner').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.username}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.firstName}
-                    </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastName}
-                    </td> */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.company}
-                    </td>
-                  </tr>
-                ))
-              )}
-              {!isLoading && users.filter(user => user.type === 'partner').length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    사용자 정보가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+          {renderPartnerTable()}
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  아이디
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이메일
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이름
-                </th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  성
-                </th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  타입
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  company
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-            {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    로딩 중...
-                  </td>
-                </tr>
-              ) : (
-                users.filter(user => user.type === 'customer').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.username}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.firstName}
-                    </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastName}
-                    </td> */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.company}
-                    </td>
-                  </tr>
-                ))
-              )}
-              {!isLoading && users.filter(user => user.type === 'customer').length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    사용자 정보가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+          {renderPartnerTable()}
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  아이디
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이메일
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이름
-                </th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  성
-                </th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  타입
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  company
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    로딩 중...
-                  </td>
-                </tr>
-              ) : (
-                users.filter(user => user.type === 'vendor').map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.username}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.firstName}
-                    </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastName}
-                    </td> */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.company}
-                    </td>
-                  </tr>
-                ))
-              )}
-              {!isLoading && users.filter(user => user.type === 'vendor').length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
-                    사용자 정보가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+          {renderPartnerTable()}
         </CustomTabPanel>
       </Box>
 
-      {/* 총 아이템 수 */}
-      {/* <div className="text-center mt-2 text-gray-600">
-        총 {pagination.totalItems}개의 사용자
-      </div> */}
+      {/* 페이지네이션 */}
+      {users.length > 0 && (
+        <div className="flex justify-center items-center mt-4">
+          <div className="flex items-center gap-0">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              &lt;
+            </button>
+        
+            {(() => {
+              const pages = [];
+              const total = pagination.totalPages;
+              const current = pagination.currentPage;
+        
+              const createText = (num: number) => {
+                if (num === current) {
+                  return (
+                    <button
+                      key={num}
+                      disabled
+                      className="px-2 py-1 text-sm border rounded bg-blue-500 text-white font-bold cursor-default"
+                    >
+                      {num}
+                    </button>
+                  );
+                } else {
+                  return (
+                    <span
+                      key={num}
+                      onClick={() => handlePageChange(num)}
+                      className="px-3 py-2 text-sm cursor-pointer text-gray-700 hover:text-blue-500"
+                    >
+                      {num}
+                    </span>
+                  );
+                }
+              };
+        
+              if (total <= 5) {
+                for (let i = 1; i <= total; i++) {
+                  pages.push(createText(i));
+                }
+              } else {
+                if (current <= 3) {
+                  for (let i = 1; i <= 5; i++) {
+                    pages.push(createText(i));
+                  }
+                  pages.push(
+                    <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                  );
+                } else if (current >= total - 2) {
+                  pages.push(
+                    <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                  );
+                  for (let i = total - 4; i <= total; i++) {
+                    pages.push(createText(i));
+                  }
+                } else {
+                  pages.push(
+                    <span key="ellipsis1" className="text-sm px-2 text-gray-500">...</span>
+                  );
+                  for (let i = current - 2; i <= current + 2; i++) {
+                    pages.push(createText(i));
+                  }
+                  pages.push(
+                    <span key="ellipsis2" className="text-sm px-2 text-gray-500">...</span>
+                  );
+                }
+              }
+        
+              return pages;
+            })()}
+        
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={!hasNextPage}
+              className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              &gt;
+            </button>
+        
+            <div className="text-sm text-gray-600 ml-4">
+              전체 {pagination.totalItems}개 항목
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

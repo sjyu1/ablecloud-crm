@@ -9,12 +9,14 @@ interface CustomerForm {
   name: string;
   telnum: string;
   manager_id: string;
+  manager_company_id: string;
 }
 
 interface Manager {
   id: number;
   username: string;
   company: string;
+  company_id: string;
 }
 
 export default function CustomerRegisterPage() {
@@ -23,6 +25,7 @@ export default function CustomerRegisterPage() {
     name: '',
     telnum: '',
     manager_id: '',
+    manager_company_id: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +74,7 @@ export default function CustomerRegisterPage() {
       if (!validateTelnum(formData.telnum)) {
         throw new Error('전화번호 형식이 올바르지 않습니다.');
       }
-      
+
       setIsLoading(true);
       const response = await fetch('/api/customer', {
         method: 'POST',
@@ -97,10 +100,19 @@ export default function CustomerRegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'manager_id') {
+      const selectedManager = managers.find(m => m.id.toString() === value);
+      setFormData(prev => ({
+        ...prev,
+          manager_id: value,
+          manager_company_id: selectedManager ? selectedManager.company_id : '',
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+      }));
+    }
   };
 
   // 전화번호 유효성 검사 함수
@@ -195,4 +207,4 @@ export default function CustomerRegisterPage() {
       </div>
     </div>
   );
-} 
+}

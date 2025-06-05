@@ -4,18 +4,38 @@ import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role/role.guard';
-import { log } from 'console';
+
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get()
+  // @Roles('Admin')
+  async findAll(
+    @Query('page') currentPage = '1',
+    @Query('limit') itemsPerPage = '10',
+    @Query('name') name?: string,
+    @Query('company_id') company_id?: string,
+    @Query('manager_id') manager_id?: string,
+    @Query('type') type?: string,
+  ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
+    const filters = {
+      name: name || '',
+      company_id: company_id || '',
+      manager_id: manager_id || '',
+      type: type || ''
+    };
+
+    return this.userService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
+  }
+  
   @Get('forCreateManager')
   // @Roles('Admin')
   async findAllForManager(
-    @Query('page') currentPage = '1',
-    @Query('limit') itemsPerPage = '10',
+    // @Query('page') currentPage = '1',
+    // @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('type') type?: string,
     @Query('company_id') company_id?: string
@@ -25,13 +45,13 @@ export class UserController {
       type: type || '',
       company_id: company_id || ''
     };
-
-    return this.userService.findAllForManager(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
+  
+    return this.userService.findAllForManager(filters);
   }
 
-  // @Get(':id')
-  // // @Roles('Admin')
-  // async findOne(@Param('id') id: string): Promise<User> {
-  //   return this.userService.findOne(parseInt(id, 10));
-  // }
+  @Get(':id')
+  // @Roles('Admin')
+  async findOne(@Param('id') id: string): Promise<User> {
+    return this.userService.findOne(id);
+  }
 }

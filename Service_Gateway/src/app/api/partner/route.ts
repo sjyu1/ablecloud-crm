@@ -29,16 +29,10 @@ export async function GET(request: Request) {
     }
 
     // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
-    // let data_user_com = []
-    // let user_companytype
-    let user_companyid
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error) {
-        // user_companytype = data_userinfo.attributes.type[0]
-        user_companyid = data_userinfo.attributes.company_id[0]
-
-        apiUrl.searchParams.set('id', user_companyid);
+        apiUrl.searchParams.set('id', data_userinfo.attributes.company_id[0]);
       }
     }
 

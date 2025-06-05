@@ -14,15 +14,15 @@ export async function GET(request: Request) {
   try {
     log.info('API URL ::: GET /user/forCreateManager');
     const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get('page')) || 1;
-    const limit = Number(searchParams.get('limit')) || 10;
+    // const page = Number(searchParams.get('page')) || 1;
+    // const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
     const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/user/forCreateManager`);
-    apiUrl.searchParams.set('page', page.toString());
-    apiUrl.searchParams.set('limit', limit.toString());
+    // apiUrl.searchParams.set('page', page.toString());
+    // apiUrl.searchParams.set('limit', limit.toString());
     if (name) {
       apiUrl.searchParams.set('name', name);
     }

@@ -59,14 +59,16 @@ export default function UserRegisterPage() {
     setError('');
 
     try {
-      // 패스워드 밸리데이션
-      if (!validatePassword(formData.password)) {
-        throw new Error('비밀번호는 8자 이상이어야 하며, 대문자/소문자/특수문자/숫자를 모두 포함해야 합니다.');
-      }
-
-      // 패스워드 확인
-      if (formData.password !== formData.passwordCheck) {
-        throw new Error('비밀번호가 일치하지 않습니다.');
+      if (formData.type !== 'customer') {
+        // 패스워드 밸리데이션
+        if (!validatePassword(formData.password)) {
+          throw new Error('비밀번호는 8자 이상이어야 하며, 대문자/소문자/특수문자/숫자를 모두 포함해야 합니다.');
+        }
+  
+        // 패스워드 확인
+        if (formData.password !== formData.passwordCheck) {
+          throw new Error('비밀번호가 일치하지 않습니다.');
+        }
       }
 
       setIsLoading(true);
@@ -179,6 +181,57 @@ export default function UserRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                {role == 'Admin' && <option value="Admin">Admin</option>}
+                <option value="User">User</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                type
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleSelectChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {role == 'Admin' && <option value="vendor">vendor</option>}
+                {role == 'Admin' && <option value="partner">partner</option>}
+                <option value="customer">customer</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                company
+              </label>
+              <select
+                name="company_id"
+                value={formData.company_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {company.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 아이디
               </label>
               <input
@@ -190,32 +243,36 @@ export default function UserRegisterPage() {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호 (비밀번호는 8자 이상, 대문자/소문자/특수문자/숫자를 모두 포함)
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호 확인
-              </label>
-              <input
-                type="password"
-                name="passwordCheck"
-                value={formData.passwordCheck}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+            {formData.type !== 'customer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  비밀번호 (비밀번호는 8자 이상, 대문자/소문자/특수문자/숫자를 모두 포함)
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            )}
+            {formData.type !== 'customer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  비밀번호 확인
+                </label>
+                <input
+                  type="password"
+                  name="passwordCheck"
+                  value={formData.passwordCheck}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 이름
@@ -267,57 +324,6 @@ export default function UserRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Role
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                {role == 'Admin' && <option value="Admin">Admin</option>}
-                <option value="User">User</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                type
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleSelectChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">선택하세요</option>
-                {role == 'Admin' && <option value="vendor">vendor</option>}
-                {role == 'Admin' && <option value="partner">partner</option>}
-                <option value="customer">customer</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                company
-              </label>
-              <select
-                name="company_id"
-                value={formData.company_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">선택하세요</option>
-                {company.map(item => (
-                  <option key={item.id} value={item.id.toString()}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
