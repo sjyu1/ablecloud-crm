@@ -277,11 +277,7 @@ export class LicenseService {
   }
 
   async create(data: Partial<License>): Promise<License> {
-    if (data.oem === '') {
-      data.oem = null;
-    }
-
-    if (data.oem !== null && data.company_id) {
+    if (data.company_id) {
       //회사이름이 '클로잇'인지 조회하여 'oem'정보변경
       const rawQuery_partner = `
         SELECT 

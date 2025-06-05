@@ -33,7 +33,7 @@ export default function LicenseRegisterPage() {
     issued: '',
     expired: '',
     trial: false,
-    oem: ''
+    oem: 'ablestack'
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -243,7 +243,7 @@ export default function LicenseRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="null">ABLESTACK</option>
+                <option value="ablestack">ABLESTACK</option>
                 <option value="clostack">CLOSTACK</option>
                 <option value="hv">HV</option>
               </select>
@@ -259,7 +259,7 @@ export default function LicenseRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="null">ABLESTACK</option>
+                <option value="ablestack">ABLESTACK</option>
                 <option value="clostack">CLOSTACK</option>
               </select>
             </div>
@@ -274,7 +274,7 @@ export default function LicenseRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="null">ABLESTACK</option>
+                <option value="ablestack">ABLESTACK</option>
                 <option value="hv">HV</option>
               </select>
             </div>
