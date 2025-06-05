@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     // 4. 파트너 회사이름 가져오기
     let partner
     if (data_userinfo.attributes.type[0] == 'partner'){
-      const response = await fetchWithAuth(`${process.env.PARTNER_API_URL}/partner/${data_userinfo.attributes.company_id}`);
+      const response = await fetchWithAuth(`${process.env.API_URL}/partner/${data_userinfo.attributes.company_id}`);
       partner = await response.json();
     }
 

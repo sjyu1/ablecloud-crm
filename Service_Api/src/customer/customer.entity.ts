@@ -19,6 +19,14 @@ export class Customer {
   })
   manager_id: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  manager_company_id: string;
+
   @CreateDateColumn()
   created: Date;
 

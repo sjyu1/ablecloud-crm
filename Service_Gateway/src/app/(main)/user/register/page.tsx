@@ -10,7 +10,7 @@ interface UserForm {
   password: string;
   passwordCheck: string;
   firstName: string;
-  lastName: string;
+  // lastName: string;
   email: string;
   telnum: string;
   role: string;
@@ -35,7 +35,7 @@ export default function UserRegisterPage() {
     password: '',
     passwordCheck: '',
     firstName: '',
-    lastName: '',
+    // lastName: '',
     email: '',
     telnum: '',
     role: 'User',
@@ -59,14 +59,16 @@ export default function UserRegisterPage() {
     setError('');
 
     try {
-      // 패스워드 밸리데이션
-      if (!validatePassword(formData.password)) {
-        throw new Error('비밀번호는 8자 이상이어야 하며, 대문자/소문자/특수문자/숫자를 모두 포함해야 합니다.');
-      }
-
-      // 패스워드 확인
-      if (formData.password !== formData.passwordCheck) {
-        throw new Error('비밀번호가 일치하지 않습니다.');
+      if (formData.type !== 'customer') {
+        // 패스워드 밸리데이션
+        if (!validatePassword(formData.password)) {
+          throw new Error('비밀번호는 8자 이상이어야 하며, 대문자/소문자/특수문자/숫자를 모두 포함해야 합니다.');
+        }
+  
+        // 패스워드 확인
+        if (formData.password !== formData.passwordCheck) {
+          throw new Error('비밀번호가 일치하지 않습니다.');
+        }
       }
 
       setIsLoading(true);
@@ -179,97 +181,6 @@ export default function UserRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                아이디
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호 (비밀번호는 8자 이상, 대문자/소문자/특수문자/숫자를 모두 포함)
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호 확인
-              </label>
-              <input
-                type="password"
-                name="passwordCheck"
-                value={formData.passwordCheck}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                이름
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                성
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                이메일
-              </label>
-              <input
-                type="text"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호 (-포함)
-              </label>
-              <input
-                type="text"
-                name="telnum"
-                value={formData.telnum}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role
               </label>
               <select
@@ -319,6 +230,101 @@ export default function UserRegisterPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                아이디
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            {formData.type !== 'customer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  비밀번호 (비밀번호는 8자 이상, 대문자/소문자/특수문자/숫자를 모두 포함)
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            )}
+            {formData.type !== 'customer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  비밀번호 확인
+                </label>
+                <input
+                  type="password"
+                  name="passwordCheck"
+                  value={formData.passwordCheck}
+                  onChange={handleChange}
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                이름
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            {/* <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                성
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div> */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                이메일
+              </label>
+              <input
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                전화번호 (-포함)
+              </label>
+              <input
+                type="text"
+                name="telnum"
+                value={formData.telnum}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
           </div>
 
           {error && (
@@ -348,4 +354,4 @@ export default function UserRegisterPage() {
       </div>
     </div>
   );
-} 
+}
