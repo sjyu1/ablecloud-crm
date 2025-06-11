@@ -75,7 +75,7 @@ export default function BusinessHistoryEditPage() {
         ...formData,
         issued: formattedIssued
       }
-      const response = await fetch(`/api/business/${params.id}/history`, {
+      const response = await fetch(`/api/business/${params.id}/history/${params.historyId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

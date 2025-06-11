@@ -175,7 +175,7 @@ export default function BusinessDetailPage() {
     if (!confirm('정말 이 사업 히스토리를 삭제하시겠습니까')) return;
   
     try {
-      const response = await fetch(`/api/business/${params.id}/history?history_id=${historyId}`, {
+      const response = await fetch(`/api/business/${params.id}/history/${historyId}`, {
         method: 'DELETE',
       });
   

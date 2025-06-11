@@ -68,7 +68,7 @@ export default function ProductDetailPage() {
     }
 
     try {
-      const response = await fetch(`/api/business/${params.id}/history?history_id=${params.historyId}`, {
+      const response = await fetch(`/api/business/${params.id}/history/${params.historyId}`, {
         method: 'DELETE',
       });
   
