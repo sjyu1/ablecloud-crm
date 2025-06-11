@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
-import { format } from 'date-fns';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import CreateHistoryModal from './createHistoryModal';
+import UpdateHistoryModal from './updateHistoryModal';
 
 interface Business {
   id: number;
@@ -28,6 +29,14 @@ interface Business {
   product_name: string;
   product_version: string;
   details: string;
+}
+
+interface Business_history {
+  id: number;
+  issue: string;
+  solution: string;
+  status: string;
+  issued: string;
 }
 
 interface TabPanelProps {
@@ -64,9 +73,13 @@ export default function BusinessDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [business, setBusiness] = useState<Business | null>(null);
+  const [business_history, setBusiness_history] = useState<Business_history[]>([])
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState<Business_history | null>(null);
 
   const prevPage = searchParams.get('page') || '1';
 
@@ -80,6 +93,7 @@ export default function BusinessDetailPage() {
     setRole(role ?? undefined);
 
     fetchBusinessDetail();
+    fetchBusiness_historyDetail();
   }, []);
 
   const fetchBusinessDetail = async () => {
@@ -98,6 +112,32 @@ export default function BusinessDetailPage() {
       setBusiness(result.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      // if (err instanceof Error) {
+      //   if (err.message == 'Failed to fetch user information') {
+      //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+      //   }
+      // }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchBusiness_historyDetail = async () => {
+    try {
+      const response = await fetch(`/api/business/${params.id}/history`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || '사업 히스토리 정보를 불러올 수 없습니다.');
+      }
+
+      if (result.data.error) {
+        throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+      }
+
+      setBusiness_history(result.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       if (err instanceof Error) {
         if (err.message == 'Failed to fetch user information') {
           logoutIfTokenExpired(); // 토큰 만료시 로그아웃
@@ -106,6 +146,15 @@ export default function BusinessDetailPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCreateHistory = () => {
+    setIsModalOpen(false);
+    fetchBusiness_historyDetail();
+  };
+
+  const handleUpdateHistory = () => {
+    setIsUpdateModalOpen(false);
   };
 
   const handleDelete = async () => {
@@ -130,6 +179,25 @@ export default function BusinessDetailPage() {
       }
 
       router.push(`/business?page=${prevPage}`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteHistory = async (historyId: number) => {
+    if (!confirm('해당 히스토리 항목을 삭제하시겠습니까?')) return;
+  
+    try {
+      const response = await fetch(`/api/business/${params.id}/history?history_id=${historyId}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error('히스토리 삭제에 실패했습니다.');
+      }
+  
+      alert('히스토리가 삭제되었습니다.');
+      fetchBusiness_historyDetail(); // 삭제 후 목록 갱신
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -171,6 +239,12 @@ export default function BusinessDetailPage() {
             수정
           </button>
           <button
+            onClick={() => setIsModalOpen(true)}
+            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+          >
+            히스토리 등록
+          </button>
+          <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
           >
@@ -190,6 +264,7 @@ export default function BusinessDetailPage() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
             <Tab label="라이선스 정보" {...tabProps(1)} />
+            {role !== 'User' && <Tab label="히스토리" {...tabProps(2)} />}
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -321,8 +396,96 @@ export default function BusinessDetailPage() {
         </div>
         )}
         </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+        <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                이슈
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                해결방안
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[70px]">
+                상태
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[90px]">
+                발생일
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[70px]">
+                작업
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {business_history.map((history) => (
+              <tr key={history.id} className="hover:bg-gray-50 cursor-pointer">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {history.issue}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {history.solution}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {history.status === 'in_progress' ? ('진행중') : history.status === 'resolved' ? ('완료') : history.status === 'canceled' ? ('취소') : ('Unknown Type')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(history.issued).toLocaleString('sv-SE', { hour12: false }).replace(' ', 'T')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <button
+                    onClick={() => {
+                      setSelectedHistory(history);
+                      setIsUpdateModalOpen(true);
+                    }}
+                    className="text-gray-600 hover:underline text-sm  mr-4"
+                  >
+                    수정
+                  </button>
+                  <button
+                    onClick={() => handleDeleteHistory(history.id)}
+                    className="text-red-600 hover:underline text-sm"
+                  >
+                    삭제
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {business_history.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  사업 히스토리 정보가 없습니다.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        </CustomTabPanel>
       </Box>
 
+      {/* Modal component for history create */}
+      <CreateHistoryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateHistory}
+      />
+
+      {/* Modal component for history update */}
+      <UpdateHistoryModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setSelectedHistory(null);
+        }}
+        selectedHistory={selectedHistory}
+        onSubmit={() => {
+          setIsUpdateModalOpen(false);
+          setSelectedHistory(null);
+          fetchBusiness_historyDetail();
+        }}
+        // onClose={() => setIsUpdateModalOpen(false)}
+        // onSubmit={handleUpdateHistory}
+      />
     </div>
   );
 }

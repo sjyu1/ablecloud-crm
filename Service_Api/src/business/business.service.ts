@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Business } from './business.entity';
-import { CreateBusinessDto, UpdateBusinessDto } from './dto/business.dto';
+import { Business_history } from './business_history.entity';
+import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto } from './dto/business.dto';
 
 @Injectable()
 export class BusinessService {
   constructor(
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Business_history)
+    private readonly business_historyRepository: Repository<Business_history>
   ) {}
 
   async findAll(
@@ -326,6 +329,47 @@ export class BusinessService {
     };
 
     return formattedusiness as unknown as Business;
+  }
+
+  async findAllHistory(id: number): Promise<Business_history[] | null> {
+    const rawQuery = `
+      SELECT 
+        b.id AS id,
+        b.business_id AS business_id,
+        b.issue AS issue,
+        b.solution AS solution,
+        b.status AS status,
+        b.issued AS issued
+      FROM business_history b
+      WHERE b.removed is null
+        AND b.business_id = ?
+      ORDER BY b.created DESC
+    `;
+
+    const business_history = await this.businessRepository.query(rawQuery, [id]);
+    return business_history;
+  }
+
+  async createHistory(id: string, createBusiness_historyDto: CreateBusiness_historyDto): Promise<Business_history> {
+    const newHistory = this.business_historyRepository.create({
+      ...createBusiness_historyDto,
+      business_id: id
+    });
+    return this.business_historyRepository.save(newHistory);
+  }
+
+  async updateHistory(historyId: number, updateBusiness_historyDto: UpdateBusiness_historyDto): Promise<Business_history> {
+    const business_history = await this.findOne(historyId);
+    delete (business_history as any).created;
+    const updatedBusiness = {
+      ...business_history,
+      ...updateBusiness_historyDto,
+    };
+    return this.business_historyRepository.save(updatedBusiness);
+  }
+
+  async deleteHistory(historyId: string): Promise<void> {
+    await this.business_historyRepository.softDelete(historyId);
   }
 
   private removeMicrosecondsFromTimestamp(timestamp: string | Date): string {
