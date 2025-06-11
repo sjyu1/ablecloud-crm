@@ -36,6 +36,15 @@ export class BusinessController {
     return this.businessService.findAllHistory(parseInt(id, 10));
   }
 
+  @Get(':id/history/:historyId')
+  // @Roles('Admin')
+  async findOneHistory(
+    @Param('id') id: string, 
+    @Param('historyId') historyId: string
+  ): Promise<Business_history> {
+    return this.businessService.findOneHistory(parseInt(id, 10), historyId);
+  }
+
   @Get(':id')
   // @Roles('Admin')
   async findOne(@Param('id') id: string): Promise<Business> {

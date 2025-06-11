@@ -350,6 +350,33 @@ export class BusinessService {
     return business_history;
   }
 
+  async findOneHistory(id: number, historyId: string): Promise<Business_history | null> {
+    const rawQuery = `
+      SELECT 
+        b.id AS id,
+        b.business_id AS business_id,
+        b.issue AS issue,
+        b.solution AS solution,
+        b.status AS status,
+        b.manager AS manager,
+        b.issued AS issued,
+        b.started AS started,
+        b.ended AS ended,
+        b.note AS note,
+        b.created AS created
+      FROM business_history b
+      WHERE b.removed is null
+        AND b.id = ?
+    `;
+
+    const [business_history] = await this.businessRepository.query(rawQuery, [historyId]);
+    if (!business_history) return null;
+
+    return {
+      ...business_history,
+    };
+  }
+
   async createHistory(id: string, createBusiness_historyDto: CreateBusiness_historyDto): Promise<Business_history> {
     const newHistory = this.business_historyRepository.create({
       ...createBusiness_historyDto,
