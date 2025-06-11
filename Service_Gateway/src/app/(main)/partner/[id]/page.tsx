@@ -21,7 +21,7 @@ interface User {
   username: string;
   email: string;
   firstName: string;
-  lastName: string;
+  // lastName: string;
   type: string;
   telnum:string;
   role: string;
@@ -267,9 +267,9 @@ export default function PartnerDetailPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 이름
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 성
-              </th>
+              </th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 전화번호
               </th>
@@ -289,9 +289,9 @@ export default function PartnerDetailPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.firstName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.lastName}
-                </td>
+                </td> */}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.telnum}
                 </td>
@@ -299,7 +299,7 @@ export default function PartnerDetailPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사용자 정보가 없습니다.
                 </td>
               </tr>

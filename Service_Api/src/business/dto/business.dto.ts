@@ -27,3 +27,18 @@ export class UpdateBusinessDto {
   product_id?: string;
   details: string;
 }
+
+export class CreateBusiness_historyDto {
+  business_id: string;
+  issue: string;
+  solution: string;
+  status: string;
+  issued: string;
+}
+
+export class UpdateBusiness_historyDto {
+  issue: string;
+  solution: string;
+  status: string;
+  issued: string;
+}
