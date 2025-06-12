@@ -12,15 +12,13 @@ export class Business_history {
   business_id: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'text',
     nullable: true
   })
   issue: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'text',
     nullable: true
   })
   solution: string;
@@ -33,8 +31,28 @@ export class Business_history {
   })
   status: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  manager: string;
+
   @Column()
   issued: string
+
+  @Column()
+  started: string
+
+  @Column()
+  ended: string
+
+  @Column({
+    type: 'text',
+    nullable: true
+  })
+  note: string;
 
   @CreateDateColumn({
     type: 'timestamp',

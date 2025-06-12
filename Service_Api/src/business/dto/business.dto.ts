@@ -33,12 +33,20 @@ export class CreateBusiness_historyDto {
   issue: string;
   solution: string;
   status: string;
+  manager: string;
   issued: string;
+  started: string;
+  ended: string;
+  note: string;
 }
 
 export class UpdateBusiness_historyDto {
   issue: string;
   solution: string;
   status: string;
+  manager: string;
   issued: string;
+  started: string;
+  ended: string;
+  note: string;
 }
