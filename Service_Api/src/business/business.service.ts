@@ -343,7 +343,7 @@ export class BusinessService {
       FROM business_history b
       WHERE b.removed is null
         AND b.business_id = ?
-      ORDER BY b.created DESC
+      ORDER BY b.issued DESC
     `;
 
     const business_history = await this.businessRepository.query(rawQuery, [id]);
