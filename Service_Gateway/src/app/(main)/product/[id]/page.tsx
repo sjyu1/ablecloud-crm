@@ -19,6 +19,7 @@ interface Product {
   id: number;
   name: string;
   isoFilePath: string;
+  checksum: string;
   version: string;
   contents: string;
   created: string;
@@ -308,6 +309,12 @@ export default function ProductDetailPage() {
                   <a href={product.isoFilePath} download rel="noopener noreferrer">
                     [ 다운로드 ]
                   </a>
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">제품 Checksum(MD5S)</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {product.checksum}
                 </p>
               </div>
               {/* <div>

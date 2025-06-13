@@ -50,9 +50,35 @@ export async function PUT(
     log.info('API URL ::: PUT /product/'+params.id);
     const body = await request.json();
 
+    const { isoFilePath } = body;
+
+    // checksum 값 가져오기
+    const md5Url = isoFilePath + '.md5';
+    let md5Value = '';
+    try {
+      const response = await fetch(md5Url);
+      if (response.ok) {
+        md5Value = await response.text();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      return NextResponse.json(
+        { 
+          success: false,
+          message: errorMessage || '제품 checksum 가져오기 중 오류가 발생했습니다.'
+        },
+        { status: 500 }
+      );
+    }
+
+    const newBody = {
+      ...body,
+      checksum: md5Value,
+    };
+
     const response = await fetchWithAuth(`${process.env.API_URL}/product/${params.id}`, {
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: JSON.stringify(newBody),
     });
 
     const product = await response.json();
