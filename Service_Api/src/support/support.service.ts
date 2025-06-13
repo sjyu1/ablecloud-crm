@@ -16,6 +16,7 @@ export class SupportService {
     itemsPerPage: number = 10,
     filters: {
       name?: string;
+      company_id?: string;
     }
   ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
     const offset = (currentPage - 1) * itemsPerPage;
@@ -26,6 +27,11 @@ export class SupportService {
     if (filters.name) {
       whereConditions.push('c.name LIKE ?');
       params.push(`%${filters.name}%`);
+    }
+
+    if (filters.company_id) {
+      whereConditions.push(`c.manager_company_id = ?`);
+      params.push(filters.company_id);
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';

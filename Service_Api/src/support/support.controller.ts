@@ -16,9 +16,11 @@ export class SupportController {
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
+    @Query('company_id') company_id?: string,
   ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
-      name: name || ''
+      name: name || '',
+      company_id: company_id || '',
     };
 
     return this.supportService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
