@@ -20,6 +20,7 @@ interface Support {
   status: string;
   requester: string;
   requester_telnum: string;
+  requester_email: string;
   note: string;
 }
 
@@ -211,6 +212,12 @@ export default function supportDetailPage() {
               <h3 className="text-sm font-medium text-gray-500">요청자 전화번호</h3>
               <p className="mt-1 text-lg text-gray-900">
                 {support.requester_telnum}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">요청자 이메일</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {support.requester_email}
               </p>
             </div>
             <div>

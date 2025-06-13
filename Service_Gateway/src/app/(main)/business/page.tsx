@@ -186,6 +186,9 @@ export default function BusinessPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                NO
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -200,12 +203,12 @@ export default function BusinessPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 제품명
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 노드수
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 코어수
-              </th>
+              </th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업 시작일
               </th>
@@ -217,17 +220,20 @@ export default function BusinessPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
             ) : (
-              businesses.map((business) => (
+              businesses.map((business, index) => (
                 <tr
                   key={business.id}
                   className="hover:bg-gray-50 cursor-pointer"
                   onClick={() => router.push(`/business/${business.id}?page=${pagination.currentPage}`)}
                 >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate block max-w-[300px]">
                     {business.name}
                   </td>
@@ -243,12 +249,12 @@ export default function BusinessPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {business.product_name} (v{business.product_version})
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {business.node_cnt}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {business.core_cnt}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {business.issued}
                   </td>
@@ -260,7 +266,7 @@ export default function BusinessPage() {
             )}
             {!isLoading && businesses.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={8} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사업 정보가 없습니다.
                 </td>
               </tr>

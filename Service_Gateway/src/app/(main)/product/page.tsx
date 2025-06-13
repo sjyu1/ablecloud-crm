@@ -165,6 +165,9 @@ export default function ProductPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                NO
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 제품명
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -178,13 +181,16 @@ export default function ProductPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              products.map((product, index) => (
                 <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/product/${product.id}?page=${pagination.currentPage}`)}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.name}
                   </td>
@@ -199,7 +205,7 @@ export default function ProductPage() {
             )}
             {!isLoading && products.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   제품 정보가 없습니다.
                 </td>
               </tr>
@@ -300,4 +306,4 @@ export default function ProductPage() {
       )}
     </div>
   );
-} 
+}

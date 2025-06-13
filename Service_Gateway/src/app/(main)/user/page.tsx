@@ -188,6 +188,9 @@ export default function UserPage() {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              NO
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               아이디
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -213,13 +216,16 @@ export default function UserPage() {
         <tbody className="bg-white divide-y divide-gray-200">
           {isLoading ? (
             <tr>
-              <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+              <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                 로딩 중...
               </td>
             </tr>
           ) : (
-            users.map((user) => (
+            users.map((user, index) => (
               <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}?page=${pagination.currentPage}&type=${prevType=prevType==null?'partner':prevType}`)}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {user.username}
@@ -248,7 +254,7 @@ export default function UserPage() {
           )}
           {!isLoading && users.length === 0 && (
             <tr>
-              <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+              <td colSpan={6} className="px-6 py-4 text-center text-gray-500 text-sm">
                 사용자 정보가 없습니다.
               </td>
             </tr>

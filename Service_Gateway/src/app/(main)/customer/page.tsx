@@ -171,6 +171,9 @@ export default function CustomerPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                NO
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 회사이름
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -187,13 +190,16 @@ export default function CustomerPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
             ) : (
-              customers.map((customer) => (
+              customers.map((customer, index) => (
                 <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/customer/${customer.id}?page=${pagination.currentPage}`)}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {customer.name}
                   </td>
@@ -211,7 +217,7 @@ export default function CustomerPage() {
             )}
             {!isLoading && customers.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
                   고객 정보가 없습니다.
                 </td>
               </tr>
@@ -312,4 +318,4 @@ export default function CustomerPage() {
       )}
     </div>
   );
-} 
+}

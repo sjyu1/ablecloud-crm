@@ -9,6 +9,9 @@ export class CreateSupportDto {
   action_type: 'mail' | 'remote' | 'phone' | 'site';
   manager: string;
   status: 'processing' | 'complete';
+  requester: string;
+  requester_telnum: string;
+  requester_email: string;
   note: string;
 }
 
@@ -23,5 +26,8 @@ export class UpdateSupportDto {
   action_type: 'mail' | 'remote' | 'phone' | 'site';
   manager: string;
   status: 'processing' | 'complete';
+  requester: string;
+  requester_telnum: string;
+  requester_email: string;
   note: string;
 }

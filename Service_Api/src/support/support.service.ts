@@ -86,6 +86,9 @@ export class SupportService {
         s.action_type AS action_type,
         s.manager AS manager,
         s.status AS status,
+        s.requester AS requester,
+        s.requester_telnum AS requester_telnum,
+        s.requester_email AS requester_email,
         s.note AS note,
         c.name AS customer,
         b.name AS business

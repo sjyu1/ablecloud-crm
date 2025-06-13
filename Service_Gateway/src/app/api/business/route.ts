@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
     const available = searchParams.get('available');  // 라이선스 없는 사업 조회
+    const customer_id = searchParams.get('customer_id');  // 기술지원메뉴 등록에서 고객 선택시 조회
     const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
@@ -26,6 +27,9 @@ export async function GET(request: Request) {
     }
     if (available) {
       apiUrl.searchParams.set('available', available);
+    }
+    if (customer_id) {
+      apiUrl.searchParams.set('customer_id', customer_id);
     }
     if (role) {
       const data_userinfo = await userinfo();

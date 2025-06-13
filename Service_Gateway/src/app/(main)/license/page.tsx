@@ -185,6 +185,9 @@ export default function LicensePage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  NO
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   라이선스 키
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -216,13 +219,18 @@ export default function LicensePage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500 text-sm">
                     로딩 중...
                   </td>
                 </tr>
               ) : (
-                licenses.map((license) => (
+                licenses.map((license, index) => (
                   <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}&trial=${prevTrial=prevTrial==null?'0':prevTrial}`)}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {license.license_key}
@@ -274,7 +282,7 @@ export default function LicensePage() {
               )}
               {!isLoading && licenses.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500 text-sm">
                     라이선스 정보가 없습니다.
                   </td>
                 </tr>

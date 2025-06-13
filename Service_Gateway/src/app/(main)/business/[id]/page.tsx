@@ -89,7 +89,7 @@ export default function BusinessDetailPage() {
     setRole(role ?? undefined);
 
     fetchBusinessDetail();
-    fetchBusiness_historyDetail();
+    // fetchBusiness_historyDetail();
   }, []);
 
   const fetchBusinessDetail = async () => {
@@ -225,12 +225,12 @@ export default function BusinessDetailPage() {
           >
             수정
           </button>
-          <button
+          {/* <button
             onClick={() => router.push(`/business/${business.id}/history/register?tab=history`)}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             히스토리 등록
-          </button>
+          </button> */}
           <button
             onClick={handleDelete}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
@@ -251,7 +251,7 @@ export default function BusinessDetailPage() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
             <Tab label="라이선스 정보" {...tabProps(1)} />
-            {role !== 'User' && <Tab label="히스토리" {...tabProps(2)} />}
+            {/* {role !== 'User' && <Tab label="히스토리" {...tabProps(2)} />} */}
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>

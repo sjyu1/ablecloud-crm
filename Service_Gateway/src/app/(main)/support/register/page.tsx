@@ -18,6 +18,7 @@ interface SupportForm {
   status: string;
   requester: string;
   requester_telnum: string;
+  requester_email: string;
   note: string;
 }
 
@@ -47,6 +48,7 @@ export default function SupportRegisterPage() {
     status: 'processing',
     requester: '',
     requester_telnum: '',
+    requester_email: '',
     note: ''
   });
   const [error, setError] = useState('');
@@ -354,6 +356,18 @@ export default function SupportRegisterPage() {
                 type="text"
                 name="requester_telnum"
                 value={formData.requester_telnum}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                요청자 이메일
+              </label>
+              <input
+                type="text"
+                name="requester_email"
+                value={formData.requester_email}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

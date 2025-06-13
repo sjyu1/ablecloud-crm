@@ -75,6 +75,30 @@ export class Support {
   status: 'processing' | 'complete';
 
   @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  requester: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  requester_telnum: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  requester_email: string;
+
+  @Column({
     type: 'text',
     nullable: true
   })
