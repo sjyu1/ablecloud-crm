@@ -54,19 +54,17 @@ function tabProps(index: number) {
 }
 
 export default function PartnerPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
   let prevLevel = searchParams.get('level');
   let tab_level = 0
   if (prevLevel == 'PLATINUM') tab_level = 0
@@ -76,28 +74,27 @@ export default function PartnerPage() {
   const initialTab = tab_level;
   const [value, setValue] = useState(initialTab);
   const level = searchParams.get('level') || 'PLATINUM';
+  const [searchValue, setSearchValue] = useState(''); // 검색값
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name') ?? '';
-    if (name !== currentName) {
-      setName(currentName);
-    }
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchValue(searchValue);
 
     setPartners([]);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchPartners = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('name');
   
         let url = `/api/partner?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
+        if (searchValue) url += `&name=${searchValue}`;
+
         if (role === 'User') {
           url += `&role=User`;
         }
@@ -105,7 +102,7 @@ export default function PartnerPage() {
           url += `&level=${level}`;
         }
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
   
         if (!result.success) {
@@ -134,17 +131,19 @@ export default function PartnerPage() {
     };
 
     fetchPartners();
-  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage, level]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (name.trim()) {
-        params.set('name', name.trim());
+      if (searchValue.trim()) {
+        params.set('name', searchValue.trim());
       }
       params.set('page', '1');
       params.set('level', level);
+      params.set('searchValue', searchValue.trim());
 
       router.push(`/partner?${params.toString()}`);
     } catch (error) {
@@ -154,7 +153,7 @@ export default function PartnerPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setName('');
+    // setSearchValue('');
     router.push('/partner?page=1');
   };
 
@@ -174,6 +173,7 @@ export default function PartnerPage() {
     params.set('level', level);
     params.set('page', '1');
     
+    
     router.push(`/partner?${params.toString()}`);
   };
 
@@ -181,6 +181,7 @@ export default function PartnerPage() {
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
+    params.set('searchValue', searchValue.trim());
     router.push(`/partner?${params.toString()}`);
   };
 
@@ -194,7 +195,7 @@ export default function PartnerPage() {
               NO
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              회사이름
+              회사
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               전화번호
@@ -219,7 +220,7 @@ export default function PartnerPage() {
               <tr
                 key={partner.id}
                 className="hover:bg-gray-50 cursor-pointer"
-                onClick={() => router.push(`/partner/${partner.id}?page=${pagination.currentPage}&level=${prevLevel=prevLevel==null?'PLATINUM':prevLevel}`)}
+                onClick={() => router.push(`/partner/${partner.id}?page=${pagination.currentPage}&level=${prevLevel=prevLevel==null?'PLATINUM':prevLevel}&searchValue=${searchValue}`)}
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
@@ -267,9 +268,9 @@ export default function PartnerPage() {
       <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="회사이름으로 검색"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="회사로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -402,7 +403,7 @@ export default function PartnerPage() {
         
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!hasNextPage}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;

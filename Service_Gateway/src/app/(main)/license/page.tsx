@@ -61,17 +61,17 @@ function tabProps(index: number) {
 export default function LicensePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [businessName, setBusinessName] = useState('');
+  const [searchField, setSearchField] = useState('business_name'); // 검색타입
+  const [searchValue, setSearchValue] = useState(''); // 검색값
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
   let prevTrial = searchParams.get('trial');
   const initialTab = prevTrial === '1' ? 1 : 0;
   const [value, setValue] = useState(initialTab);
@@ -82,22 +82,22 @@ export default function LicensePage() {
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('businessName') ?? '';
-    if (businessName !== currentName) {
-      setBusinessName(currentName);
-    }
-    
+    const searchField = searchParams.get('searchField') || 'business_name';
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchField(searchField);
+    setSearchValue(searchValue);
+
     setLicenses([]);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchLicenses = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('businessName');
   
-        let url = `/api/license?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentName) {
-          url += `&businessName=${currentName}`;
-        }
+        let url = `/api/license?page=${page}&limit=10`;
+        if (searchValue) url += `&${searchField}=${searchValue}`;
+
         if (role === 'User') {
           url += `&role=User`;
         }
@@ -105,7 +105,7 @@ export default function LicensePage() {
           url += `&trial=${trial}`;
         }
   
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
 
         if (!result.success) {
@@ -134,17 +134,20 @@ export default function LicensePage() {
     };
 
     fetchLicenses();
-  }, [searchParams.get('page'), searchParams.get('businessName'), pagination.itemsPerPage, trial]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (businessName.trim()) {
-        params.set('businessName', businessName.trim());
+      if (searchValue.trim()) {
+        params.set(searchField, searchValue.trim());
       }
       params.set('page', '1');
       params.set('trial', trial);
+      params.set('searchField', searchField);
+      params.set('searchValue', searchValue.trim());
 
       router.push(`/license?${params.toString()}`);
     } catch (error) {
@@ -154,7 +157,7 @@ export default function LicensePage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setBusinessName('');
+    // setBusinessName('');
     router.push('/license?page=1');
   };
 
@@ -175,6 +178,8 @@ export default function LicensePage() {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
+    params.set('searchField', searchField);
+    params.set('searchValue', searchValue);
     router.push(`/license?${params.toString()}`);
   };
 
@@ -191,10 +196,10 @@ export default function LicensePage() {
                   라이선스 키
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  제품명
+                  제품
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  사업명
+                  사업
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   상태
@@ -225,7 +230,7 @@ export default function LicensePage() {
                 </tr>
               ) : (
                 licenses.map((license, index) => (
-                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}&trial=${prevTrial=prevTrial==null?'0':prevTrial}`)}>
+                  <tr key={license.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/license/${license.id}?page=${pagination.currentPage}&trial=${prevTrial=prevTrial==null?'0':prevTrial}&searchField=${searchField}&searchValue=${searchValue}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
@@ -239,7 +244,7 @@ export default function LicensePage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {license.product_name} (v{license.product_version})
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 whitespace-nowrap truncate" style={{ width: '350px', maxWidth: '350px' }} title={license.business_name}>
                       {license.business_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -305,36 +310,70 @@ export default function LicensePage() {
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2 justify-end">
-        <input
-          type="text"
-          value={businessName}
-          onChange={(e) => setBusinessName(e.target.value)}
-          placeholder="사업명으로 검색"
-          className="px-2 py-1 text-sm border rounded-md"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchClick();
-            }
+      <div className="mb-4 flex gap-2 flex-wrap justify-end items-center">
+        <select
+          value={searchField}
+          onChange={(e) => {
+            setSearchField(e.target.value);
+            setSearchValue(''); // 필드 변경 시 기존 값 초기화
           }}
-        />
+          className="px-2 py-1 text-sm border rounded-md"
+        >
+          <option value="business_name">사업</option>
+          <option value="license_key">라이선스 키</option>
+          <option value="status">상태</option>
+        </select>
+
+        {/* 검색 입력 필드 */}
+        {searchField === 'status' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">상태 전체</option>
+            <option value="active">활성</option>
+            <option value="inactive">비활성</option>
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchClick();
+              }
+            }}
+            placeholder={
+              searchField === 'business_name'
+                ? '사업 입력'
+                : searchField === 'license_key'
+                ? '라이선스 키 입력'
+                : ''
+            }
+            className="px-2 py-1 text-sm border rounded-md"
+          />
+        )}
+
         <button
           type="button"
-          onClick={() => handleSearchClick()}
+          onClick={handleSearchClick}
           className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
         </button>
-        {/* {searchParams.get('businessName') && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
-          >
-            초기화
-          </button>
-        )} */}
+
+        {/* <button
+          type="button"
+          onClick={() => {
+            setSearchValue('');
+            router.push('/support?page=1');
+          }}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
+        </button> */}
       </div>
 
       {/* 라이선스 목록 */}
@@ -431,7 +470,7 @@ export default function LicensePage() {
         
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!hasNextPage}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;

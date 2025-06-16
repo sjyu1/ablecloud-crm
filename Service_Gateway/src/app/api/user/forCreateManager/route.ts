@@ -23,13 +23,10 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/user/forCreateManager`);
     // apiUrl.searchParams.set('page', page.toString());
     // apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
 
-    //log.info('GET /customer DATA ::: '+JSON.stringify(data));
-
-    // role 파라미터가 존재하는경우, 로그인한 파트너의 정보만 조회(role이 user여도 type이 vendor일 경우 전체조회)
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error) {

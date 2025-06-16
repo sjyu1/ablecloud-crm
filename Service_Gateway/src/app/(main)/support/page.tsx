@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../store/authStore';
 import Link from 'next/link';
-import { format } from 'date-fns';
 
 interface Support {
   id: number;
@@ -31,45 +30,44 @@ interface Pagination {
 }
 
 export default function SupportPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [supports, setSupports] = useState<Support[]>([]);
-  const [name, setName] = useState('');
+  const [searchField, setSearchField] = useState('name'); // 검색타입
+  const [searchValue, setSearchValue] = useState(''); // 검색값
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name') ?? '';
-    if (name !== currentName) {
-      setName(currentName);
-    }
+    const searchField = searchParams.get('searchField') || 'name';
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchField(searchField);
+    setSearchValue(searchValue);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchSupports = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('name');
         
-        let url = `/api/support?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
+        let url = `/api/support?page=${page}&limit=10`;
+        if (searchValue) url += `&${searchField}=${searchValue}`;
         
         if (role === 'User') {
           url += `&role=User`;
         }
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
   
         if (!result.success) {
@@ -98,17 +96,19 @@ export default function SupportPage() {
     };
 
     fetchSupports();
-  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (name.trim()) {
-        params.set('name', name.trim());
+      if (searchValue.trim()) {
+        params.set(searchField, searchValue.trim());
       }
       params.set('page', '1');
-
+      params.set('searchField', searchField);
+      params.set('searchValue', searchValue.trim());
       router.push(`/support?${params.toString()}`);
     } catch (error) {
       alert(error);
@@ -117,7 +117,7 @@ export default function SupportPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setName('');
+    // setName('');
     router.push('/support?page=1');
   };
 
@@ -125,6 +125,8 @@ export default function SupportPage() {
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
+    params.set('searchField', searchField);
+    params.set('searchValue', searchValue);
     router.push(`/support?${params.toString()}`);
   };
 
@@ -141,20 +143,66 @@ export default function SupportPage() {
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2 justify-end">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="고객명으로 검색"
-          className="px-2 py-1 text-sm border rounded-md"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchClick();
-            }
+      <div className="mb-4 flex gap-2 flex-wrap justify-end items-center">
+        <select
+          value={searchField}
+          onChange={(e) => {
+            setSearchField(e.target.value);
+            setSearchValue(''); // 필드 변경 시 기존 값 초기화
           }}
-        />
+          className="px-2 py-1 text-sm border rounded-md"
+        >
+          <option value="name">고객</option>
+          <option value="type">구분</option>
+          <option value="manager">담당자</option>
+          <option value="status">완료여부</option>
+        </select>
+
+        {/* 검색 입력 필드 */}
+        {searchField === 'type' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">구분 전체</option>
+            <option value="consult">기술상담</option>
+            <option value="technical">기술지원</option>
+            <option value="incident">장애지원</option>
+            <option value="poc">PoC</option>
+            <option value="other">기타</option>
+          </select>
+        ) : searchField === 'status' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">완료여부 전체</option>
+            <option value="processing">처리중</option>
+            <option value="complete">완료</option>
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchClick();
+              }
+            }}
+            placeholder={
+              searchField === 'name'
+                ? '고객 입력'
+                : searchField === 'manager'
+                ? '담당자 입력'
+                : ''
+            }
+            className="px-2 py-1 text-sm border rounded-md"
+          />
+        )}
+
         <button
           type="button"
           onClick={handleSearchClick}
@@ -162,15 +210,17 @@ export default function SupportPage() {
         >
           검색
         </button>
-        {/* {searchParams.get('name') && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
-          >
-            초기화
-          </button>
-        )} */}
+
+        {/* <button
+          type="button"
+          onClick={() => {
+            setSearchValue('');
+            router.push('/support?page=1');
+          }}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
+        </button> */}
       </div>
 
       {/* 기술지원 목록 */}
@@ -210,7 +260,7 @@ export default function SupportPage() {
               </tr>
             ) : (
               supports.map((support, index) => (
-                <tr key={support.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/support/${support.id}?page=${pagination.currentPage}`)}>
+                <tr key={support.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/support/${support.id}?page=${pagination.currentPage}&searchField=${searchField}&searchValue=${searchValue}`)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
                   </td>
@@ -324,7 +374,7 @@ export default function SupportPage() {
         
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!hasNextPage}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;
@@ -338,4 +388,4 @@ export default function SupportPage() {
       )}
     </div>
   );
-}
+} 

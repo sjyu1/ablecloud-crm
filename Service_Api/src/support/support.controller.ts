@@ -16,10 +16,16 @@ export class SupportController {
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
+    @Query('type') type?: string,
+    @Query('manager') manager?: string,
+    @Query('status') status?: string,
     @Query('company_id') company_id?: string,
   ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
+      type: type || '',
+      manager: manager || '',
+      status: status || '',
       company_id: company_id || '',
     };
 

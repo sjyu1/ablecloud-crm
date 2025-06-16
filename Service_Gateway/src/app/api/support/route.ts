@@ -14,15 +14,21 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const type = searchParams.get('type');
+    const manager = searchParams.get('manager');
+    const status = searchParams.get('status');
     const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/support`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
+    if (type) apiUrl.searchParams.set('type', type);
+    if (manager) apiUrl.searchParams.set('manager', manager);
+    if (status) apiUrl.searchParams.set('status', status);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {

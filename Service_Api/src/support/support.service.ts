@@ -16,6 +16,9 @@ export class SupportService {
     itemsPerPage: number = 10,
     filters: {
       name?: string;
+      type?: string;
+      manager?: string;
+      status?: string;
       company_id?: string;
     }
   ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
@@ -27,6 +30,21 @@ export class SupportService {
     if (filters.name) {
       whereConditions.push('c.name LIKE ?');
       params.push(`%${filters.name}%`);
+    }
+
+    if (filters.type) {
+      whereConditions.push('s.type LIKE ?');
+      params.push(`%${filters.type}%`);
+    }
+
+    if (filters.manager) {
+      whereConditions.push('s.manager LIKE ?');
+      params.push(`%${filters.manager}%`);
+    }
+
+    if (filters.status) {
+      whereConditions.push('s.status = ?');
+      params.push(filters.status);
     }
 
     if (filters.company_id) {

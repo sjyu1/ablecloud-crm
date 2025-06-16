@@ -14,6 +14,9 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const manager_company = searchParams.get('manager_company');
+    const customer_name = searchParams.get('customer_name');
+    const status = searchParams.get('status');
     const available = searchParams.get('available');  // 라이선스 없는 사업 조회
     const customer_id = searchParams.get('customer_id');  // 기술지원메뉴 등록에서 고객 선택시 조회
     const role = searchParams.get('role');  // User 회사 정보만 조회
@@ -22,15 +25,14 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/business`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
-    if (available) {
-      apiUrl.searchParams.set('available', available);
-    }
-    if (customer_id) {
-      apiUrl.searchParams.set('customer_id', customer_id);
-    }
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
+    if (manager_company) apiUrl.searchParams.set('manager_company', manager_company);
+    if (customer_name) apiUrl.searchParams.set('customer_name', customer_name);
+    if (status) apiUrl.searchParams.set('status', status);
+    if (available) apiUrl.searchParams.set('available', available);
+    if (customer_id) apiUrl.searchParams.set('customer_id', customer_id);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
@@ -75,7 +77,7 @@ export async function GET(request: Request) {
     //     }
     //   }
 
-    //   // product_id를 이용해 제품명/제품버전 가져오기
+    //   // product_id를 이용해 제품/제품버전 가져오기
     //   // const response = await fetchWithAuth(`${process.env.API_URL}/product/${data.items[idx].product_id}`);
     //   // const product = await response.json();
     //   // data.items[idx].product_name = product.name

@@ -56,20 +56,21 @@ function tabProps(index: number) {
 }
 
 export default function UserPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [productId, setProductId] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [username, setUsername] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
+  const [users, setUsers] = useState<User[]>([]);
+  const [searchField, setSearchField] = useState('name'); // 검색타입
+  const [searchValue, setSearchValue] = useState(''); // 검색값
+  const [productId, setProductId] = useState('');
+  const [username, setUsername] = useState<string | undefined>(undefined);
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
   let prevType = searchParams.get('type');
   let tab_type = 0
   if (prevType == 'partner') tab_type = 0
@@ -85,16 +86,25 @@ export default function UserPage() {
     const username = getCookie('username');
     setUsername(username ?? undefined);
 
+    // 검색필터 존재여부(새로고침시 사용)
+    const searchField = searchParams.get('searchField') || 'username';
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchField(searchField);
+    setSearchValue(searchValue);
+
     // if (role === 'User') {
     //   setValue(1); // 기본값을 '파트너' 탭으로 설정
     // }
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchUsers = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
 
         let url = `/api/user?page=${page}&limit=${pagination.itemsPerPage}`;
-  
+        if (searchValue) url += `&${searchField}=${searchValue}`;
+
         if (role == 'User') {
           url += `&role=User&username=`+username;
         }
@@ -102,7 +112,7 @@ export default function UserPage() {
           url += `&type=${type}`;
         }
   
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
 
         if (!result.success) {
@@ -130,16 +140,19 @@ export default function UserPage() {
     };
 
     fetchUsers();
-  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage, type]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (productId.trim()) {  // 공백 제거 후 체크
-        params.set('productId', productId.trim());
+      if (searchValue.trim()) {
+        params.set(searchField, searchValue.trim());
       }
       params.set('page', '1');
+      params.set('searchField', searchField);
+      params.set('searchValue', searchValue.trim());
       params.set('type', type);
 
       // URL 업데이트
@@ -152,7 +165,7 @@ export default function UserPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setProductId('');
+    // setProductId('');
     router.push('/user?page=1');
   };
 
@@ -178,6 +191,8 @@ export default function UserPage() {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
+    params.set('searchField', searchField);
+    params.set('searchValue', searchValue);
     router.push(`/user?${params.toString()}`);
   };
 
@@ -222,7 +237,7 @@ export default function UserPage() {
             </tr>
           ) : (
             users.map((user, index) => (
-              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}?page=${pagination.currentPage}&type=${prevType=prevType==null?'partner':prevType}`)}>
+              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}?page=${pagination.currentPage}&type=${prevType=prevType==null?'partner':prevType}&searchField=${searchField}&searchValue=${searchValue}`)}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
                 </td>
@@ -279,37 +294,63 @@ export default function UserPage() {
       </div>
 
       {/* 검색 필터 */}
-      {/* <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={productId}
-          onChange={(e) => setProductId(e.target.value)}
-          placeholder="제품 ID로 검색"
-          className="px-3 py-2 border rounded-md"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchClick();
-            }
+      <div className="mb-4 flex gap-2 flex-wrap justify-end items-center">
+        <select
+          value={searchField}
+          onChange={(e) => {
+            setSearchField(e.target.value);
+            setSearchValue(''); // 필드 변경 시 기존 값 초기화
           }}
-        />
+          className="px-2 py-1 text-sm border rounded-md"
+        >
+          <option value="username">아이디</option>
+          <option value="firstName">이름</option>
+          <option value="company">COMPANY</option>
+        </select>
+
+        {/* 검색 입력 필드 */}
+        {
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchClick();
+              }
+            }}
+            placeholder={
+              searchField === 'username'
+                ? '아이디 입력'
+                : searchField === 'firstName'
+                ? '이름 입력'
+                : searchField === 'company'
+                ? 'COMPANY 입력'
+                : ''
+            }
+            className="px-2 py-1 text-sm border rounded-md"
+          />
+        }
+
         <button
           type="button"
           onClick={handleSearchClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
         </button>
-        {searchParams.get('productId') && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-          >
-            초기화
-          </button>
-        )}
-      </div> */}
+
+        {/* <button
+          type="button"
+          onClick={() => {
+            setSearchValue('');
+            router.push('/support?page=1');
+          }}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
+        </button> */}
+      </div>
 
       {/* 사용자 목록 */}
       <Box sx={{ width: '100%' }}>
@@ -410,7 +451,7 @@ export default function UserPage() {
         
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!hasNextPage}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;

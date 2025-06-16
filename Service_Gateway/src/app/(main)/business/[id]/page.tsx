@@ -78,6 +78,8 @@ export default function BusinessDetailPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam === 'history' ? 2 : 0;
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchField = searchParams.get('searchField') || 'name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
 
   const [value, setValue] = useState<number>(initialTab);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -165,7 +167,7 @@ export default function BusinessDetailPage() {
         throw new Error('사업 삭제에 실패했습니다.');
       }
 
-      router.push(`/business?page=${prevPage}`);
+      router.push(`/business?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -220,7 +222,7 @@ export default function BusinessDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">사업 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/business/${business.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/business/${business.id}/edit?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             수정
@@ -238,7 +240,7 @@ export default function BusinessDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/business?page=${prevPage}`)}
+            onClick={() => router.push(`/business?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -259,7 +261,7 @@ export default function BusinessDetailPage() {
           <div className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+                <h3 className="text-sm font-medium text-gray-500">사업</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {business.name}
                 </p>
@@ -277,7 +279,7 @@ export default function BusinessDetailPage() {
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">제품명</h3>
+                <h3 className="text-sm font-medium text-gray-500">제품</h3>
                 <p className="mt-1 text-lg text-gray-900">
                   {business.product_name} (v{business.product_version})
                 </p>

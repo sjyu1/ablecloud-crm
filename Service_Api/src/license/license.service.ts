@@ -24,7 +24,9 @@ export class LicenseService {
       businessType?: string;
       company_id?: string;
       trial?: string;
-      businessName?: string;
+      business_name?: string;
+      license_key?: string;
+      status?: string;
     }
   ): Promise<{ items: License[]; currentPage: number; totalItems: number; totalPages: number }> {
     const offset = (currentPage - 1) * itemsPerPage;
@@ -41,15 +43,25 @@ export class LicenseService {
       whereConditions.push(`l.company_id = ?`);
       params.push(filters.company_id);
     }
-
-    if (filters.businessName) {
-      whereConditions.push(`b.name LIKE ?`);
-      params.push(`%${filters.businessName}%`);
-    }
-
+  
     if (filters.trial !== undefined) {
       whereConditions.push(`l.trial = ?`);
       params.push(filters.trial);
+    }
+    
+    if (filters.business_name) {
+      whereConditions.push(`b.name LIKE ?`);
+      params.push(`%${filters.business_name}%`);
+    }
+    
+    if (filters.license_key) {
+      whereConditions.push(`l.license_key LIKE ?`);
+      params.push(`%${filters.license_key}%`);
+    }
+    
+    if (filters.status) {
+      whereConditions.push(`l.status = ?`);
+      params.push(filters.status);
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';

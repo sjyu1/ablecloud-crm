@@ -33,6 +33,8 @@ export default function LicenseDetailPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevTrial = searchParams.get('trial') || '0';
+  const prevSearchField = searchParams.get('searchField') || 'business_name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [license, setLicense] = useState<License | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -86,7 +88,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이선스 승인에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
+      router.push(`/license?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -138,7 +140,7 @@ export default function LicenseDetailPage() {
         throw new Error('라이선스 삭제에 실패했습니다.');
       }
 
-      router.push(`/license?page=${prevPage}&trial=${prevTrial}`);
+      router.push(`/license?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -186,7 +188,7 @@ export default function LicenseDetailPage() {
             다운로드
           </button>
           <button
-            onClick={() => router.push(`/license/${license.id}/edit?page=${prevPage}&trial=${prevTrial}`)}
+            onClick={() => router.push(`/license/${license.id}/edit?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
@@ -198,7 +200,7 @@ export default function LicenseDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/license?page=${prevPage}&trial=${prevTrial}`)}
+            onClick={() => router.push(`/license?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -214,7 +216,7 @@ export default function LicenseDetailPage() {
               <p className="mt-1 text-lg text-gray-900">{license.license_key}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">제품명</h3>
+              <h3 className="text-sm font-medium text-gray-500">제품</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
                 <a href={`/product/${license.product_id}`} target="_self" rel="noopener noreferrer">
                   {license.product_name} (v{license.product_version})
@@ -235,7 +237,7 @@ export default function LicenseDetailPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+              <h3 className="text-sm font-medium text-gray-500">사업</h3>
               <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
                 <a href={`/business/${license.business_id}`} target="_self" rel="noopener noreferrer">
                 {license.business_name}
@@ -263,7 +265,7 @@ export default function LicenseDetailPage() {
               <p className="mt-1 text-lg text-gray-900">{license.oem? license.oem : 'ABLESTACK'}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">발급자 회사명</h3>
+              <h3 className="text-sm font-medium text-gray-500">발급자 회사</h3>
               <p className="mt-1 text-lg text-gray-900">{license.company_name? license.company_name : 'ABLECLOUD'}</p>
             </div>
             <div>

@@ -21,14 +21,10 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/partner`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
-    if (level) {
-      apiUrl.searchParams.set('level', level);
-    }
-
-    // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
+    if (level) apiUrl.searchParams.set('level', level);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error) {

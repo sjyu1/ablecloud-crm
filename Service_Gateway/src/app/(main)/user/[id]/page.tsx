@@ -23,6 +23,8 @@ export default function UserDetailPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevType = searchParams.get('type') || 'partner';
+  const prevSearchField = searchParams.get('searchField') || 'username';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -78,7 +80,7 @@ export default function UserDetailPage() {
         throw new Error('사용자 삭제에 실패했습니다.');
       }
 
-      router.push(`/user?page=${prevPage}&type=${prevType}`);
+      router.push(`/user?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -125,7 +127,7 @@ export default function UserDetailPage() {
             비밀번호 변경
           </button>
           <button
-            onClick={() => router.push(`/user/${user.id}/edit?page=${prevPage}&type=${prevType}`)}
+            onClick={() => router.push(`/user/${user.id}/edit?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             // style={{ display: role === 'Admin' ? '' : 'none' }}
           >
@@ -139,7 +141,7 @@ export default function UserDetailPage() {
             삭제
           </button> 
           <button
-            onClick={() => router.push(`/user?page=${prevPage}&type=${prevType}`)}
+            onClick={() => router.push(`/user?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -193,7 +195,7 @@ export default function UserDetailPage() {
           </div>
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">회사이름</h3>
+              <h3 className="text-sm font-medium text-gray-500">회사</h3>
               <p className="mt-1 text-lg text-gray-900">{user.company}</p>
             </div>
           </div>

@@ -33,39 +33,47 @@ export default function supportDetailPage() {
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchField = searchParams.get('searchField') || 'name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const fetchsupportDetail = async () => {
+      try {
+        const response = await fetch(`/api/support/${params.id}`, { signal });
+        const result = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(result.message || '기술지원 정보를 불러올 수 없습니다.');
+        }
+  
+        if (result.data.error) {
+          throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
+        }
+  
+        setSupport(result.data);
+      } catch (err) {
+        if ((err as any).name === 'AbortError') return;
+        setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+        // if (err instanceof Error) {
+        //   if (err.message == 'Failed to fetch user information') {
+        //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        //   }
+        // }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchsupportDetail();
+
+    return () => controller.abort();
   }, []);
 
-  const fetchsupportDetail = async () => {
-    try {
-      const response = await fetch(`/api/support/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '기술지원 정보를 불러올 수 없습니다.');
-      }
-
-      if (result.data.error) {
-        throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-      }
-
-      setSupport(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      // if (err instanceof Error) {
-      //   if (err.message == 'Failed to fetch user information') {
-      //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-      //   }
-      // }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!confirm('정말 이 기술지원을 삭제하시겠습니까?')) {
@@ -83,7 +91,7 @@ export default function supportDetailPage() {
         throw new Error('기술지원 삭제에 실패했습니다.');
       }
 
-      router.push(`/support?page=${prevPage}`);
+      router.push(`/support?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
@@ -119,7 +127,7 @@ export default function supportDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">기술지원 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/support/${support.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/support/${support.id}/edit?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             수정
@@ -131,7 +139,7 @@ export default function supportDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/support?page=${prevPage}`)}
+            onClick={() => router.push(`/support?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -149,7 +157,7 @@ export default function supportDetailPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">사업명</h3>
+              <h3 className="text-sm font-medium text-gray-500">사업</h3>
               <p className="mt-1 text-lg text-gray-900">
                 {support.business}
               </p>

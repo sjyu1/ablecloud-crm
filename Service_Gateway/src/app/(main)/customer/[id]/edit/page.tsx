@@ -15,6 +15,8 @@ export default function CustomerEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchField = searchParams.get('searchField') || 'name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [formData, setFormData] = useState<CustomerForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -63,10 +65,10 @@ export default function CustomerEditPage() {
       if (response.ok) {
         alert('고객이 수정되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 회사이름입니다.' : '고객 수정에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 회사입니다.' : '고객 수정에 실패했습니다.');
       }
 
-      router.push(`/customer/${params.id}?page=${prevPage}`);
+      router.push(`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -116,7 +118,7 @@ export default function CustomerEditPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사이름
+                회사
               </label>
               <input
                 type="text"
@@ -150,7 +152,7 @@ export default function CustomerEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/customer/${params.id}?page=${prevPage}`}
+              href={`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

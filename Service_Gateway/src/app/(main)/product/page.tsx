@@ -21,41 +21,37 @@ interface Pagination {
 }
 
 export default function ProductPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [products, setProducts] = useState<Product[]>([]);
-  const [name, setName] = useState('');
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState(''); // 검색값
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name') ?? '';
-    if (name !== currentName) {
-      setName(currentName);
-    }
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchValue(searchValue);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchProducts = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('name');
         
         let url = `/api/product?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
+        if (searchValue) url += `&name=${searchValue}`;
         
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
   
         if (!result.success) {
@@ -84,16 +80,18 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (name.trim()) {
-        params.set('name', name.trim());
+      if (searchValue.trim()) {
+        params.set('name', searchValue.trim());
       }
       params.set('page', '1');
+      params.set('searchValue', searchValue.trim());
 
       router.push(`/product?${params.toString()}`);
     } catch (error) {
@@ -103,7 +101,7 @@ export default function ProductPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setName('');
+    // setName('');
     router.push('/product?page=1');
   };
 
@@ -111,6 +109,7 @@ export default function ProductPage() {
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
+    params.set('searchValue', searchValue.trim());
     router.push(`/product?${params.toString()}`);
   };
 
@@ -130,9 +129,9 @@ export default function ProductPage() {
       <div className="mb-4 flex gap-2 justify-end">
         <input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="제품명으로 검색"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="제품으로 검색"
           className="px-2 py-1 text-sm border rounded-md"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -187,7 +186,7 @@ export default function ProductPage() {
               </tr>
             ) : (
               products.map((product, index) => (
-                <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/product/${product.id}?page=${pagination.currentPage}`)}>
+                <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/product/${product.id}?page=${pagination.currentPage}&searchValue=${searchValue}`)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
                   </td>
@@ -292,7 +291,7 @@ export default function ProductPage() {
         
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!hasNextPage}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;
@@ -306,4 +305,4 @@ export default function ProductPage() {
       )}
     </div>
   );
-}
+} 

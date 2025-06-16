@@ -14,17 +14,17 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const manager_company = searchParams.get('manager_company');
     const role = searchParams.get('role');  // User 회사 정보만 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/customer`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
-    
-    // role 파라미터가 존재하는경우, 로그인한 파트너의 정보만 조회(role이 user여도 type이 vendor일 경우 전체조회)
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
+    if (manager_company) apiUrl.searchParams.set('manager_company', manager_company);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {

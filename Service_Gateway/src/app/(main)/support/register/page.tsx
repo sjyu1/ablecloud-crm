@@ -209,7 +209,7 @@ export default function SupportRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업명
+                사업
               </label>
               <select
                 name="business_id"
@@ -235,6 +235,7 @@ export default function SupportRegisterPage() {
                 value={formData.issued}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>
@@ -415,4 +416,4 @@ export default function SupportRegisterPage() {
       </div>
     </div>
   );
-}
+} 

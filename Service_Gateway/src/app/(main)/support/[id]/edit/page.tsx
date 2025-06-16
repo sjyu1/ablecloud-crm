@@ -38,6 +38,8 @@ export default function SupportEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchField = searchParams.get('searchField') || 'name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [formData, setFormData] = useState<SupportForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -48,17 +50,20 @@ export default function SupportEditPage() {
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
-
-    fetchSupportDetail();
-    fetchCustomers();
   }, []);
+  
+  useEffect(() => {
+    if (role) {
+      fetchSupportDetail();
+      fetchCustomers();
+    }
+  }, [role]);
 
   useEffect(() => {
-    // if (formData?.customer_id && formData?.business_id && business.length === 0) {
-    if (formData?.customer_id) {
+    if (formData?.customer_id && role) {
       fetchBusiness(formData.customer_id);
     }
-  }, [formData?.customer_id]);
+  }, [formData?.customer_id, role]);
 
   const fetchSupportDetail = async () => {
     try {
@@ -158,7 +163,7 @@ export default function SupportEditPage() {
         throw new Error('기술지원 수정에 실패했습니다.');
       }
 
-      router.push(`/support/${params.id}?page=${prevPage}`);
+      router.push(`/support/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -231,7 +236,7 @@ export default function SupportEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업명
+                사업
               </label>
               <select
                 name="business_id"
@@ -366,7 +371,7 @@ export default function SupportEditPage() {
               <input
                 type="text"
                 name="requester"
-                value={formData.requester}
+                value={formData.requester || ''}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -378,7 +383,7 @@ export default function SupportEditPage() {
               <input
                 type="text"
                 name="requester_telnum"
-                value={formData.requester_telnum}
+                value={formData.requester_telnum || ''}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -390,7 +395,7 @@ export default function SupportEditPage() {
               <input
                 type="text"
                 name="requester_email"
-                value={formData.requester_email}
+                value={formData.requester_email || ''}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -419,7 +424,7 @@ export default function SupportEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/support/${params.id}?page=${prevPage}`}
+              href={`/support/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

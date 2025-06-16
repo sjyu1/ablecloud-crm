@@ -14,7 +14,9 @@ export class UserService {
     currentPage: number = 1,
     itemsPerPage: number = 10,
     filters: {
-      name?: string;
+      username?: string;
+      firstName?: string;
+      company?: string;
       company_id?: string;
       manager_id?: string;
       type?: string;
@@ -25,9 +27,23 @@ export class UserService {
     const whereConditions: string[] = [];
     const params: any[] = [];
 
-    if (filters.name) {
-      whereConditions.push('c.name LIKE ?');
-      params.push(`%${filters.name}%`);
+    if (filters.username) {
+      whereConditions.push('u.username LIKE ?');
+      params.push(`%${filters.username}%`);
+    }
+
+    if (filters.firstName) {
+      whereConditions.push('u.first_name LIKE ?');
+      params.push(`%${filters.firstName}%`);
+    }
+
+    if (filters.company) {
+      if (filters.company == 'ABLECLOUD'){
+        whereConditions.push('(type_attr.value IS NULL OR type_attr.value != "partner")');
+      } else {
+        whereConditions.push('type_attr.value = "partner" AND partner.name LIKE ?');
+        params.push(`%${filters.company}%`);
+      }
     }
 
     if (filters.type) {

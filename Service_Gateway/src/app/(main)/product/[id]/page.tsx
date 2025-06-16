@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
-import { format } from 'date-fns';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -62,6 +61,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
   const [value, setValue] = useState(0);
@@ -242,7 +242,7 @@ export default function ProductDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">제품 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}`)}
+            onClick={() => router.push(`/product/${product.id}/edit?page=${prevPage}&searchValue=${prevSearchValue}`)}
             className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
@@ -254,7 +254,7 @@ export default function ProductDetailPage() {
             제품 비활성화
           </button>
           <button
-            onClick={() => router.push(`/product/${product.id}/register_release?page=${prevPage}`)}
+            onClick={() => router.push(`/product/${product.id}/register_release?page=${prevPage}&searchValue=${prevSearchValue}`)}
             className={role === 'Admin' && product.enabled == '1' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             릴리즈노트 등록 및 수정
@@ -266,7 +266,7 @@ export default function ProductDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/product?page=${prevPage}`)}
+            onClick={() => router.push(`/product?page=${prevPage}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -286,7 +286,7 @@ export default function ProductDetailPage() {
           <div className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">제품명</h3>
+                <h3 className="text-sm font-medium text-gray-500">제품</h3>
                 <p className="mt-1 text-lg text-gray-900">
                 {product.name}
                 </p>

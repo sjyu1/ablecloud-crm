@@ -42,7 +42,7 @@ export default function PartnerRegisterPage() {
       if (response.ok) {
         alert('파트너가 등록되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 회사이름입니다.' : '파트너 등록에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 회사입니다.' : '파트너 등록에 실패했습니다.');
       }
 
       router.push('/partner');
@@ -81,7 +81,7 @@ export default function PartnerRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사이름
+                회사
               </label>
               <input
                 type="text"

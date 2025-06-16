@@ -39,43 +39,44 @@ const statusMap: Record<string, string> = {
 };
 
 export default function BusinessPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [businesses, setBusiness] = useState<Business[]>([]);
-  const [name, setName] = useState('');
+  const [searchField, setSearchField] = useState('name'); // 검색타입
+  const [searchValue, setSearchValue] = useState(''); // 검색값
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
-    const currentName = searchParams.get('name') ?? '';
-    if (name !== currentName) {
-      setName(currentName);
-    }
+    const searchField = searchParams.get('searchField') || 'name';
+    const searchValue = searchParams.get('searchValue') || '';
+    setSearchField(searchField);
+    setSearchValue(searchValue);
 
+    const controller = new AbortController();
+    const signal = controller.signal;
     const fetchBusiness = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
-        const currentName = searchParams.get('name');
-  
-        let url = `/api/business?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (currentName) {
-          url += `&name=${currentName}`;
-        }
+
+        let url = `/api/business?page=${page}&limit=10`;
+        if (searchValue) url += `&${searchField}=${searchValue}`;
+
         if (role === 'User') {
           url += `&role=User`;
         }
   
-        const response = await fetch(url);
+        const response = await fetch(url, { signal });
         const result = await response.json();
   
         if (!result.success) {
@@ -104,16 +105,19 @@ export default function BusinessPage() {
     };
 
     fetchBusiness();
-  }, [searchParams.get('page'), searchParams.get('name'), pagination.itemsPerPage]);
+    return () => controller.abort();
+  }, [searchParams.toString()]);
 
   // 검색 버튼 클릭 핸들러
   const handleSearchClick = () => {
     try {
       const params = new URLSearchParams();
-      if (name.trim()) {
-        params.set('name', name.trim());
+      if (searchValue.trim()) {
+        params.set(searchField, searchValue.trim());
       }
       params.set('page', '1');
+      params.set('searchField', searchField);
+      params.set('searchValue', searchValue.trim());
       router.push(`/business?${params.toString()}`);
     } catch (error) {
       alert(error);
@@ -122,7 +126,7 @@ export default function BusinessPage() {
 
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
-    setName('');
+    // setName('');
     router.push('/business?page=1');
   };
 
@@ -132,6 +136,8 @@ export default function BusinessPage() {
     
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
+    params.set('searchField', searchField);
+    params.set('searchValue', searchValue);
     router.push(`/business?${params.toString()}`);
   };
 
@@ -148,20 +154,58 @@ export default function BusinessPage() {
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2 justify-end">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="사업명으로 검색"
-          className="px-2 py-1 text-sm border rounded-md"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchClick();
-            }
+      <div className="mb-4 flex gap-2 flex-wrap justify-end items-center">
+        <select
+          value={searchField}
+          onChange={(e) => {
+            setSearchField(e.target.value);
+            setSearchValue(''); // 필드 변경 시 기존 값 초기화
           }}
-        />
+          className="px-2 py-1 text-sm border rounded-md"
+        >
+          <option value="name">사업</option>
+          <option value="manager_company">사업 담당자회사</option>
+          <option value="customer_name">고객회사</option>
+          <option value="status">사업 상태</option>
+        </select>
+
+        {/* 검색 입력 필드 */}
+        {searchField === 'status' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">전체</option>
+            {Object.entries(statusMap).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchClick();
+              }
+            }}
+            placeholder={
+              searchField === 'name'
+                ? '사업 입력'
+                : searchField === 'manager_company'
+                ? '사업 담당자회사 입력'
+                : searchField === 'customer_name'
+                ? '고객회사 입력'
+                : ''
+            }
+            className="px-2 py-1 text-sm border rounded-md"
+          />
+        )}
+
         <button
           type="button"
           onClick={handleSearchClick}
@@ -169,15 +213,17 @@ export default function BusinessPage() {
         >
           검색
         </button>
-        {/* {searchParams.get('name') && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
-          >
-            초기화
-          </button>
-        )} */}
+
+        {/* <button
+          type="button"
+          onClick={() => {
+            setSearchValue('');
+            router.push('/support?page=1');
+          }}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
+        </button> */}
       </div>
 
       {/* 사업 목록 */}
@@ -189,7 +235,7 @@ export default function BusinessPage() {
                 NO
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                사업명
+                사업
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 사업 담당자 (회사)
@@ -201,7 +247,7 @@ export default function BusinessPage() {
                 사업 상태
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품명
+                제품
               </th>
               {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 노드수
@@ -229,7 +275,7 @@ export default function BusinessPage() {
                 <tr
                   key={business.id}
                   className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => router.push(`/business/${business.id}?page=${pagination.currentPage}`)}
+                  onClick={() => router.push(`/business/${business.id}?page=${pagination.currentPage}&searchField=${searchField}&searchValue=${searchValue}`)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
@@ -354,7 +400,7 @@ export default function BusinessPage() {
             
             <button
               onClick={() => handlePageChange(pagination.currentPage + 1)}
-              disabled={!pagination.totalPages}
+              disabled={pagination.currentPage >= pagination.totalPages}
               className="px-2 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               &gt;

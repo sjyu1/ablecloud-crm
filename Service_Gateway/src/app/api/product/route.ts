@@ -18,9 +18,8 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/product`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
+    // 필터 파라미터 적용
+    if (name) apiUrl.searchParams.set('name', name);
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
