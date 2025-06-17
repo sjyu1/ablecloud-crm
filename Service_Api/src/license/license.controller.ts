@@ -19,15 +19,19 @@ export class LicenseController {
     @Query('productId') productId?: string,
     @Query('businessType') businessType?: string,
     @Query('company_id') company_id?: string,
-    @Query('businessName') businessName?: string,
     @Query('trial') trial?: string,
+    @Query('business_name') business_name?: string,
+    @Query('license_key') license_key?: string,
+    @Query('status') status?: string,
   ): Promise<{ items: License[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       productId: productId || '',
       businessType: businessType || '',
       company_id: company_id || '',
-      businessName: businessName || '',
-      trial: trial || '0'
+      trial: trial || '0',
+      business_name: business_name || '',
+      license_key: license_key || '',
+      status: status || ''
     };
 
     return this.licenseService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

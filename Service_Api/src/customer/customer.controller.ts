@@ -16,10 +16,12 @@ export class CustomerController {
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
+    @Query('manager_company') manager_company?: string,
     @Query('company_id') company_id?: string
   ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
+      manager_company: manager_company || '',
       company_id: company_id || ''
     };
 

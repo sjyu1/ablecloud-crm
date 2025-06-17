@@ -161,7 +161,7 @@ export default function BusinessRegisterPage() {
       if (response.ok) {
         alert('사업이 등록되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 사업명입니다.' : '사업 등록에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 사업입니다.' : '사업 등록에 실패했습니다.');
       }
 
       router.push('/business');
@@ -191,7 +191,7 @@ export default function BusinessRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업명
+                사업
               </label>
               <input
                 type="text"
@@ -262,7 +262,7 @@ export default function BusinessRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품명
+                제품
               </label>
               <select
                 name="product_id"

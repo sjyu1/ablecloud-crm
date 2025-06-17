@@ -16,13 +16,17 @@ export class UserController {
   async findAll(
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
-    @Query('name') name?: string,
+    @Query('username') username?: string,
+    @Query('firstName') firstName?: string,
+    @Query('company') company?: string,
     @Query('company_id') company_id?: string,
     @Query('manager_id') manager_id?: string,
     @Query('type') type?: string,
   ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
-      name: name || '',
+      username: username || '',
+      firstName: firstName || '',
+      company: company || '',
       company_id: company_id || '',
       manager_id: manager_id || '',
       type: type || ''

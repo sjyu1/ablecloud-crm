@@ -16,6 +16,7 @@ export class CustomerService {
     itemsPerPage: number = 10,
     filters: {
       name?: string;
+      manager_company?: string;
       company_id?: string;
     }
   ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
@@ -27,6 +28,15 @@ export class CustomerService {
     if (filters.name) {
       whereConditions.push('c.name LIKE ?');
       params.push(`%${filters.name}%`);
+    }
+
+    if (filters.manager_company) {
+      if (filters.manager_company == 'ABLECLOUD'){
+        whereConditions.push('(type_attr.value IS NULL OR type_attr.value != "partner")');
+      } else {
+        whereConditions.push('type_attr.value = "partner" AND partner.name LIKE ?');
+        params.push(`%${filters.manager_company}%`);
+      }
     }
 
     if (filters.company_id) {
@@ -45,6 +55,12 @@ export class CustomerService {
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id
         AND company_attr.name = 'company_id'
+      LEFT JOIN keycloak.USER_ATTRIBUTE type_attr
+        ON u.id = type_attr.user_id
+        AND type_attr.name = 'type'
+        AND type_attr.value IN ('partner', 'vendor')
+      LEFT JOIN partner
+        ON company_attr.value = CAST(partner.id AS CHAR)
       ${whereClause}
     `;
     const countResult = await this.customerRepository.query(countQuery, params);

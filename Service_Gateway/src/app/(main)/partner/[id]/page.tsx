@@ -21,7 +21,7 @@ interface User {
   username: string;
   email: string;
   firstName: string;
-  // lastName: string;
+  lastName: string;
   type: string;
   telnum:string;
   role: string;
@@ -62,11 +62,11 @@ export default function PartnerDetailPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevLevel = searchParams.get('level') || 'PLATINUM';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [partner, setPartner] = useState<Partner | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [role, setRole] = useState<string | undefined>(undefined);
-
   const [users, setUsers] = useState<User[]>([])
   const [value, setValue] = useState(0);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
@@ -150,7 +150,7 @@ export default function PartnerDetailPage() {
 
       if (response.ok) {
         alert('파트너가 삭제되었습니다.');
-        router.push(`/partner?page=${prevPage}&level=${prevLevel}`);
+        router.push(`/partner?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`);
       } else {
         throw new Error('파트너 삭제에 실패했습니다.');
       }
@@ -197,7 +197,7 @@ export default function PartnerDetailPage() {
         <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
         <div className="space-x-2">
           <button
-            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}&level=${prevLevel}`)}
+            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`)}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
             수정
@@ -209,7 +209,7 @@ export default function PartnerDetailPage() {
             삭제
           </button>
           <button
-            onClick={() => router.push(`/partner?page=${prevPage}&level=${prevLevel}`)}
+            onClick={() => router.push(`/partner?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             목록
@@ -229,7 +229,7 @@ export default function PartnerDetailPage() {
           <div className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">회사이름</h3>
+                <h3 className="text-sm font-medium text-gray-500">회사</h3>
                 <p className="mt-1 text-lg text-gray-900">
                 {partner.name}
                 </p>
@@ -267,9 +267,9 @@ export default function PartnerDetailPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 이름
               </th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 성
-              </th> */}
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 전화번호
               </th>
@@ -289,9 +289,9 @@ export default function PartnerDetailPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.firstName}
                 </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.lastName}
-                </td> */}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.telnum}
                 </td>
@@ -299,7 +299,7 @@ export default function PartnerDetailPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사용자 정보가 없습니다.
                 </td>
               </tr>

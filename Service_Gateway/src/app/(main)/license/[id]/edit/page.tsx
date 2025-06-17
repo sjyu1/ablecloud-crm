@@ -29,6 +29,8 @@ export default function LicenseEditPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevTrial = searchParams.get('trial') || '0';
+  const prevSearchField = searchParams.get('searchField') || 'business_name';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [formData, setFormData] = useState<LicenseForm | null>({
     id: 0,
     license_key: '',
@@ -136,7 +138,7 @@ export default function LicenseEditPage() {
 
       if (response.ok) {
         alert('라이선스가 수정되었습니다.');
-        router.push(`/license/${params.id}?page=${prevPage}&trial=${prevTrial}`);
+        router.push(`/license/${params.id}?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
       } else {
         throw new Error('라이선스 수정에 실패했습니다.');
       }
@@ -239,7 +241,7 @@ export default function LicenseEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품명
+                제품
               </label>
               <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-gray-900">
@@ -249,7 +251,7 @@ export default function LicenseEditPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업명
+                사업
               </label>
               <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-gray-900">
@@ -317,7 +319,7 @@ export default function LicenseEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/license/${params.id}?page=${prevPage}&trial=${prevTrial}`}
+              href={`/license/${params.id}?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

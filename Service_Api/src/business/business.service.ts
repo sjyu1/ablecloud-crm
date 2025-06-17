@@ -19,8 +19,12 @@ export class BusinessService {
     itemsPerPage: number = 10,
     filters: {
       name?: string;
+      manager_company?: string;
+      customer_name?: string;
+      status?: string;
       available?: string;
       company_id?: string;
+      customer_id?: string;
     }
   ): Promise<{ items: Business[]; currentPage: number; totalItems: number; totalPages: number }> {
     const offset = (currentPage - 1) * itemsPerPage;
@@ -33,6 +37,25 @@ export class BusinessService {
       params.push(`%${filters.name}%`);
     }
 
+    if (filters.manager_company) {
+      if (filters.manager_company == 'ABLECLOUD'){
+        whereConditions.push('(type_attr.value IS NULL OR type_attr.value != "partner")');
+      } else {
+        whereConditions.push('type_attr.value = "partner" AND partner.name LIKE ?');
+        params.push(`%${filters.manager_company}%`);
+      }
+    }
+
+    if (filters.customer_name) {
+      whereConditions.push('c.name LIKE ?');
+      params.push(`%${filters.customer_name}%`);
+    }
+
+    if (filters.status) {
+      whereConditions.push('b.status = ?');
+      params.push(filters.status);
+    }
+
     if (filters.available) {
       whereConditions.push('b.license_id IS NULL');
     }
@@ -42,17 +65,30 @@ export class BusinessService {
       params.push(filters.company_id);
     }
 
+    if (filters.customer_id) {
+      whereConditions.push(`b.customer_id = ?`);
+      params.push(filters.customer_id);
+    }
+
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
     // Step 1: total 데이터 조회
     const countQuery = `
       SELECT COUNT(*) as count
       FROM business b
+      LEFT JOIN customer c ON b.customer_id = c.id
+      LEFT JOIN product p ON b.product_id = p.id
       LEFT JOIN keycloak.USER_ENTITY u
         ON b.manager_id = u.id
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id
         AND company_attr.name = 'company_id'
+      LEFT JOIN keycloak.USER_ATTRIBUTE type_attr
+        ON u.id = type_attr.user_id
+        AND type_attr.name = 'type'
+        AND type_attr.value IN ('partner', 'vendor')
+      LEFT JOIN partner
+        ON company_attr.value = CAST(partner.id AS CHAR)
       ${whereClause}
     `;
     const countResult = await this.businessRepository.query(countQuery, params);

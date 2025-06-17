@@ -37,7 +37,7 @@ export default function ProductRegisterPage() {
       if (response.ok) {
         alert('제품이 등록되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 제품명입니다.' : '제품 등록에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 제품입니다.' : '제품 등록에 실패했습니다.');
       }
 
       router.push('/product');
@@ -67,7 +67,7 @@ export default function ProductRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품명
+                제품
               </label>
               <input
                 type="text"
@@ -100,7 +100,7 @@ export default function ProductRegisterPage() {
                 name="isoFilePath"
                 value={formData.isoFilePath}
                 onChange={handleChange}
-                placeholder="http://isodownload.ablecloud.io/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso"
+                placeholder="https://product.ablecloud.io/iso/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso"
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />

@@ -22,6 +22,8 @@ export default function UserEditPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevType = searchParams.get('type') || 'partner';
+  const prevSearchField = searchParams.get('searchField') || 'username';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [formData, setFormData] = useState<UserForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function UserEditPage() {
 
       if (response.ok) {
         alert('사용자가 수정되었습니다.');
-        router.push(`/user/${params.id}?page=${prevPage}&type=${prevType}`);
+        router.push(`/user/${params.id}?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
       } else {
         const err = await response.json();
         throw new Error(err.message);
@@ -168,7 +170,7 @@ export default function UserEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/user/${params.id}?page=${prevPage}&type=${prevType}`}
+              href={`/user/${params.id}?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

@@ -4,13 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../store/authStore';
 import Link from 'next/link';
-import { format } from 'date-fns';
 
-interface Product {
+interface Support {
   id: number;
-  name: string;
-  version: string;
-  created: string;
+  customer_id: string;
+  customer: string;
+  business_id: string;
+  business: string;
+  issued: string;
+  type: string;
+  issue: string;
+  solution: string;
+  actioned: string;
+  action_type: string;
+  manager: string;
+  status: string;
+  note: string;
 }
 
 interface Pagination {
@@ -20,37 +29,44 @@ interface Pagination {
   itemsPerPage: number;
 }
 
-export default function ProductPage() {
+export default function SupportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [role, setRole] = useState<string | undefined>(undefined);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [supports, setSupports] = useState<Support[]>([]);
+  const [searchField, setSearchField] = useState('name'); // 검색타입
+  const [searchValue, setSearchValue] = useState(''); // 검색값
   const [pagination, setPagination] = useState<Pagination>({
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
     itemsPerPage: 10
   });
-  const [searchValue, setSearchValue] = useState(''); // 검색값
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     // 검색필터 존재여부(새로고침시 사용)
+    const searchField = searchParams.get('searchField') || 'name';
     const searchValue = searchParams.get('searchValue') || '';
+    setSearchField(searchField);
     setSearchValue(searchValue);
 
     const controller = new AbortController();
     const signal = controller.signal;
-    const fetchProducts = async () => {
+    const fetchSupports = async () => {
       try {
         const page = Number(searchParams.get('page')) || 1;
         
-        let url = `/api/product?page=${page}&limit=${pagination.itemsPerPage}`;
-        if (searchValue) url += `&name=${searchValue}`;
+        let url = `/api/support?page=${page}&limit=10`;
+        if (searchValue) url += `&${searchField}=${searchValue}`;
         
+        if (role === 'User') {
+          url += `&role=User`;
+        }
+
         const response = await fetch(url, { signal });
         const result = await response.json();
   
@@ -58,7 +74,7 @@ export default function ProductPage() {
           throw new Error(result.message || '오류가 발생했습니다.');
         }
   
-        setProducts(result.data);
+        setSupports(result.data);
         setPagination(prev => ({
           ...prev,
           totalItems: result.pagination.totalItems,
@@ -72,14 +88,14 @@ export default function ProductPage() {
           logoutIfTokenExpired(); // 토큰 만료시 로그아웃
         }
       } else {
-          alert('제품 목록 조회에 실패했습니다.');
+          alert('기술지원 목록 조회에 실패했습니다.');
         }
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchSupports();
     return () => controller.abort();
   }, [searchParams.toString()]);
 
@@ -88,12 +104,12 @@ export default function ProductPage() {
     try {
       const params = new URLSearchParams();
       if (searchValue.trim()) {
-        params.set('name', searchValue.trim());
+        params.set(searchField, searchValue.trim());
       }
       params.set('page', '1');
+      params.set('searchField', searchField);
       params.set('searchValue', searchValue.trim());
-
-      router.push(`/product?${params.toString()}`);
+      router.push(`/support?${params.toString()}`);
     } catch (error) {
       alert(error);
     }
@@ -102,44 +118,91 @@ export default function ProductPage() {
   // 초기화 버튼 클릭 핸들러
   const handleResetClick = () => {
     // setName('');
-    router.push('/product?page=1');
+    router.push('/support?page=1');
   };
 
   // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
-    params.set('searchValue', searchValue.trim());
-    router.push(`/product?${params.toString()}`);
+    params.set('searchField', searchField);
+    params.set('searchValue', searchValue);
+    router.push(`/support?${params.toString()}`);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">제품 관리</h1>
+        <h1 className="text-2xl font-bold text-gray-800">기술지원 관리</h1>
         <Link
-          href="/product/register"
+          href="/support/register"
           className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
         >
-          제품 등록
+          기술지원 등록
         </Link>
       </div>
 
       {/* 검색 필터 */}
-      <div className="mb-4 flex gap-2 justify-end">
-        <input
-          type="text"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder="제품으로 검색"
-          className="px-2 py-1 text-sm border rounded-md"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearchClick();
-            }
+      <div className="mb-4 flex gap-2 flex-wrap justify-end items-center">
+        <select
+          value={searchField}
+          onChange={(e) => {
+            setSearchField(e.target.value);
+            setSearchValue(''); // 필드 변경 시 기존 값 초기화
           }}
-        />
+          className="px-2 py-1 text-sm border rounded-md"
+        >
+          <option value="name">고객</option>
+          <option value="type">구분</option>
+          <option value="manager">담당자</option>
+          <option value="status">완료여부</option>
+        </select>
+
+        {/* 검색 입력 필드 */}
+        {searchField === 'type' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">구분 전체</option>
+            <option value="consult">기술상담</option>
+            <option value="technical">기술지원</option>
+            <option value="incident">장애지원</option>
+            <option value="poc">PoC</option>
+            <option value="other">기타</option>
+          </select>
+        ) : searchField === 'status' ? (
+          <select
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="px-2 py-1 text-sm border rounded-md"
+          >
+            <option value="">완료여부 전체</option>
+            <option value="processing">처리중</option>
+            <option value="complete">완료</option>
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearchClick();
+              }
+            }}
+            placeholder={
+              searchField === 'name'
+                ? '고객 입력'
+                : searchField === 'manager'
+                ? '담당자 입력'
+                : ''
+            }
+            className="px-2 py-1 text-sm border rounded-md"
+          />
+        )}
+
         <button
           type="button"
           onClick={handleSearchClick}
@@ -147,18 +210,20 @@ export default function ProductPage() {
         >
           검색
         </button>
-        {/* {searchParams.get('name') && (
-          <button
-            type="button"
-            onClick={handleResetClick}
-            className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
-          >
-            초기화
-          </button>
-        )} */}
+
+        {/* <button
+          type="button"
+          onClick={() => {
+            setSearchValue('');
+            router.push('/support?page=1');
+          }}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
+        </button> */}
       </div>
 
-      {/* 제품 목록 */}
+      {/* 기술지원 목록 */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -167,45 +232,63 @@ export default function ProductPage() {
                 NO
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품명
+                고객
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                제품버전
+                요청일자
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                생성일
+                구분
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                요청내역
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                담당자
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                완료여부
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
                   로딩 중...
                 </td>
               </tr>
             ) : (
-              products.map((product, index) => (
-                <tr key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/product/${product.id}?page=${pagination.currentPage}&searchValue=${searchValue}`)}>
+              supports.map((support, index) => (
+                <tr key={support.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/support/${support.id}?page=${pagination.currentPage}&searchField=${searchField}&searchValue=${searchValue}`)}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {pagination.totalItems - ((pagination.currentPage - 1) * pagination.itemsPerPage + index)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.name}
+                    {support.customer}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.version}
+                    {support.issued}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
+                    {support.type === 'consult' ? ('기술상담') : support.type === 'technical' ? ('기술지원') : support.type === 'incident' ? ('장애지원') : support.type === 'poc' ? ('PoC') : support.type === 'other' ? ('기타') : ('Unknown Type')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 whitespace-pre-line">
+                    {support.issue}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {support.manager}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {support.status === 'processing' ? ('처리중') : support.status === 'complete' ? ('완료') : ('Unknown Type')}
                   </td>
                 </tr>
               ))
             )}
-            {!isLoading && products.length === 0 && (
+            {!isLoading && supports.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
-                  제품 정보가 없습니다.
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500 text-sm">
+                  기술지원 정보가 없습니다.
                 </td>
               </tr>
             )}
@@ -214,7 +297,7 @@ export default function ProductPage() {
       </div>
 
       {/* 페이지네이션 */}
-      {products.length > 0 && (
+      {supports.length > 0 && (
         <div className="flex justify-center items-center mt-4">
           <div className="flex items-center gap-0">
             <button

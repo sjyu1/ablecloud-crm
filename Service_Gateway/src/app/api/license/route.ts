@@ -15,7 +15,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const businessName = searchParams.get('businessName');
+    const business_name = searchParams.get('business_name');
+    const license_key = searchParams.get('license_key');
+    const status = searchParams.get('status');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const trial = searchParams.get('trial');
 
@@ -23,19 +25,17 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/license`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (businessName) {
-      apiUrl.searchParams.set('businessName', businessName);
-    }
+    // 필터 파라미터 적용
+    if (business_name) apiUrl.searchParams.set('business_name', business_name);
+    if (license_key) apiUrl.searchParams.set('license_key', license_key);
+    if (status) apiUrl.searchParams.set('status', status);
+    if (trial) apiUrl.searchParams.set('trial', trial);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
-      console.log('test1')
       if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
-        console.log('test2')
         apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
       }
-    }
-    if (trial) {
-      apiUrl.searchParams.set('trial', trial.toString());
     }
 
     const response = await fetchWithAuth(apiUrl.toString());

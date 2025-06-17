@@ -35,7 +35,7 @@ export async function GET(
     //   business.manager_company = company.name
     // }
 
-    // product_id를 이용해 제품명/제품버전 가져오기
+    // product_id를 이용해 제품/제품버전 가져오기
     // const response_product = await fetchWithAuth(`${process.env.API_URL}/product/${business.product_id}`);
     // const product = await response_product.json();
     // business.product_name = product.name

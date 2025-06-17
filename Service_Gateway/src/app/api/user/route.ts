@@ -13,7 +13,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const name = searchParams.get('name');
+    const username = searchParams.get('username');
+    const firstName = searchParams.get('firstName');
+    const company = searchParams.get('company');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const type = searchParams.get('type');
 
@@ -21,14 +23,12 @@ export async function GET(request: Request) {
     const apiUrl = new URL(`${process.env.API_URL}/user`);
     apiUrl.searchParams.set('page', page.toString());
     apiUrl.searchParams.set('limit', limit.toString());
-    if (name) {
-      apiUrl.searchParams.set('name', name);
-    }
-    if (type) {
-      apiUrl.searchParams.set('type', type);
-    }
-    
-    // role 파라미터 존재하는 경우, 로그인한 사용자 회사 정보만 조회(role이 User여도 type이 vendor면 전체조회)
+    // 필터 파라미터 적용
+    if (username) apiUrl.searchParams.set('username', username);
+    if (firstName) apiUrl.searchParams.set('firstName', firstName );
+    if (company) apiUrl.searchParams.set('company', company );
+    if (type) apiUrl.searchParams.set('type', type);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
       if (!data_userinfo.error) {

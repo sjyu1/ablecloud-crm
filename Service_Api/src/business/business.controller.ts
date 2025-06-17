@@ -17,13 +17,21 @@ export class BusinessController {
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
+    @Query('manager_company') manager_company?: string,
+    @Query('customer_name') customer_name?: string,
+    @Query('status') status?: string,
     @Query('available') available?: string,
-    @Query('company_id') company_id?: string
+    @Query('company_id') company_id?: string,
+    @Query('customer_id') customer_id?: string
   ): Promise<{ items: Business[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
+      manager_company: manager_company || '',
+      customer_name: customer_name || '',
+      status: status || '',
       available: available || '',
-      company_id: company_id || ''
+      company_id: company_id || '',
+      customer_id: customer_id || ''
     };
 
     return this.businessService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

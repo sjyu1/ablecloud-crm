@@ -205,7 +205,7 @@ export default function LicenseRegisterPage() {
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업명
+                사업
               </label>
               <select
                 name="business_id"
@@ -224,11 +224,11 @@ export default function LicenseRegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품명
+                제품
               </label>
               <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-gray-900">
-                  {formData.product_name ? `${formData.product_name} (v${formData.product_version})` : '사업명을 선택하세요'}
+                  {formData.product_name ? `${formData.product_name} (v${formData.product_version})` : '사업을 선택하세요'}
                 </span>
               </div>
             </div>

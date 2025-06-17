@@ -3,6 +3,7 @@ export class CreateProductDto {
   version: string;
   isoFilePath: string;
   enabled: boolean;
+  checksum: string;
 }
 
 export class UpdateProductDto {
@@ -11,4 +12,5 @@ export class UpdateProductDto {
   isoFilePath?: string;
   enabled?: boolean;
   contents?: string;
+  checksum: string;
 }

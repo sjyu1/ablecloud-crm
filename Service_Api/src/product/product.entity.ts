@@ -30,6 +30,14 @@ export class Product {
   isoFilePath: string;
 
   @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    default: ''
+  })
+  checksum: string;
+
+  @Column({
     type: 'tinyint'
   })
   enabled: boolean;

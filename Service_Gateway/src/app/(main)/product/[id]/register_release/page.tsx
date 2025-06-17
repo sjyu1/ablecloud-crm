@@ -18,6 +18,7 @@ export default function ProductEditPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
+  const prevSearchValue = searchParams.get('searchValue') || '';
   const [formData, setFormData] = useState<ProductForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +72,7 @@ export default function ProductEditPage() {
         throw new Error(response.status == 409? '이미 존재하는 제품버전입니다.' : '릴리즈노트 등록에 실패했습니다.');
       }
 
-      router.push(`/product/${params.id}?page=${prevPage}`);
+      router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -131,7 +132,7 @@ export default function ProductEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/product/${params.id}?page=${prevPage}`}
+              href={`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
