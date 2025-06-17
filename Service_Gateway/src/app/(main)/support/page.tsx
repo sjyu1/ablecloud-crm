@@ -276,7 +276,7 @@ export default function SupportPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 whitespace-pre-line">
                     {support.issue}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 whitespace-nowrap truncate" style={{ width: '200px', maxWidth: '200px' }} title={support.manager}>
                     {support.manager}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -248,8 +248,8 @@ export default function SupportRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="consult">기술상담</option>
                 <option value="technical">기술지원</option>
+                <option value="consult">기술상담</option>
                 <option value="incident">장애지원</option>
                 <option value="poc">PoC</option>
                 <option value="other">기타</option>
