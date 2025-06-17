@@ -263,7 +263,7 @@ export default function LicenseRegisterPage() {
                 <option value="clostack">CLOSTACK</option>
               </select>
             </div>
-            <div className={partner === '효성' ? '' : 'hidden'}>
+            <div className={partner === '효성인포메이션시스템' ? '' : 'hidden'}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 OEM
               </label>
