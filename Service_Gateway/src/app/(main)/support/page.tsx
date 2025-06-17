@@ -136,7 +136,7 @@ export default function SupportPage() {
         <h1 className="text-2xl font-bold text-gray-800">기술지원 관리</h1>
         <Link
           href="/support/register"
-          className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
           기술지원 등록
         </Link>
@@ -388,4 +388,4 @@ export default function SupportPage() {
       )}
     </div>
   );
-} 
+}
