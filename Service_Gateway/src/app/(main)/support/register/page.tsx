@@ -200,7 +200,7 @@ export default function SupportRegisterPage() {
                 required
               >
                 <option value="">선택하세요</option>
-                {customers.map(item => (
+                {customers?.map(item => (
                   <option key={item.id} value={item.id.toString()}>
                     {item.name}
                   </option>
@@ -218,7 +218,7 @@ export default function SupportRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">선택하세요</option>
-                {business.map(item => (
+                {business?.map(item => (
                   <option key={item.id} value={item.id.toString()}>
                     {item.name}
                   </option>
