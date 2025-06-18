@@ -39,7 +39,7 @@ export default function SupportRegisterPage() {
     customer_id: '',
     business_id: '',
     issued: '',
-    type: 'consult',
+    type: 'technical',
     issue: '',
     solution: '',
     actioned: '',
