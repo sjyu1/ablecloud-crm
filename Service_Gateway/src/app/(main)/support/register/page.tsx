@@ -56,10 +56,13 @@ export default function SupportRegisterPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [business, setBusinesses] = useState<Business[]>([]);
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
+    const username = getCookie('username');
+    setUsername(username ?? undefined);
 
     const fetchCustomers = async () => {
       try {
@@ -133,7 +136,8 @@ export default function SupportRegisterPage() {
 
       const registerFormData = { 
         ...formData,
-        business_id: formData.business_id !== ''? formData.business_id : null
+        business_id: formData.business_id !== ''? formData.business_id : null,
+        writer: username
       }
       const response = await fetch('/api/support', {
         method: 'POST',

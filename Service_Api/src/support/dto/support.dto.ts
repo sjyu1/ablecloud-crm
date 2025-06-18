@@ -13,6 +13,7 @@ export class CreateSupportDto {
   requester_telnum: string;
   requester_email: string;
   note: string;
+  writer: string;
 }
 
 export class UpdateSupportDto {
