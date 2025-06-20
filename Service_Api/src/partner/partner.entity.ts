@@ -18,6 +18,30 @@ export class Partner {
   })
   level: 'PLATINUM' | 'GOLD' | 'SILVER' | 'VAR';
 
+  @Column({
+    type: 'tinyint'
+  })
+  deposit_use: boolean;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  deposit: number;
+
+  @Column({
+    type: 'int',
+    nullable: true
+  })
+  credit: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true
+  })
+  product_category: string;
+
   @CreateDateColumn()
   created: Date;
 

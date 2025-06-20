@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Business } from './business.entity';
+import { Partner } from '../partner/partner.entity';
 import { Business_history } from './business_history.entity';
 import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto } from './dto/business.dto';
 
@@ -11,7 +12,9 @@ export class BusinessService {
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Business_history)
-    private readonly business_historyRepository: Repository<Business_history>
+    private readonly business_historyRepository: Repository<Business_history>,
+    @InjectRepository(Partner)
+    private readonly partnerRepository: Repository<Partner>
   ) {}
 
   async findAll(
@@ -236,6 +239,7 @@ export class BusinessService {
         b.manager_id AS manager_id,
         b.product_id AS product_id,
         b.details AS details,
+        b.deposit_use AS deposit_use,
         b.created AS created,
         c.name AS customer_name,
         p.name AS product_name,
@@ -328,7 +332,20 @@ export class BusinessService {
   }
 
   async create(createBusinessDto: CreateBusinessDto): Promise<Business> {
+    // create business
     const business = this.businessRepository.create(createBusinessDto);
+
+    // update partner credit
+    if (createBusinessDto.deposit_use) {
+      const partner = await this.partnerRepository.findOne({
+        where: { id: parseInt(createBusinessDto.partner_id, 10) },
+      });
+
+      if (partner) {
+        partner.credit = createBusinessDto.credit;
+        await this.partnerRepository.save(partner);
+      }
+    }
     return this.businessRepository.save(business);
   }
 

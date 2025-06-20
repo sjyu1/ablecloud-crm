@@ -420,4 +420,4 @@ export default function SupportRegisterPage() {
       </div>
     </div>
   );
-} 
+}

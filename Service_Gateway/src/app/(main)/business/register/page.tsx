@@ -16,6 +16,9 @@ interface BusinessForm {
   manager_id: string;
   product_id: string;
   details: string;
+  deposit_use: boolean;
+  credit: number;
+  partner_id: string;
 }
 
 interface Customer {
@@ -28,6 +31,10 @@ interface Manager {
   id: number;
   username: string;
   company: string;
+  company_id: string;
+  deposit_use: string;
+  deposit: string;
+  credit: string;
 }
 
 interface Product {
@@ -48,7 +55,10 @@ export default function BusinessRegisterPage() {
     node_cnt: 0,
     manager_id: '',
     product_id: '',
-    details: ''
+    details: '',
+    deposit_use: false,
+    credit: 0,
+    partner_id: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +66,7 @@ export default function BusinessRegisterPage() {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [role, setRole] = useState<string | undefined>(undefined);
+  const selectedManager = managers.find(m => m.id.toString() === formData.manager_id);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -90,6 +101,10 @@ export default function BusinessRegisterPage() {
     const fetchProducts = async () => {
       try {
         let url = `/api/product`;
+
+        if (role == 'User') {
+          url += `?role=User`;
+        }
 
         const response = await fetch(url);
         const result = await response.json();
@@ -145,6 +160,18 @@ export default function BusinessRegisterPage() {
     setError('');
 
     try {
+      if (formData.deposit_use && selectedManager) {
+        const availableCredit = parseInt(selectedManager.credit);
+        const remainingCredit = availableCredit - formData.core_cnt;
+      
+        if (remainingCredit < 0) {
+          throw new Error(`크레딧이 부족합니다. 현재 사용 가능 크레딧은 ${availableCredit}이며, 필요한 크레딧은 ${formData.core_cnt}입니다.`);
+        } else {
+          formData.partner_id = selectedManager.company_id;
+          formData.credit = remainingCredit;
+        }
+      }
+
       if (formData.issued > formData.expired){
         throw new Error('시작일이 종료일보다 클 수 없습니다.');
       }
@@ -177,6 +204,15 @@ export default function BusinessRegisterPage() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  //크레딧 체크
+  const handleCreditCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      deposit_use: checked
     }));
   };
 
@@ -320,6 +356,29 @@ export default function BusinessRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {selectedManager?.deposit_use == '1' && (
+                <div className="text-sm text-gray-600 space-y-1">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.deposit_use}
+                      onChange={handleCreditCheckboxChange}
+                      className="rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span>크레딧 사용</span>
+                    <div>
+                      (사용 가능 크레딧: {selectedManager.credit} / 크레딧 사용 후 잔여 크레딧:{' '}
+                      <span className={
+                        parseInt(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0) < 0
+                          ? 'text-red-500 font-bold'
+                          : ''
+                      }>
+                        {parseInt(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0)})
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

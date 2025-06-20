@@ -27,6 +27,7 @@ interface Business {
   product_name: string;
   product_version: string;
   details: string;
+  deposit_use: string;
 }
 
 interface Business_history {
@@ -293,7 +294,7 @@ export default function BusinessDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">코어수</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                  {business.core_cnt}
+                  {business.core_cnt} {business.deposit_use == '1' && (' (크레딧 사용)')}
                 </p>
               </div>
               <div>

@@ -13,7 +13,11 @@ interface Partner {
   name: string;
   telnum: string;
   level: string;
+  deposit_use: string;
+  deposit: string;
+  credit: string;
   created: string;
+  product_category_names: string;
 }
 
 interface User {
@@ -246,6 +250,20 @@ export default function PartnerDetailPage() {
                 {partner.level}
                 </p>
               </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">사용 제품 카테고리</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {partner.product_category_names}
+                </p>
+              </div>
+              {partner.deposit_use == '1' && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">크레딧 구매 코어수(잔여 코어수)</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {partner.deposit}({partner.credit})
+                </p>
+              </div>
+              )}
               <div>
                 <h3 className="text-sm font-medium text-gray-500">생성일</h3>
                 <p className="mt-1 text-lg text-gray-900">{format(partner.created, 'yyyy-MM-dd HH:mm:ss')}</p>

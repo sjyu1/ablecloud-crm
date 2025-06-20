@@ -94,6 +94,11 @@ export class Business {
   })
   details: string;
 
+  @Column({
+    type: 'tinyint'
+  })
+  deposit_use: boolean;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

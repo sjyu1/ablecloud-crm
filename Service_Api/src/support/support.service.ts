@@ -114,6 +114,7 @@ export class SupportService {
         s.requester_telnum AS requester_telnum,
         s.requester_email AS requester_email,
         s.note AS note,
+        s.writer AS writer,
         c.name AS customer,
         b.name AS business
       FROM support s

@@ -5,9 +5,6 @@ import log from '@/utils/logger';
 
 /**
  * 사용자 목록 조회
- * 1. client_credentials token 가져오기
- * 2. 사용자 목록 조회
- * 3. 사용자 데이터에 값 추가
  * @returns 
  */
 export async function GET(request: Request) {

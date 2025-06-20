@@ -11,6 +11,9 @@ export class CreateBusinessDto {
   node_cnt: number;
   product_id?: string;
   details: string;
+  deposit_use: boolean;
+  credit: number;
+  partner_id: string;
 }
 
 export class UpdateBusinessDto {
