@@ -120,6 +120,7 @@ export class BusinessService {
         c.name AS customer_name,
         p.name AS product_name,
         p.version AS product_version,
+        pc.name AS product_category_name,
         u.username AS manager_name,
         CASE 
           WHEN type_attr.value = 'partner' THEN partner.name 
@@ -128,6 +129,7 @@ export class BusinessService {
       FROM business b
       LEFT JOIN customer c ON b.customer_id = c.id
       LEFT JOIN product p ON b.product_id = p.id
+      LEFT JOIN product_category pc ON p.category_id = pc.id
       LEFT JOIN keycloak.USER_ENTITY u
         ON b.manager_id = u.id
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr

@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
     const role = searchParams.get('role');  // User 회사 정보만 조회
+    const managerId = searchParams.get('managerId');  // Admin이 사업 담당자(파트너) 선택한 경우, 파트너 사용 가능한 제품 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/product`);
@@ -28,7 +29,15 @@ export async function GET(request: Request) {
       if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
         apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
       }
+
+    // Admin이 사업 담당자(파트너) 선택한 경우, 파트너 사용 가능한 제품 조회
+    } else if (managerId) {
+      const data_userinfo = await userinfo_id(managerId);
+      if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
+        apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
+      }
     }
+
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();
     //log.info('GET /product DATA ::: '+JSON.stringify(data));

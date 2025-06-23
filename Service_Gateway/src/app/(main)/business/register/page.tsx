@@ -98,32 +98,6 @@ export default function BusinessRegisterPage() {
       }
     };
 
-    const fetchProducts = async () => {
-      try {
-        let url = `/api/product`;
-
-        if (role == 'User') {
-          url += `?role=User`;
-        }
-
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (!result.success) {
-          if (result.message == 'Failed to fetch user information') {
-            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-          } else {
-            // alert(result.message);
-            return;
-          }
-        }
-
-        setProducts(result.data);
-      } catch (error) {
-        alert('사업담당자 목록 조회에 실패했습니다.');
-      }
-    };
-
     const fetchCustomers = async () => {
       try {
         let url = `/api/customer?page=1&limit=10000`;
@@ -151,9 +125,39 @@ export default function BusinessRegisterPage() {
     };
 
     fetchManagers();
-    fetchProducts();
+    // fetchProducts();
     fetchCustomers();
   }, []);
+
+  const fetchProducts = async (managerId?: string) => {
+    try {
+      let url = `/api/product`;
+
+      if (managerId !== '') {
+        url += `?managerId=${managerId}`;
+      }
+
+      if (role == 'User') {
+        url += `&role=User`;
+      }
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (!result.success) {
+        if (result.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        } else {
+          // alert(result.message);
+          return;
+        }
+      }
+
+      setProducts(result.data);
+    } catch (error) {
+      alert('사업담당자 목록 조회에 실패했습니다.');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,6 +209,11 @@ export default function BusinessRegisterPage() {
       ...prev,
       [name]: value
     }));
+
+    // 사업담당자 선택시 사용가능한 제품 조회
+    if (name === 'manager_id') {
+      fetchProducts(value);
+    }
   };
 
   //크레딧 체크

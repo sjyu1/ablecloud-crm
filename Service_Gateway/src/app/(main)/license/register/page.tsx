@@ -21,6 +21,7 @@ interface Business {
   name: string;
   product_name: string;
   product_version: string;
+  product_category_name: string;
 }
 
 export default function LicenseRegisterPage() {
@@ -33,7 +34,7 @@ export default function LicenseRegisterPage() {
     issued: '',
     expired: '',
     trial: false,
-    oem: 'ablestack'
+    oem: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +50,7 @@ export default function LicenseRegisterPage() {
 
     const fetchBusiness = async () => {
       try {
-        let url = `/api/business?available=true`;
+        let url = `/api/business?page=1&limit=10000&available=true`;
 
         if (role == 'User') {
           url += `&role=User`;
@@ -140,7 +141,8 @@ export default function LicenseRegisterPage() {
         ...prevFormData,
         business_id: value,
         product_name: selectedBusiness ? selectedBusiness.product_name : '',
-        product_version: selectedBusiness ? selectedBusiness.product_version : ''
+        product_version: selectedBusiness ? selectedBusiness.product_version : '',
+        oem: selectedBusiness ? selectedBusiness.product_category_name : ''
       }));
     }
 
@@ -232,7 +234,7 @@ export default function LicenseRegisterPage() {
                 </span>
               </div>
             </div>
-            <div className={role === 'Admin' ? '' : 'hidden'}>
+            {/* <div className={role === 'Admin' ? '' : 'hidden'}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 OEM
               </label>
@@ -277,7 +279,7 @@ export default function LicenseRegisterPage() {
                 <option value="ablestack">ABLESTACK</option>
                 <option value="hv">HV</option>
               </select>
-            </div>
+            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 시작일
