@@ -101,7 +101,8 @@ export default function LoginPage() {
             )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
-              문의사항은 아래 이메일로 문의바랍니다.<br/>
+              문의사항은 아래 전화 및 메일로 문의바랍니다.<br/>
+              대표전화 : 1544-3696<br/>
               영업 : sales@ablestack.co.kr<br/>
               기술지원 : support@ablestack.co.kr
             </label>
