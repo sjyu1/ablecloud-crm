@@ -13,7 +13,11 @@ interface Partner {
   name: string;
   telnum: string;
   level: string;
+  deposit_use: string;
+  deposit: string;
+  credit: string;
   created: string;
+  product_category_names: string;
 }
 
 interface User {
@@ -247,6 +251,20 @@ export default function PartnerDetailPage() {
                 </p>
               </div>
               <div>
+                <h3 className="text-sm font-medium text-gray-500">사용 제품 카테고리</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {partner.product_category_names}
+                </p>
+              </div>
+              {partner.deposit_use == '1' && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">크레딧 구매 코어수(잔여 코어수)</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {partner.deposit}({partner.credit})
+                </p>
+              </div>
+              )}
+              <div>
                 <h3 className="text-sm font-medium text-gray-500">생성일</h3>
                 <p className="mt-1 text-lg text-gray-900">{format(partner.created, 'yyyy-MM-dd HH:mm:ss')}</p>
               </div>
@@ -267,9 +285,9 @@ export default function PartnerDetailPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 이름
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 성
-              </th>
+              </th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 전화번호
               </th>
@@ -289,9 +307,9 @@ export default function PartnerDetailPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.firstName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.lastName}
-                </td>
+                </td> */}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {user.telnum}
                 </td>
@@ -299,7 +317,7 @@ export default function PartnerDetailPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500 text-sm">
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
                   사용자 정보가 없습니다.
                 </td>
               </tr>

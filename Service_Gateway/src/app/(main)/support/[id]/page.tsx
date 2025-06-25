@@ -22,6 +22,7 @@ interface Support {
   requester_telnum: string;
   requester_email: string;
   note: string;
+  writer: string;
 }
 
 export default function supportDetailPage() {
@@ -241,6 +242,12 @@ export default function supportDetailPage() {
               {/* <p className="mt-1 text-lg text-gray-900">
                 {support.details}
               </p> */}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">작성자</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {support.writer}
+              </p>
             </div>
           </div>
         </div>

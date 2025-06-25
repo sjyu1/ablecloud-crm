@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
-import { encryptContent } from '@/utils/encryption';
+import { encryptContent, decryptContent } from '@/utils/encryption';
 import log from '@/utils/logger';
 
 /**
@@ -34,6 +34,10 @@ export async function GET(
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
     // headers.set('Content-Disposition', `attachment; filename=${filename}`);
+
+    // 복호화 데이터
+    // log.info('---------------license data')
+    // log.info(await decryptContent(''))
 
     return new NextResponse(licenseContent_enc, {
       status: 200,

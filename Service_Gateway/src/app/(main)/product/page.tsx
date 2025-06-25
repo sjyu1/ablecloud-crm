@@ -51,6 +51,10 @@ export default function ProductPage() {
         let url = `/api/product?page=${page}&limit=${pagination.itemsPerPage}`;
         if (searchValue) url += `&name=${searchValue}`;
         
+        if (role === 'User') {
+          url += `&role=User`;
+        }
+
         const response = await fetch(url, { signal });
         const result = await response.json();
   
@@ -197,7 +201,7 @@ export default function ProductPage() {
                     {product.version}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(product.created, 'yyyy-MM-dd HH:mm:ss')}
+                    {format(product.created, 'yyyy-MM-dd')}
                   </td>
                 </tr>
               ))

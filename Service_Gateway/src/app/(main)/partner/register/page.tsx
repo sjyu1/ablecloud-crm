@@ -1,13 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface PartnerForm {
   name: string;
   telnum: string;
   level: string;
+  deposit_use: boolean;
+  deposit: string;
+  product_category: string[];
+}
+
+interface Product_category {
+  id: number;
+  name: string;
 }
 
 export default function PartnerRegisterPage() {
@@ -16,9 +25,47 @@ export default function PartnerRegisterPage() {
     name: '',
     telnum: '',
     level: 'platinum',
+    deposit_use: false,
+    deposit: '',
+    product_category: [],
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [product_category, setProduct_category] = useState<Product_category[]>([]);
+
+  useEffect(() => {
+    const fetchProduct_category = async () => {
+      try {
+        let url = `/api/product/category`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (!result.success) {
+          if (result.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          } else {
+            // alert(result.message);
+            return;
+          }
+        }
+
+        setProduct_category(result.data);
+
+        // 첫번째 항목 자동 체크
+        if (result.data.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            product_category: [result.data[0].id.toString()]
+          }));
+        }
+      } catch (error) {
+        alert('제품 카테고리 목록 조회에 실패했습니다.');
+      }
+    };
+
+    fetchProduct_category();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,13 +77,28 @@ export default function PartnerRegisterPage() {
         throw new Error('전화번호 형식이 올바르지 않습니다.');
       }
   
+      // 제품 카테고리 밸리데이션
+      if (formData.product_category.length === 0) {
+        throw new Error('제품 카테고리를 최소 1개 이상 선택해야 합니다.');
+      }
+
       setIsLoading(true);
+      const formDataToSend: any = {
+        ...formData,
+        product_category: formData.product_category.join(','),
+        ...(formData.deposit_use && { credit: formData.deposit })
+      };
+      
+      if (!formData.deposit_use) {
+        delete formDataToSend.deposit;
+      }
+
       const response = await fetch('/api/partner', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formDataToSend),
       });
 
       if (response.ok) {
@@ -61,6 +123,21 @@ export default function PartnerRegisterPage() {
     }));
   };
 
+  const handleCheckboxGroupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+  
+    setFormData(prev => {
+      const selected = prev.product_category || [];
+  
+      return {
+        ...prev,
+        product_category: checked
+          ? [...selected, value]
+          : selected.filter(item => item !== value),
+      };
+    });
+  };
+
   // 전화번호 유효성 검사 함수
   const validateTelnum = (telnum: string) => {
     const phoneRegex = /^(\d{2,3})-(\d{3,4})-(\d{4})$/;
@@ -68,6 +145,15 @@ export default function PartnerRegisterPage() {
       return false;
     }
     return true;
+  };
+
+  //크레딧 체크
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      deposit_use: checked
+    }));
   };
 
   return (
@@ -122,7 +208,59 @@ export default function PartnerRegisterPage() {
                 <option value="VAR">VAR</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 카테고리
+              </label>
+              <div className="w-1/2 grid grid-cols-2 gap-3 p-3 border border-gray-300 rounded-md">
+                {product_category.map(item => (
+                  <label
+                    key={item.id}
+                    className="flex items-center space-x-2 text-sm text-gray-700"
+                  >
+                    <input
+                      type="checkbox"
+                      name="product_category"
+                      value={item.id}
+                      checked={formData.product_category.includes(item.id.toString())}
+                      onChange={handleCheckboxGroupChange}
+                      className="rounded border-gray-300"
+                    />
+                    <span>{item.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                name="deposit_use"
+                checked={formData.deposit_use}
+                onChange={handleCheckboxChange}
+                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{marginLeft: '10px'}}
+              />
+              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
+                크레딧 구매
+              </label>
+            </div>
           </div>
+          {formData.deposit_use && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              구매 코어수
+            </label>
+            <input
+              type="number"
+              name="deposit"
+              min="0"
+              value={formData.deposit}
+              onChange={handleChange}
+              className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          )}
 
           {error && (
             <div className="text-red-500 text-sm">

@@ -289,22 +289,22 @@ export class LicenseService {
   }
 
   async create(data: Partial<License>): Promise<License> {
-    if (data.company_id) {
-      //회사이름이 '클로잇'인지 조회하여 'oem'정보변경
-      const rawQuery_partner = `
-        SELECT 
-          name
-        FROM partner
-        WHERE id = ?
-        LIMIT 1
-      `;
-      const [partner] = await this.licenseRepository.query(rawQuery_partner, [data.company_id]);
-      if (partner.name == '클로잇') {
-        data.oem = 'clostack';
-      } else if (partner.name == '효성') {
-        data.oem = 'hv';
-      }
-    }
+    // if (data.company_id) {
+    //   //회사이름이 '클로잇'인지 조회하여 'oem'정보변경
+    //   const rawQuery_partner = `
+    //     SELECT 
+    //       name
+    //     FROM partner
+    //     WHERE id = ?
+    //     LIMIT 1
+    //   `;
+    //   const [partner] = await this.licenseRepository.query(rawQuery_partner, [data.company_id]);
+    //   if (partner.name == '클로잇') {
+    //     data.oem = 'clostack';
+    //   } else if (partner.name == '효성인포메이션시스템') {
+    //     data.oem = 'hv';
+    //   }
+    // }
 
     const license = this.licenseRepository.create({
       ...data,

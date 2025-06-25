@@ -15,13 +15,27 @@ export class ProductController {
   async findAll(
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
-    @Query('name') name?: string
+    @Query('name') name?: string,
+    @Query('company_id') company_id?: string
   ): Promise<{ items: Product[]; currentPage: number; totalItems: number; totalPages: number }> {
+    const filters = {
+      name: name || '',
+      company_id: company_id || ''
+    };
+
+    return this.productService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
+  }
+
+  @Get('category')
+  // @Roles('Admin')
+  async findAllCategory(
+    @Query('name') name?: string
+  ): Promise<{ items: Product[]; }> {
     const filters = {
       name: name || ''
     };
 
-    return this.productService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
+    return this.productService.findAllCategory(filters);
   }
 
   @Get(':id')

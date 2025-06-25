@@ -39,7 +39,7 @@ export default function SupportRegisterPage() {
     customer_id: '',
     business_id: '',
     issued: '',
-    type: 'consult',
+    type: 'technical',
     issue: '',
     solution: '',
     actioned: '',
@@ -56,10 +56,13 @@ export default function SupportRegisterPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [business, setBusinesses] = useState<Business[]>([]);
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [username, setUsername] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
+    const username = getCookie('username');
+    setUsername(username ?? undefined);
 
     const fetchCustomers = async () => {
       try {
@@ -133,7 +136,8 @@ export default function SupportRegisterPage() {
 
       const registerFormData = { 
         ...formData,
-        business_id: formData.business_id !== ''? formData.business_id : null
+        business_id: formData.business_id !== ''? formData.business_id : null,
+        writer: username
       }
       const response = await fetch('/api/support', {
         method: 'POST',
@@ -200,7 +204,7 @@ export default function SupportRegisterPage() {
                 required
               >
                 <option value="">선택하세요</option>
-                {customers.map(item => (
+                {customers?.map(item => (
                   <option key={item.id} value={item.id.toString()}>
                     {item.name}
                   </option>
@@ -218,7 +222,7 @@ export default function SupportRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">선택하세요</option>
-                {business.map(item => (
+                {business?.map(item => (
                   <option key={item.id} value={item.id.toString()}>
                     {item.name}
                   </option>
@@ -248,8 +252,8 @@ export default function SupportRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="consult">기술상담</option>
                 <option value="technical">기술지원</option>
+                <option value="consult">기술상담</option>
                 <option value="incident">장애지원</option>
                 <option value="poc">PoC</option>
                 <option value="other">기타</option>
@@ -416,4 +420,4 @@ export default function SupportRegisterPage() {
       </div>
     </div>
   );
-} 
+}

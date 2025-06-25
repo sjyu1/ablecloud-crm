@@ -13,6 +13,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import remarkRehype from 'remark-rehype'
 import MDEditor from '@uiw/react-md-editor';
+import { format } from 'date-fns';
 
 interface Product {
   id: number;
@@ -327,7 +328,9 @@ export default function ProductDetailPage() {
               </div> */}
               <div>
                 <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-                <p className="mt-1 text-lg text-gray-900">{product.created}</p>
+                <p className="mt-1 text-lg text-gray-900">
+                  {format(product.created, 'yyyy-MM-dd')}
+                </p>
               </div>
             </div>
           </div>

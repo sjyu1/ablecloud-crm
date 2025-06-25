@@ -72,17 +72,34 @@ export class PartnerService {
     };
   }
 
-  async findOne(id: number): Promise<Partner> {
-    const partner = await this.partnerRepository.findOne({
-      where: { id },
-      withDeleted: false
-    });
+  async findOne(id: number): Promise<Partner | null> {
+    const rawQuery = `
+      SELECT 
+        p.id AS id,
+        p.name AS name,
+        p.level AS level,
+        p.telnum AS telnum,
+        p.deposit_use AS deposit_use,
+        p.deposit AS deposit,
+        p.credit AS credit,
+        p.created AS created,
+        p.product_category AS product_category,
+        GROUP_CONCAT(pc.name ORDER BY pc.id) AS product_category_names
+      FROM partner p
+      LEFT JOIN product_category pc 
+		    ON FIND_IN_SET(pc.id, p.product_category)
+      WHERE p.id = ?
+        AND p.removed is null
+      GROUP BY p.id
+    `;
 
-    if (!partner) {
-      throw new NotFoundException(`파트너 ID ${id}를 찾을 수 없습니다.`);
-    }
+    const [partner] = await this.partnerRepository.query(rawQuery, [id]);
 
-    return partner;
+    if (!partner) throw new NotFoundException(`파트너 ID ${id}를 찾을 수 없습니다.`);
+
+    return {
+      ...partner,
+    };
   }
 
   async create(createPartnerDto: CreatePartnerDto): Promise<Partner> {

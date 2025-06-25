@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
+import { userinfo, userinfo_id } from '@/utils/userinfo';
 import log from '@/utils/logger';
 
 /**
@@ -13,6 +14,8 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const name = searchParams.get('name');
+    const role = searchParams.get('role');  // User 회사 정보만 조회
+    const managerId = searchParams.get('managerId');  // Admin이 사업 담당자(파트너) 선택한 경우, 파트너 사용 가능한 제품 조회
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/product`);
@@ -20,6 +23,20 @@ export async function GET(request: Request) {
     apiUrl.searchParams.set('limit', limit.toString());
     // 필터 파라미터 적용
     if (name) apiUrl.searchParams.set('name', name);
+    // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
+    if (role) {
+      const data_userinfo = await userinfo();
+      if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
+        apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
+      }
+
+    // Admin이 사업 담당자(파트너) 선택한 경우, 파트너 사용 가능한 제품 조회
+    } else if (managerId) {
+      const data_userinfo = await userinfo_id(managerId);
+      if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
+        apiUrl.searchParams.set('company_id', data_userinfo.attributes.company_id[0]);
+      }
+    }
 
     const response = await fetchWithAuth(apiUrl.toString());
     const data = await response.json();

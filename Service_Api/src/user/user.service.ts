@@ -206,7 +206,10 @@ export class UserService {
         CASE 
           WHEN type_attr.value = 'partner' THEN p.name 
           ELSE 'ABLECLOUD' 
-        END AS company
+        END AS company,
+        p.deposit_use AS deposit_use,
+        p.deposit AS deposit,
+        p.credit AS credit
       FROM keycloak.USER_ENTITY u
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id
