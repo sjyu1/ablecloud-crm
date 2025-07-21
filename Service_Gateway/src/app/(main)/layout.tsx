@@ -53,7 +53,7 @@ export default function MainLayout({
     { name: '고객', path: '/customer', icon: customer_svg },
     { name: '사용자', path: '/user', icon: user_svg },
     { name: '기술지원', path: '/support', icon: support_svg },
-    { name: '크레딧', path: '/credit', icon: credit_svg },
+    ...(role === 'Admin' ? [{ name: '크레딧', path: '/credit', icon: credit_svg }] : []),
   ];
 
   return (
