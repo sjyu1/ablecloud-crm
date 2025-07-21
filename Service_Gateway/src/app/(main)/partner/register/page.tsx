@@ -9,9 +9,9 @@ interface PartnerForm {
   name: string;
   telnum: string;
   level: string;
-  deposit_use: boolean;
-  deposit: string;
   product_category: string[];
+  // deposit_use: boolean;
+  // deposit: string;
 }
 
 interface Product_category {
@@ -25,9 +25,9 @@ export default function PartnerRegisterPage() {
     name: '',
     telnum: '',
     level: 'platinum',
-    deposit_use: false,
-    deposit: '',
-    product_category: [],
+    product_category: []
+    // deposit_use: false,
+    // deposit: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,12 +86,12 @@ export default function PartnerRegisterPage() {
       const formDataToSend: any = {
         ...formData,
         product_category: formData.product_category.join(','),
-        ...(formData.deposit_use && { credit: formData.deposit })
+        // ...(formData.deposit_use && { credit: formData.deposit })
       };
       
-      if (!formData.deposit_use) {
-        delete formDataToSend.deposit;
-      }
+      // if (!formData.deposit_use) {
+      //   delete formDataToSend.deposit;
+      // }
 
       const response = await fetch('/api/partner', {
         method: 'POST',
@@ -148,13 +148,13 @@ export default function PartnerRegisterPage() {
   };
 
   //크레딧 체크
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target;
-    setFormData(prev => ({
-      ...prev,
-      deposit_use: checked
-    }));
-  };
+  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { checked } = event.target;
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     deposit_use: checked
+  //   }));
+  // };
 
   return (
     <div className="space-y-6">
@@ -231,7 +231,7 @@ export default function PartnerRegisterPage() {
                 ))}
               </div>
             </div>
-            <div>
+            {/* <div>
               <input
                 type="checkbox"
                 name="deposit_use"
@@ -243,9 +243,9 @@ export default function PartnerRegisterPage() {
               <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
                 크레딧 구매
               </label>
-            </div>
+            </div> */}
           </div>
-          {formData.deposit_use && (
+          {/* {formData.deposit_use && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               구매 코어수
@@ -260,7 +260,7 @@ export default function PartnerRegisterPage() {
               required
             />
           </div>
-          )}
+          )} */}
 
           {error && (
             <div className="text-red-500 text-sm">

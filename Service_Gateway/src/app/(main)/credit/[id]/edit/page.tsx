@@ -5,30 +5,35 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
-interface CustomerForm {
+interface CreditForm {
   id: number;
-  name: string;
-  telnum: string;
+  partner_id: string;
+  partner: string;
+  business_id: string;
+  business: string;
+  deposit: number;
+  credit: number;
+  note: string;
 }
 
-export default function CustomerEditPage() {
+export default function CreditEditPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
-  const prevSearchField = searchParams.get('searchField') || 'name';
+  const prevSearchField = searchParams.get('searchField') || 'type';
   const prevSearchValue = searchParams.get('searchValue') || '';
-  const [formData, setFormData] = useState<CustomerForm | null>(null);
+  const [formData, setFormData] = useState<CreditForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchCustomerDetail();
+    fetchCreditDetail();
   }, []);
 
-  const fetchCustomerDetail = async () => {
+  const fetchCreditDetail = async () => {
     try {
-      const response = await fetch(`/api/customer/${params.id}`);
+      const response = await fetch(`/api/credit/${params.id}`);
       const result = await response.json();
 
       if (!response.ok) {
@@ -43,7 +48,7 @@ export default function CustomerEditPage() {
       setFormData(result.data);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert('고객 정보를 불러올 수 없습니다.');
+      alert('크레딧 정보를 불러올 수 없습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -55,13 +60,8 @@ export default function CustomerEditPage() {
     // setIsLoading(true);
 
     try {
-      // 전화번호 밸리데이션
-      if (!validateTelnum(formData?.telnum)) {
-        throw new Error('전화번호 형식이 올바르지 않습니다.');
-      }
-
       const updateFormData = { ...formData}
-      const response = await fetch(`/api/customer/${params.id}`, {
+      const response = await fetch(`/api/credit/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -70,12 +70,12 @@ export default function CustomerEditPage() {
       });
 
       if (response.ok) {
-        alert('고객이 수정되었습니다.');
+        alert('크레딧이 수정되었습니다.');
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 회사입니다.' : '고객 수정에 실패했습니다.');
+        throw new Error(response.status == 409? '이미 존재하는 크레딧입니다.' : '크레딧 수정에 실패했습니다.');
       }
 
-      router.push(`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
+      router.push(`/credit/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
@@ -83,23 +83,13 @@ export default function CustomerEditPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
       
     setFormData(prev => prev ? {
       ...prev,
       [name]: value
     } : null);
-  };
-
-  // 전화번호 유효성 검사 함수
-  const validateTelnum = (telnum?: string) => {
-    if (!telnum) return false;
-    const phoneRegex = /^(\d{2,3})-(\d{3,4})-(\d{4})$/;
-    if (!phoneRegex.test(telnum)) {
-      return false;
-    }
-    return true;
   };
 
   if (isLoading) {
@@ -111,43 +101,67 @@ export default function CustomerEditPage() {
   // }
 
   if (!formData) {
-    return <div className="text-center py-4 text-sm">고객 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center py-4 text-sm">크레딧 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">고객 수정</h1>
+        <h1 className="text-2xl font-bold text-gray-800">크레딧 수정</h1>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div>
+              <h3 className="text-sm font-medium text-gray-500">파트너</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {formData.partner}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">사업</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {formData.business? formData.business : '-'}
+              </p>
+            </div>
+            {formData.deposit ? (
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사
+                구매 크레딧
               </label>
               <input
-                type="text"
-                name="name"
-                value={formData.name}
+                type="number"
+                name="deposit"
+                min="0"
+                value={formData.deposit}
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
+            ) : null}
+            {formData.credit ? (
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">사용 크레딧</h3>
+              <p className="mt-1 text-lg text-gray-900">
+                {formData.credit}
+              </p>
+            </div>
+            ) : null}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호 (-포함)
+                비고
               </label>
-              <input
-                type="text"
-                name="telnum"
-                value={formData.telnum}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <textarea
+                  id="text-input"
+                  name="note"
+                  value={formData.note ?? ''}
+                  onChange={handleChange}
+                  placeholder="내용을 입력하세요"
+                  rows={2}
+                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
             </div>
           </div>
 
@@ -159,7 +173,7 @@ export default function CustomerEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
+              href={`/credit/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소

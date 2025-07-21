@@ -207,9 +207,8 @@ export class UserService {
           WHEN type_attr.value = 'partner' THEN p.name 
           ELSE 'ABLECLOUD' 
         END AS company,
-        p.deposit_use AS deposit_use,
-        p.deposit AS deposit,
-        p.credit AS credit
+        cr.deposit AS deposit,
+        cr.credit AS credit
       FROM keycloak.USER_ENTITY u
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id
@@ -220,6 +219,11 @@ export class UserService {
         AND type_attr.value IN ('partner', 'vendor')
       LEFT JOIN licenses.partner p
         ON company_attr.value = CAST(p.id AS CHAR)
+      LEFT JOIN (
+        SELECT partner_id, SUM(deposit) AS deposit, SUM(credit) AS credit
+        FROM licenses.credit
+        GROUP BY partner_id
+      ) cr ON p.id = cr.partner_id
       WHERE company_attr.id IS NOT NULL
         AND type_attr.id IS NOT NULL
         ${filters.type ? `AND type_attr.value = '${filters.type}'` : ''}

@@ -2,9 +2,9 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Business } from './business.entity';
-import { Partner } from '../partner/partner.entity';
+import { Credit } from '../credit/credit.entity';
 import { Business_history } from './business_history.entity';
-import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto } from './dto/business.dto';
+import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto, CreateCreditDto, UpdateCreditDto } from './dto/business.dto';
 
 @Injectable()
 export class BusinessService {
@@ -13,8 +13,8 @@ export class BusinessService {
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Business_history)
     private readonly business_historyRepository: Repository<Business_history>,
-    @InjectRepository(Partner)
-    private readonly partnerRepository: Repository<Partner>
+    @InjectRepository(Credit)
+    private readonly creditRepository: Repository<Credit>
   ) {}
 
   async findAll(
@@ -255,7 +255,10 @@ export class BusinessService {
         CASE 
           WHEN type_attr.value = 'partner' THEN partner.name 
           ELSE 'ABLECLOUD' 
-        END AS manager_company
+        END AS manager_company,
+        ANY_VALUE(cr.deposit) AS deposit,
+        ANY_VALUE(cr.credit) AS credit,
+        credit.id AS credit_id
       FROM business b
       LEFT JOIN customer c ON b.customer_id = c.id
       LEFT JOIN product p ON b.product_id = p.id
@@ -271,6 +274,13 @@ export class BusinessService {
         AND type_attr.value IN ('partner', 'vendor')
       LEFT JOIN partner
         ON company_attr.value = CAST(partner.id AS CHAR)
+      LEFT JOIN credit ON b.id = credit.business_id
+      LEFT JOIN (
+        SELECT partner_id, SUM(deposit) AS deposit, SUM(credit) AS credit
+        FROM credit
+        WHERE removed IS NULL
+        GROUP BY partner_id
+      ) cr ON partner.id = cr.partner_id
       WHERE company_attr.id IS NOT NULL
         AND type_attr.id IS NOT NULL
         AND b.id = ?
@@ -333,31 +343,44 @@ export class BusinessService {
     };
   }
 
-  async create(createBusinessDto: CreateBusinessDto): Promise<Business> {
+  async create(createBusinessDto: CreateBusinessDto, createCreditDto: CreateCreditDto): Promise<Business> {
     // create business
     const business = this.businessRepository.create(createBusinessDto);
+    await this.businessRepository.save(business);
 
-    // update partner credit
+    // create credit
     if (createBusinessDto.deposit_use) {
-      const partner = await this.partnerRepository.findOne({
-        where: { id: parseInt(createBusinessDto.partner_id, 10) },
-      });
+      const credit = this.creditRepository.create(createCreditDto)
+      credit.business_id = business.id;
+      credit.partner_id = createBusinessDto.partner_id;
+      credit.credit = createBusinessDto.core_cnt;
 
-      if (partner) {
-        partner.credit = createBusinessDto.credit;
-        await this.partnerRepository.save(partner);
-      }
+      this.creditRepository.save(credit);
     }
-    return this.businessRepository.save(business);
+
+    return business;
   }
 
-  async update(id: number, updateBusinessDto: UpdateBusinessDto): Promise<Business> {
+  async update(id: number, updateBusinessDto: UpdateBusinessDto, updateCreditDto: UpdateCreditDto): Promise<Business> {
     const business = await this.findOne(id);
     const updatedBusiness = {
       ...business,
       ...updateBusinessDto,
     };
-    return this.businessRepository.save(updatedBusiness);
+    await this.businessRepository.save(updatedBusiness);
+
+    // update credit
+    if (updateBusinessDto.deposit_use) {
+      const credit = this.creditRepository.create(updateCreditDto)
+      credit.id = updateBusinessDto.credit_id;
+      credit.credit = updateBusinessDto.core_cnt;
+
+      this.creditRepository.save(credit);
+    } else {
+      await this.creditRepository.softDelete(updateBusinessDto.credit_id);
+    }
+
+    return business
   }
 
   async delete(id: number): Promise<void> {

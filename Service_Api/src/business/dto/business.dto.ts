@@ -29,6 +29,8 @@ export class UpdateBusinessDto {
   manager_id?: string;
   product_id?: string;
   details: string;
+  deposit_use: boolean;
+  credit_id: number;
 }
 
 export class CreateBusiness_historyDto {
@@ -52,4 +54,16 @@ export class UpdateBusiness_historyDto {
   started: string;
   ended: string;
   note: string;
+}
+
+export class CreateCreditDto {
+  partner_id: string;
+  business_id: number;
+  deposit: number;
+  credit: number;
+  note: string;
+}
+
+export class UpdateCreditDto {
+  credit: number;
 }

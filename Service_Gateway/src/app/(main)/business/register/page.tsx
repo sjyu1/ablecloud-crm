@@ -32,7 +32,7 @@ interface Manager {
   username: string;
   company: string;
   company_id: string;
-  deposit_use: string;
+  // deposit_use: string;
   deposit: string;
   credit: string;
 }
@@ -165,8 +165,8 @@ export default function BusinessRegisterPage() {
 
     try {
       if (formData.deposit_use && selectedManager) {
-        const availableCredit = parseInt(selectedManager.credit);
-        const remainingCredit = availableCredit - formData.core_cnt;
+        const availableCredit = parseInt(selectedManager.deposit)-parseInt(selectedManager.credit); //사용 가능 크레딧
+        const remainingCredit = availableCredit - formData.core_cnt;  // 크레딧 사용 후 잔여 크레딧
       
         if (remainingCredit < 0) {
           throw new Error(`크레딧이 부족합니다. 현재 사용 가능 크레딧은 ${availableCredit}이며, 필요한 크레딧은 ${formData.core_cnt}입니다.`);
@@ -365,7 +365,7 @@ export default function BusinessRegisterPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {selectedManager?.deposit_use == '1' && (
+              {selectedManager?.deposit && (
                 <div className="text-sm text-gray-600 space-y-1">
                   <label className="flex items-center space-x-2">
                     <input
@@ -376,13 +376,13 @@ export default function BusinessRegisterPage() {
                     />
                     <span>크레딧 사용</span>
                     <div>
-                      (사용 가능 크레딧: {selectedManager.credit} / 크레딧 사용 후 잔여 크레딧:{' '}
+                      (사용 가능 크레딧: {Number(selectedManager.deposit)-Number(selectedManager.credit)} / 크레딧 사용 후 잔여 크레딧:{' '}
                       <span className={
-                        parseInt(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0) < 0
+                        Number(selectedManager.deposit)-Number(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0) < 0
                           ? 'text-red-500 font-bold'
                           : ''
                       }>
-                        {parseInt(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0)})
+                        {Number(selectedManager.deposit)-Number(selectedManager.credit) - (formData.deposit_use ? formData.core_cnt : 0)})
                       </span>
                     </div>
                   </label>
