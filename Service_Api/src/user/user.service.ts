@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -20,6 +20,7 @@ export class UserService {
       company_id?: string;
       manager_id?: string;
       type?: string;
+      level?: string;
     }
   ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
     const offset = (currentPage - 1) * itemsPerPage;
@@ -61,7 +62,32 @@ export class UserService {
       params.push(filters.company_id);
     }
 
-    
+    if (filters.level) {
+      filters.type = 'partner';
+
+      const levelList = filters.level.split(',').map(l => l.trim()); // ['ALL', 'PLATINUM', 'SILVER', 'GOLD', 'VAR']
+      if (levelList.includes('ALL')) {
+        levelList.splice(0, levelList.length);
+        levelList.push('ALL', 'PLATINUM', 'SILVER', 'GOLD', 'VAR');
+      } else {
+        levelList.push('ALL');
+      }
+      Logger.log('levelList : '+levelList)
+      const placeholders = levelList.map(() => '?').join(', ');
+      Logger.log('placeholders : '+placeholders)
+      whereConditions.push(`
+        (
+          CASE 
+            WHEN type_attr.value = 'partner' THEN p.level
+            WHEN type_attr.value = 'customer' THEN '' 
+            ELSE 'ALL'
+          END IN (${placeholders})
+        )
+      `);
+      params.push(...levelList);
+
+      whereConditions.push(`u.email IS NOT NULL AND u.email <> ''`);
+    }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
@@ -103,7 +129,11 @@ export class UserService {
         CASE 
           WHEN type_attr.value = '${filters.type === 'partner' ? 'partner' : 'customer'}' THEN p.name 
           ELSE 'ABLECLOUD' 
-        END AS company
+        END AS company,
+        CASE 
+          WHEN type_attr.value = '${filters.type === 'partner' ? 'partner' : 'customer'}' THEN ${filters.type === 'partner' ? 'p.level' : "''"}
+          ELSE 'ALL' 
+        END AS level
       FROM keycloak.USER_ENTITY u
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id

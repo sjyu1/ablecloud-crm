@@ -140,6 +140,10 @@ export default function PartnerEditPage() {
       if (!prev) return prev;
       const selected = prev.product_category || [];
 
+      if (!checked && selected.length === 1 && selected.includes(value)) {
+        return prev;
+      }
+
       return {
         ...prev,
         product_category: checked

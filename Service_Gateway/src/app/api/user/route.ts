@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     const company = searchParams.get('company');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const type = searchParams.get('type');
+    const level = searchParams.get('level');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/user`);
@@ -28,6 +29,7 @@ export async function GET(request: Request) {
     if (firstName) apiUrl.searchParams.set('firstName', firstName );
     if (company) apiUrl.searchParams.set('company', company );
     if (type) apiUrl.searchParams.set('type', type);
+    if (level) apiUrl.searchParams.set('level', level);
     // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();

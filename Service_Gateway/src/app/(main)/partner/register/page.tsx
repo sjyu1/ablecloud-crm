@@ -129,6 +129,10 @@ export default function PartnerRegisterPage() {
     setFormData(prev => {
       const selected = prev.product_category || [];
   
+      if (!checked && selected.length === 1 && selected.includes(value)) {
+        return prev;
+      }
+
       return {
         ...prev,
         product_category: checked
