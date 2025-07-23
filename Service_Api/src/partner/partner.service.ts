@@ -79,17 +79,22 @@ export class PartnerService {
         p.name AS name,
         p.level AS level,
         p.telnum AS telnum,
-        p.deposit_use AS deposit_use,
-        p.deposit AS deposit,
-        p.credit AS credit,
         p.created AS created,
         p.product_category AS product_category,
-        GROUP_CONCAT(pc.name ORDER BY pc.id) AS product_category_names
+        GROUP_CONCAT(pc.name ORDER BY pc.id) AS product_category_names,
+        ANY_VALUE(cr.deposit) AS deposit,
+        ANY_VALUE(cr.credit) AS credit
       FROM partner p
       LEFT JOIN product_category pc 
-		    ON FIND_IN_SET(pc.id, p.product_category)
+        ON FIND_IN_SET(pc.id, p.product_category)
+      LEFT JOIN (
+        SELECT partner_id, SUM(deposit) AS deposit, SUM(credit) AS credit
+        FROM credit
+        WHERE removed IS NULL
+        GROUP BY partner_id
+      ) cr ON p.id = cr.partner_id
       WHERE p.id = ?
-        AND p.removed is null
+        AND p.removed IS NULL
       GROUP BY p.id
     `;
 

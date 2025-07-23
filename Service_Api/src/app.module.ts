@@ -7,6 +7,8 @@ import { PartnerModule } from './partner/partner.module';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
 import { SupportModule } from './support/support.module';
+import { CreditModule } from './credit/credit.module';
+import { NoticeModule } from './notice/notice.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
@@ -51,7 +53,7 @@ import { DataSource } from 'typeorm';
         '.env.local',
       ],
     }),
-    BusinessModule, CustomerModule, LicenseModule, PartnerModule, ProductModule, UserModule, SupportModule
+    BusinessModule, CustomerModule, LicenseModule, PartnerModule, ProductModule, UserModule, SupportModule, CreditModule, NoticeModule
   ],
 })
 export class AppModule implements OnApplicationShutdown {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
 interface PartnerForm {
@@ -9,6 +10,16 @@ interface PartnerForm {
   name: string;
   telnum: string;
   level: string;
+  // deposit_use: string;
+  // deposit: string;
+  // credit: string;
+  created: string;
+  product_category: string[];
+}
+
+interface Product_category {
+  id: number;
+  name: string;
 }
 
 export default function PartnerEditPage() {
@@ -21,9 +32,15 @@ export default function PartnerEditPage() {
   const [formData, setFormData] = useState<PartnerForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [product_category, setProduct_category] = useState<Product_category[]>([]);
+  const [role, setRole] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    const role = getCookie('role');
+    setRole(role ?? undefined);
+
     fetchPartnerDetail();
+    fetchProduct_category();
   }, []);
 
   const fetchPartnerDetail = async () => {
@@ -35,11 +52,37 @@ export default function PartnerEditPage() {
         throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
       }
 
-      setFormData(result.data);
+      const data = result.data;
+
+      const productCategoryArray = Array.isArray(data.product_category)
+        ? data.product_category
+        : (data.product_category || '').split(',').map((id: string) => id.trim());
+
+      setFormData({
+        ...data,
+        product_category: productCategoryArray,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchProduct_category = async () => {
+    try {
+      let url = `/api/product/category`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || '제품 카테고리 정보를 불러올 수 없습니다.');
+      }
+
+      setProduct_category(result.data);
+    } catch (error) {
+      alert('제품 카테고리 목록 조회에 실패했습니다.');
     }
   };
 
@@ -54,13 +97,18 @@ export default function PartnerEditPage() {
         throw new Error('전화번호 형식이 올바르지 않습니다.');
       }
 
-      const updateFormData = { ...formData}
+      // const updateFormData = { ...formData}
+      const formDataToSend: any = {
+        ...formData,
+        product_category: formData?.product_category.join(','),
+        // ...(formData.deposit_use && { credit: formData.deposit })
+      };
       const response = await fetch(`/api/partner/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateFormData),
+        body: JSON.stringify(formDataToSend),
       });
 
       if (response.ok) {
@@ -83,6 +131,26 @@ export default function PartnerEditPage() {
       ...prev,
       [name]: value
     } : null);
+  };
+
+  const handleCheckboxGroupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+  
+    setFormData(prev => {
+      if (!prev) return prev;
+      const selected = prev.product_category || [];
+
+      if (!checked && selected.length === 1 && selected.includes(value)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        product_category: checked
+          ? [...selected, value]
+          : selected.filter(item => item !== value),
+      };
+    });
   };
 
   // 전화번호 유효성 검사 함수
@@ -159,6 +227,43 @@ export default function PartnerEditPage() {
                 <option value="VAR">VAR</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 카테고리
+              </label>
+              <div className="w-1/2 grid grid-cols-2 gap-3 p-3 border border-gray-300 rounded-md">
+                {product_category.map(item => (
+                  <label
+                    key={item.id}
+                    className="flex items-center space-x-2 text-sm text-gray-700"
+                  >
+                    <input
+                      type="checkbox"
+                      name="product_category"
+                      value={item.id}
+                      checked={formData.product_category.includes(item.id.toString())}
+                      onChange={handleCheckboxGroupChange}
+                      className="rounded border-gray-300"
+                    />
+                    <span>{item.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            {/* <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                구매 코어수
+              </label>
+              <input
+                type="number"
+                name="deposit"
+                min="0"
+                value={formData.deposit}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div> */}
           </div>
 
           {error && (

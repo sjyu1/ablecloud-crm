@@ -22,6 +22,7 @@ export class UserController {
     @Query('company_id') company_id?: string,
     @Query('manager_id') manager_id?: string,
     @Query('type') type?: string,
+    @Query('level') level?: string
   ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       username: username || '',
@@ -29,7 +30,8 @@ export class UserController {
       company: company || '',
       company_id: company_id || '',
       manager_id: manager_id || '',
-      type: type || ''
+      type: type || '',
+      level: level || ''
     };
 
     return this.userService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

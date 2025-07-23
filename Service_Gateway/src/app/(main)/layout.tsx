@@ -15,6 +15,8 @@ import partner_svg from '../../../public/icons/partner.svg';
 import customer_svg from '../../../public/icons/customer.svg';
 import user_svg from '../../../public/icons/user.svg';
 import support_svg from '../../../public/icons/support.svg';
+import credit_svg from '../../../public/icons/credit.svg';
+import notice_svg from '../../../public/icons/notice.svg';
 
 export default function MainLayout({
   children,
@@ -52,6 +54,8 @@ export default function MainLayout({
     { name: '고객', path: '/customer', icon: customer_svg },
     { name: '사용자', path: '/user', icon: user_svg },
     { name: '기술지원', path: '/support', icon: support_svg },
+    ...(role === 'Admin' ? [{ name: '크레딧', path: '/credit', icon: credit_svg }] : []),
+    { name: '공지사항', path: '/notice', icon: notice_svg },
   ];
 
   return (

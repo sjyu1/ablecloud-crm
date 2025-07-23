@@ -26,6 +26,13 @@ interface Product {
   enabled: string;
 }
 
+interface File {
+  name: string;
+  date: string;
+  size: string;
+  url: string;
+}
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -67,6 +74,12 @@ export default function ProductDetailPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
   const [value, setValue] = useState(0);
   const [releaseHtml, setReleaseHtml] = useState('');
+  const [files, setKoralFiles] = useState<File[]>([]);
+  const [isKoralLoading, setIsKoralLoading] = useState(false);
+  const [koralError, setKoralError] = useState<string | null>(null);
+  const [templates, setTemplateFiles] = useState<File[]>([]);
+  const [isTemplateLoading, setIsTemplateLoading] = useState(false);
+  const [templateError, setTemplateError] = useState<string | null>(null);
 
   useEffect(() => {
     const role = getCookie('role');
@@ -74,6 +87,15 @@ export default function ProductDetailPage() {
 
     fetchProductDetail();
   }, []);
+
+  useEffect(() => {
+    if (value === 2 && !isKoralLoading && files.length === 0) {
+      fetchKoral();
+    }
+    if (value === 3 && !isTemplateLoading && templates.length === 0) {
+      fetchTemplate();
+    }
+  }, [value]);
 
   const fetchProductDetail = async () => {
     try {
@@ -92,7 +114,6 @@ export default function ProductDetailPage() {
 
       //release note(Markdown → HTML 변환)
       fetchContents(result.data);
-
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       if (err instanceof Error) {
@@ -164,6 +185,38 @@ export default function ProductDetailPage() {
 
     const contentHtml = processedContent.toString();
     setReleaseHtml(contentHtml);
+  };
+
+  const fetchKoral = async () => {
+    setIsKoralLoading(true);
+    setKoralError(null);
+    try {
+      const res = await fetch(`/api/product/${params.id}/koral`);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      const data = await res.json();
+
+      setKoralFiles(data);
+    } catch (e: any) {
+      setKoralError(e.message);
+    } finally {
+      setIsKoralLoading(false);
+    }
+  };
+
+  const fetchTemplate = async () => {
+    setIsTemplateLoading(true);
+    setTemplateError(null);
+    try {
+      const res = await fetch(`/api/product/${params.id}/template`);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      const data = await res.json();
+
+      setTemplateFiles(data);
+    } catch (e: any) {
+      setTemplateError(e.message);
+    } finally {
+      setIsTemplateLoading(false);
+    }
   };
 
   const handleDisabled = async () => {
@@ -280,6 +333,8 @@ export default function ProductDetailPage() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
             <Tab label="릴리즈노트" {...tabProps(1)} />
+            <Tab label="Koral" {...tabProps(2)} />
+            <Tab label="Template" {...tabProps(3)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -352,6 +407,98 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}>
+        {isKoralLoading ? (
+          <div className="flex justify-center items-center py-10 text-gray-500 text-sm">
+            로딩 중...
+          </div>
+        ) : koralError ? (
+          <div className="flex justify-center items-center py-10 text-red-500 text-sm">
+            {koralError}
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사이즈</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {files.map((file) => (
+                <tr key={file.name} className="hover:bg-gray-50 cursor-pointer">
+                  <td className="px-6 py-4 break-all">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm font-medium"
+                    >
+                      {file.name}
+                    </a>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.date}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.size}</td>
+                </tr>
+              ))}
+              {files.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
+                    파일 정보가 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+        {isTemplateLoading ? (
+          <div className="flex justify-center items-center py-10 text-gray-500 text-sm">
+            로딩 중...
+          </div>
+        ) : templateError ? (
+          <div className="flex justify-center items-center py-10 text-red-500 text-sm">
+            {templateError}
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사이즈</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {templates.map((file) => (
+                <tr key={file.name} className="hover:bg-gray-50 cursor-pointer">
+                  <td className="px-6 py-4 break-all">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm font-medium"
+                    >
+                      {file.name}
+                    </a>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.date}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.size}</td>
+                </tr>
+              ))}
+              {templates.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
+                    파일 정보가 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
         </CustomTabPanel>
       </Box>
     </div>

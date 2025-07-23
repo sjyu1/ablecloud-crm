@@ -16,6 +16,10 @@ interface BusinessForm {
   manager_id: string;
   product_id: string;
   details: string;
+  deposit_use: boolean;
+  deposit: string;
+  credit: string;
+  credit_id: string;
 }
 
 interface Manager {
@@ -156,6 +160,18 @@ export default function BusinessEditPage() {
     } : null);
   };
 
+  //크레딧 체크
+  const handleCreditCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target;
+    setFormData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        deposit_use: checked,
+      };
+    });
+  };
+
   if (isLoading) {
     return <div className="text-center py-4 text-sm">로딩 중...</div>;
   }
@@ -273,6 +289,37 @@ export default function BusinessEditPage() {
                 onChange={handleChange}
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {formData?.deposit && (
+                <div className="text-sm text-gray-600 space-y-1">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.deposit_use}
+                      onChange={handleCreditCheckboxChange}
+                      className="rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span>크레딧 사용(구매 | 사용 | 잔여 코어수)</span>
+                    <div>
+                      ({formData.deposit} | {formData.credit} | {' '}
+                      <span className={
+                        Number(formData.deposit)-Number(formData.credit) < 0
+                          ? 'text-red-500 font-bold'
+                          : ''
+                      }>
+                        {Number(formData.deposit)-Number(formData.credit)}
+                      </span>)
+                      {/* (사용 가능 크레딧: {Number(formData.deposit)-Number(formData.credit)} / 크레딧 사용 후 잔여 크레딧:{' '}
+                      <span className={
+                        Number(formData.deposit)-Number(formData.credit) - (formData.deposit_use ? formData.core_cnt : 0) < 0
+                          ? 'text-red-500 font-bold'
+                          : ''
+                      }>
+                        {Number(formData.deposit)-Number(formData.credit) - (formData.deposit_use ? formData.core_cnt : 0)})
+                      </span> */}
+                    </div>
+                  </label>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

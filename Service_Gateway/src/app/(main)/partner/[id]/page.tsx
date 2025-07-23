@@ -13,7 +13,7 @@ interface Partner {
   name: string;
   telnum: string;
   level: string;
-  deposit_use: string;
+  // deposit_use: string;
   deposit: string;
   credit: string;
   created: string;
@@ -256,11 +256,18 @@ export default function PartnerDetailPage() {
                 {partner.product_category_names}
                 </p>
               </div>
-              {partner.deposit_use == '1' && (
+              {(partner.deposit || partner.credit) && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500">크레딧 구매 코어수(잔여 코어수)</h3>
+                <h3 className="text-sm font-medium text-gray-500">크레딧(구매 | 사용 | 잔여 코어수)</h3>
                 <p className="mt-1 text-lg text-gray-900">
-                {partner.deposit}({partner.credit})
+                {partner.deposit? partner.deposit : '-'} | {partner.credit? partner.credit : '-'} | {' '}
+                  <span className={
+                    Number(partner.deposit)-Number(partner.credit) < 0
+                      ? 'text-red-500 font-bold'
+                      : ''
+                  }>
+                    {Number(partner.deposit)-Number(partner.credit)}
+                  </span>
                 </p>
               </div>
               )}

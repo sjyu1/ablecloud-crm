@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Logg
 import { BusinessService } from './business.service';
 import { Business } from './business.entity';
 import { Business_history } from './business_history.entity';
-import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto } from './dto/business.dto';
+import { CreateBusinessDto, UpdateBusinessDto, CreateBusiness_historyDto, UpdateBusiness_historyDto, CreateCreditDto, UpdateCreditDto } from './dto/business.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/role/role.guard';
 
@@ -61,8 +61,8 @@ export class BusinessController {
 
   @Post()
   // @Roles('Admin')
-  async create(@Body() createBusinessDto: CreateBusinessDto): Promise<Business> {
-    return this.businessService.create(createBusinessDto);
+  async create(@Body() createBusinessDto: CreateBusinessDto, createCreditDto: CreateCreditDto): Promise<Business> {
+    return this.businessService.create(createBusinessDto, createCreditDto);
   }
 
   @Post(':id/history')
@@ -78,9 +78,9 @@ export class BusinessController {
   // @Roles('Admin')
   async update(
     @Param('id') id: string,
-    @Body() updateBusinessDto: UpdateBusinessDto
+    @Body() updateBusinessDto: UpdateBusinessDto, updateCreditDto: UpdateCreditDto
   ): Promise<Business> {
-    return this.businessService.update(parseInt(id, 10), updateBusinessDto);
+    return this.businessService.update(parseInt(id, 10), updateBusinessDto, updateCreditDto);
   }
 
   @Put(':id/history/:historyId')
