@@ -172,7 +172,7 @@ export default function noticeDetailPage() {
             onClick={handleSendMail}
             className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
           >
-            사용자 메일 보내기
+            파트너에게 메일 보내기
           </button>
           <button
             onClick={() => router.push(`/notice/${notice.id}/edit?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
@@ -343,7 +343,7 @@ export default function noticeDetailPage() {
                   if (!response.ok) throw new Error('메일 전송에 실패하였습니다.');
                   alert('메일이 전송되었습니다.');
                   setShowUserModal(false);
-                  router.push(`/notice?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
+                  router.push(`/notice/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
                 } catch (err) {
                   alert(err instanceof Error ? err.message : '오류가 발생하였습니다.');
                 }
