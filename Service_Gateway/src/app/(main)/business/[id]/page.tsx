@@ -157,6 +157,12 @@ export default function BusinessDetailPage() {
       return;
     }
 
+    if (business?.deposit_use) {
+      if (!confirm('사업에 대한 크레딧 사용이 존재합니다. 사업 삭제시 사용된 크레딧도 삭제됩니다. 정말 이 사업을 삭제하시겠습니까?')) {
+        return;
+      }
+    }
+
     try {
       const response = await fetch(`/api/business/${params.id}`, {
         method: 'DELETE',
