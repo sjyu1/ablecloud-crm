@@ -390,6 +390,15 @@ export class BusinessService {
     business.license_id = null;
     await this.businessRepository.save(business);
 
+    // 해당 사업의 credit 삭제
+    if (business.deposit_use) {
+      await this.creditRepository
+      .createQueryBuilder()
+      .softDelete()
+      .where("business_id = :id", { id })
+      .execute();
+    }
+
     await this.businessRepository.softDelete(id);
   }
 
