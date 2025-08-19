@@ -11,7 +11,8 @@ import * as cheerio from 'cheerio';
  */
 export async function GET() {
   try {
-    const res = await fetch('https://product.ablecloud.io/template');
+    log.info('API URL ::: GET /product/template');
+    const res = await fetch(`${process.env.PRODUCT_URL}/template`);
     const html = await res.text();
     const $ = cheerio.load(html);
 
@@ -48,6 +49,7 @@ export async function GET() {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    log.info('API URL ::: GET /product/template ERROR ::: '+error);
     return new Response(
       JSON.stringify({ error: 'Failed to fetch Template file list' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
