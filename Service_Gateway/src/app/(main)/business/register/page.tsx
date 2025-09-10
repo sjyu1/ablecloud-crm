@@ -260,7 +260,7 @@ export default function BusinessRegisterPage() {
               >
                 <option value="">선택하세요</option>
                 {managers.map(item => (
-                  <option key={item.id} value={item.company_id.toString()}>
+                  <option key={item.id} value={item.id.toString()}>
                     {item.username} ({item.company})
                   </option>
                 ))}
