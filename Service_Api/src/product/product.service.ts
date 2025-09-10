@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
@@ -76,7 +76,8 @@ export class ProductService {
         p.checksum as checksum,
         p.enabled as enabled,
         p.contents as contents,
-        p.created as created
+        p.created as created,
+        pc.name as category_name
       FROM product p
       LEFT JOIN product_category pc ON p.category_id = pc.id
       ${whereClause}
@@ -95,16 +96,31 @@ export class ProductService {
   }
 
   async findOne(id: number): Promise<Product> {
-    const product = await this.productRepository.findOne({
-      where: { id },
-      withDeleted: false
-    });
+    const rawQuery = `
+      SELECT 
+        p.id as id,
+        p.category_id as category_id,
+        p.name as name,
+        p.version as version,
+        p.isoFilePath as isoFilePath,
+        p.checksum as checksum,
+        p.enabled as enabled,
+        p.contents as contents,
+        p.created as created,
+        pc.name as category_name
+      FROM product p
+      LEFT JOIN product_category pc ON p.category_id = pc.id
+      WHERE p.removed IS NULL 
+        AND p.enabled = true
+    `;
 
-    if (!product) {
-      throw new NotFoundException(`제품 ID ${id}를 찾을 수 없습니다.`);
-    }
+    const [product] = await this.productRepository.query(rawQuery, [id]);
 
-    return product;
+    if (!product) return null;
+
+    return {
+      ...product,
+    };
   }
 
   async create(createProductDto: CreateProductDto): Promise<Product> {

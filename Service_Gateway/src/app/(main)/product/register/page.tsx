@@ -1,24 +1,59 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
 import Link from 'next/link';
 
 interface ProductForm {
   name: string;
+  category_id: number;
   version: string;
   isoFilePath: string;
+}
+
+interface Product_category {
+  id: number;
+  name: string;
 }
 
 export default function ProductRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<ProductForm>({
     name: '',
+    category_id: 0,
     version: '',
     isoFilePath: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [product_category, setProduct_category] = useState<Product_category[]>([]);
+
+  useEffect(() => {
+    const fetchProduct_category = async () => {
+      try {
+        let url = `/api/product/category`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (!result.success) {
+          if (result.message == 'Failed to fetch user information') {
+            logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+          } else {
+            // alert(result.message);
+            return;
+          }
+        }
+
+        setProduct_category(result.data);
+      } catch (error) {
+        alert('제품 카테고리 목록 조회에 실패했습니다.');
+      }
+    };
+
+    fetchProduct_category();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +112,25 @@ export default function ProductRegisterPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 카테고리
+              </label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {product_category.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
