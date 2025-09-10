@@ -14,6 +14,13 @@ export class Product {
   name: string;
 
   @Column({
+    type: 'int',
+    nullable: false,
+    default: ''
+  })
+  category_id: number;
+
+  @Column({
     type: 'varchar',
     length: 50,
     nullable: false,

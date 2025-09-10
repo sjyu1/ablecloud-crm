@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
 import Link from 'next/link';
 
 interface ProductForm {
@@ -10,6 +11,12 @@ interface ProductForm {
   version: string;
   level: string;
   isoFilePath: string;
+  category_id: number;
+}
+
+interface Product_category {
+  id: number;
+  name: string;
 }
 
 export default function ProductEditPage() {
@@ -21,9 +28,11 @@ export default function ProductEditPage() {
   const [formData, setFormData] = useState<ProductForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [product_category, setProduct_category] = useState<Product_category[]>([]);
 
   useEffect(() => {
     fetchProductDetail();
+    fetchProduct_category();
   }, []);
 
   const fetchProductDetail = async () => {
@@ -40,6 +49,28 @@ export default function ProductEditPage() {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchProduct_category = async () => {
+    try {
+      let url = `/api/product/category`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (!result.success) {
+        if (result.message == 'Failed to fetch user information') {
+          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
+        } else {
+          // alert(result.message);
+          return;
+        }
+      }
+
+      setProduct_category(result.data);
+    } catch (error) {
+      alert('제품 카테고리 목록 조회에 실패했습니다.');
     }
   };
 
@@ -114,6 +145,25 @@ export default function ProductEditPage() {
                 className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                제품 카테고리
+              </label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleChange}
+                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">선택하세요</option>
+                {product_category.map(item => (
+                  <option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

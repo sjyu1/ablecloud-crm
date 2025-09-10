@@ -24,6 +24,7 @@ interface Product {
   contents: string;
   created: string;
   enabled: string;
+  category_name: string;
 }
 
 interface File {
@@ -345,6 +346,12 @@ export default function ProductDetailPage() {
                 <h3 className="text-sm font-medium text-gray-500">제품</h3>
                 <p className="mt-1 text-lg text-gray-900">
                 {product.name}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">제품 카테고리</h3>
+                <p className="mt-1 text-lg text-gray-900">
+                {product.category_name}
                 </p>
               </div>
               <div>
