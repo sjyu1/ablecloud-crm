@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
 import { userinfo, userinfo_id } from '@/utils/userinfo';
+import { promises as fs } from 'fs';
+import path from 'path';
 import log from '@/utils/logger';
 
 /**
@@ -82,28 +84,30 @@ export async function POST(request: Request) {
     const { isoFilePath } = body;
 
     // checksum 값 가져오기
-    /* fetch오류로 주석처리
-    const md5Url = isoFilePath + '.md5';
+    const md5FilePath = path.join(process.cwd(), 'files/iso', isoFilePath + '.md5');
     let md5Value = '';
     try {
-      const response = await fetch(md5Url);
-      if (response.ok) {
-        md5Value = await response.text();
-      }
+      md5Value = await fs.readFile(md5FilePath, 'utf-8');
+      md5Value = md5Value.trim();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      throw new Error(errorMessage || 'checksum 값 가져오는 중 오류가 발생했습니다.');
+      return NextResponse.json(
+        {
+          success: false,
+          message: `제품 checksum 파일을 읽는 중 오류가 발생했습니다: ${errorMessage}`,
+        },
+        { status: 500 }
+      );
     }
 
     const newBody = {
       ...body,
       checksum: md5Value,
     };
-    */
-
+    
     const response = await fetchWithAuth(`${process.env.API_URL}/product`, {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify(newBody),
     });
 
     const data = await response.json();
