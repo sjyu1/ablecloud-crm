@@ -82,6 +82,7 @@ export async function POST(request: Request) {
     const { isoFilePath } = body;
 
     // checksum 값 가져오기
+    /* fetch오류로 주석처리
     const md5Url = isoFilePath + '.md5';
     let md5Value = '';
     try {
@@ -91,23 +92,18 @@ export async function POST(request: Request) {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      return NextResponse.json(
-        { 
-          success: false,
-          message: errorMessage || '제품 checksum 가져오기 중 오류가 발생했습니다.'
-        },
-        { status: 500 }
-      );
+      throw new Error(errorMessage || 'checksum 값 가져오는 중 오류가 발생했습니다.');
     }
 
     const newBody = {
       ...body,
       checksum: md5Value,
     };
+    */
 
     const response = await fetchWithAuth(`${process.env.API_URL}/product`, {
       method: 'POST',
-      body: JSON.stringify(newBody),
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();

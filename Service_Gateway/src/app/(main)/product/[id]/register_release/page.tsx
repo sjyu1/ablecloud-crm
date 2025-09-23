@@ -11,6 +11,7 @@ interface ProductForm {
   version: string;
   level: string;
   isoFilePath: string;
+  category_id: number;
 }
 
 export default function ProductEditPage() {

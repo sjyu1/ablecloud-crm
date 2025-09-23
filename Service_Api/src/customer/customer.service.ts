@@ -184,7 +184,7 @@ export class CustomerService {
       FROM customer c
       LEFT JOIN business b ON c.id = b.customer_id
       LEFT JOIN keycloak.USER_ENTITY u
-        ON b.manager_id = u.id
+        ON c.manager_id = u.id
       LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
         ON u.id = company_attr.user_id
         AND company_attr.name = 'company_id'
