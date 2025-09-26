@@ -14,6 +14,7 @@ import rehypeStringify from 'rehype-stringify';
 import remarkRehype from 'remark-rehype'
 import MDEditor from '@uiw/react-md-editor';
 import { format } from 'date-fns';
+import streamSaver from 'streamsaver';
 
 interface Product {
   id: number;
@@ -31,7 +32,7 @@ interface File {
   name: string;
   date: string;
   size: string;
-  url: string;
+  path: string;
 }
 
 interface TabPanelProps {
@@ -75,23 +76,38 @@ export default function ProductDetailPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
   const [value, setValue] = useState(0);
   const [releaseHtml, setReleaseHtml] = useState('');
-  const [files, setKoralFiles] = useState<File[]>([]);
-  const [isKoralLoading, setIsKoralLoading] = useState(false);
-  const [koralError, setKoralError] = useState<string | null>(null);
+  const [files, setAddOnFiles] = useState<File[]>([]);
+  const [isAddOnLoading, setIsAddOnLoading] = useState(false);
+  const [addonError, setAddOnError] = useState<string | null>(null);
   const [templates, setTemplateFiles] = useState<File[]>([]);
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [templateError, setTemplateError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [estimatedTimeLeft, setEstimatedTimeLeft] = useState<string | null>(null);
+
 
   useEffect(() => {
     const role = getCookie('role');
     setRole(role ?? undefined);
 
     fetchProductDetail();
+
+    if ('serviceWorker' in navigator) {
+      let writableStream: WritableStream | undefined = undefined;
+
+      if (writableStream) {
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .then(() => console.log('✅ Service Worker registered for streamSaver'))
+          .catch((err) => console.error('Service Worker registration failed:', err));
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (value === 2 && !isKoralLoading && files.length === 0) {
-      fetchKoral();
+    if (value === 2 && !isAddOnLoading && files.length === 0) {
+      fetchAddOn();
     }
     if (value === 3 && !isTemplateLoading && templates.length === 0) {
       fetchTemplate();
@@ -188,19 +204,19 @@ export default function ProductDetailPage() {
     setReleaseHtml(contentHtml);
   };
 
-  const fetchKoral = async () => {
-    setIsKoralLoading(true);
-    setKoralError(null);
+  const fetchAddOn = async () => {
+    setIsAddOnLoading(true);
+    setAddOnError(null);
     try {
-      const res = await fetch(`/api/product/${params.id}/koral`);
+      const res = await fetch(`/api/product/${params.id}/addon`);
       if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
       const data = await res.json();
 
-      setKoralFiles(data);
+      setAddOnFiles(data);
     } catch (e: any) {
-      setKoralError(e.message);
+      setAddOnError(e.message);
     } finally {
-      setIsKoralLoading(false);
+      setIsAddOnLoading(false);
     }
   };
 
@@ -241,6 +257,7 @@ export default function ProductDetailPage() {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
     }
   };
+
   const handleDelete = async () => {
     if (!confirm('정말 이 제품을 삭제하시겠습니까?')) {
       return;
@@ -334,7 +351,7 @@ export default function ProductDetailPage() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="상세정보" {...tabProps(0)} />
             <Tab label="릴리즈노트" {...tabProps(1)} />
-            <Tab label="Koral" {...tabProps(2)} />
+            <Tab label="AddOn" {...tabProps(2)} />
             <Tab label="Template" {...tabProps(3)} />
           </Tabs>
         </Box>
@@ -369,9 +386,21 @@ export default function ProductDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">제품 다운로드</h3>
                 <p className="mt-1 text-lg text-gray-900 hover:text-gray-500 transition-colors">
-                  <a href={product.isoFilePath} download rel="noopener noreferrer">
+                  {/* <a href={product.isoFilePath} download rel="noopener noreferrer">
+                    [ 다운로드 ]
+                  </a> */}
+                  <a href={`/api/product/${params.id}/download?filePath=iso/${product.isoFilePath}`} download rel="noopener noreferrer">
                     [ 다운로드 ]
                   </a>
+                  {/* <button onClick={handleDownload} className="text-blue-500 hover:underline">
+                    [ 다운로드 ]
+                  </button> */}
+                  {/* {isDownloading && <span>&nbsp;&nbsp;&nbsp;다운로드 중...</span>} */}
+                  {isDownloading && (
+                    <span className="ml-4 text-sm text-gray-500">
+                      다운로드 중... (남은 시간: {estimatedTimeLeft})
+                    </span>
+                  )}
                 </p>
               </div>
               <div>
@@ -416,13 +445,13 @@ export default function ProductDetailPage() {
         </div>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-        {isKoralLoading ? (
+        {isAddOnLoading ? (
           <div className="flex justify-center items-center py-10 text-gray-500 text-sm">
             로딩 중...
           </div>
-        ) : koralError ? (
+        ) : addonError ? (
           <div className="flex justify-center items-center py-10 text-red-500 text-sm">
-            {koralError}
+            {addonError}
           </div>
         ) : (
           <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
@@ -437,14 +466,18 @@ export default function ProductDetailPage() {
               {files.map((file) => (
                 <tr key={file.name} className="hover:bg-gray-50 cursor-pointer">
                   <td className="px-6 py-4 break-all">
-                    <a
-                      href={file.url}
+                    <a href={`/api/product/${params.id}/download?filePath=addon/${file.name}`} download rel="noopener noreferrer"
+                      className="text-gray-900 hover:text-gray-500 transition-colors hover:underline">
+                      {file.name}
+                    </a>
+                    {/* <a
+                      href={`/api/product/${params.id}/download?filePath=addon/${file.name}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:underline text-sm font-medium"
                     >
                       {file.name}
-                    </a>
+                    </a> */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.date}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.size}</td>
@@ -483,14 +516,18 @@ export default function ProductDetailPage() {
               {templates.map((file) => (
                 <tr key={file.name} className="hover:bg-gray-50 cursor-pointer">
                   <td className="px-6 py-4 break-all">
-                    <a
-                      href={file.url}
+                    <a href={`/api/product/${params.id}/download?filePath=template/${file.name}`} download rel="noopener noreferrer"
+                      className="text-gray-900 hover:text-gray-500 transition-colors hover:underline">
+                      {file.name}
+                    </a>
+                    {/* <a
+                      href={file.path}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:underline text-sm font-medium"
                     >
                       {file.name}
-                    </a>
+                    </a> */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.date}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.size}</td>

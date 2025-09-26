@@ -110,7 +110,8 @@ export class ProductService {
         pc.name as category_name
       FROM product p
       LEFT JOIN product_category pc ON p.category_id = pc.id
-      WHERE p.removed IS NULL 
+      WHERE p.id = ?
+        AND p.removed IS NULL 
         AND p.enabled = true
     `;
 
