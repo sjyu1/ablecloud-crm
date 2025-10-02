@@ -28,6 +28,7 @@ export class BusinessService {
       available?: string;
       company_id?: string;
       customer_id?: string;
+      order?: string;
     }
   ): Promise<{ items: Business[]; currentPage: number; totalItems: number; totalPages: number }> {
     const offset = (currentPage - 1) * itemsPerPage;
@@ -74,6 +75,9 @@ export class BusinessService {
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // ORDER BY 처리
+    const orderByClause = filters.order ? 'ORDER BY b.name ASC' : 'ORDER BY b.created DESC';
 
     // Step 1: total 데이터 조회
     const countQuery = `
@@ -142,7 +146,7 @@ export class BusinessService {
       LEFT JOIN partner
         ON company_attr.value = CAST(partner.id AS CHAR)
       ${whereClause}
-      ORDER BY b.created DESC
+      ${orderByClause}
       LIMIT ? OFFSET ?
     `;
 

@@ -22,7 +22,8 @@ export class BusinessController {
     @Query('status') status?: string,
     @Query('available') available?: string,
     @Query('company_id') company_id?: string,
-    @Query('customer_id') customer_id?: string
+    @Query('customer_id') customer_id?: string,
+    @Query('order') order?: string
   ): Promise<{ items: Business[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
@@ -31,7 +32,8 @@ export class BusinessController {
       status: status || '',
       available: available || '',
       company_id: company_id || '',
-      customer_id: customer_id || ''
+      customer_id: customer_id || '',
+      order: order || ''
     };
 
     return this.businessService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

@@ -17,12 +17,14 @@ export class CustomerController {
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('manager_company') manager_company?: string,
-    @Query('company_id') company_id?: string
+    @Query('company_id') company_id?: string,
+    @Query('order') order?: string
   ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       name: name || '',
       manager_company: manager_company || '',
-      company_id: company_id || ''
+      company_id: company_id || '',
+      order: order || ''
     };
 
     return this.customerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

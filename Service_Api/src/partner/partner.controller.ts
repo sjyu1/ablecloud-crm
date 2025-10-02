@@ -20,11 +20,13 @@ export class PartnerController {
     @Query('name') name?: string,
     @Query('id') id?: string,
     @Query('level') level?: string,
+    @Query('order') order?: string
   ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
     const filters = {
       id: id || '',
       name: name || '',
-      level: level || ''
+      level: level || '',
+      order: order || ''
     };
 
     return this.partnerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);

@@ -44,12 +44,14 @@ export class UserController {
     // @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('type') type?: string,
-    @Query('company_id') company_id?: string
+    @Query('company_id') company_id?: string,
+    @Query('order') order?: string
   ): Promise<{ items: User[]; }> {
     const filters = {
       name: name || '',
       type: type || '',
-      company_id: company_id || ''
+      company_id: company_id || '',
+      order: order || ''
     };
   
     return this.userService.findAllForManager(filters);

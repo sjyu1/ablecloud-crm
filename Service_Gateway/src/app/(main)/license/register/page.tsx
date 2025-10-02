@@ -50,7 +50,7 @@ export default function LicenseRegisterPage() {
 
     const fetchBusiness = async () => {
       try {
-        let url = `/api/business?page=1&limit=10000&available=true`;
+        let url = `/api/business?page=1&limit=10000&available=true&order=name`;
 
         if (role == 'User') {
           url += `&role=User`;

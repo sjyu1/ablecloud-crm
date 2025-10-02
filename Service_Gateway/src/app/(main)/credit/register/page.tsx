@@ -33,7 +33,7 @@ export default function CreditRegisterPage() {
 
   const fetchPartner = async () => {
     try {
-      let url = `/api/partner?page=1&limit=10000`;
+      let url = `/api/partner?page=1&limit=10000&order=name`;
 
       const response = await fetch(url);
       const result = await response.json();

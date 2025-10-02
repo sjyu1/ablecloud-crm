@@ -225,8 +225,18 @@ export class UserService {
       name?: string;
       type?: string;
       company_id?: string;
+      order?: string;
     }
   ): Promise<{ items: User[]; }> {
+    // ORDER BY 처리
+    const orderByClause = filters.order 
+    ? `ORDER BY 
+        CASE 
+          WHEN type_attr.value = 'partner' THEN p.name 
+          ELSE 'ABLECLOUD' 
+        END ASC`
+    : '';
+
     const rawQuery = `
       SELECT 
         u.id AS id,
@@ -258,6 +268,7 @@ export class UserService {
         AND type_attr.id IS NOT NULL
         ${filters.type ? `AND type_attr.value = '${filters.type}'` : ''}
         ${filters.company_id ? `AND company_attr.value = '${filters.company_id}'` : ''}
+      ${orderByClause}
     `;
 
     const data = await this.userRepository.query(rawQuery);

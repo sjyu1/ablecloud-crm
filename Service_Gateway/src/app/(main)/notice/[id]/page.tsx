@@ -82,7 +82,7 @@ export default function noticeDetailPage() {
     try {
       const page = Number(searchParams.get('page')) || 1;
 
-      let url = `/api/user?page=${page}&limit=10000&level=${notice?.level}`;
+      let url = `/api/user?page=${page}&limit=10000&level=${notice?.level}&order=name`;
 
       if (role === 'User') {
         url += `&role=User`;

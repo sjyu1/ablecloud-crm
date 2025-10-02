@@ -76,10 +76,10 @@ export default function BusinessEditPage() {
 
   const fetchManagers = async () => {
     try {
-      let url = `/api/user/forCreateManager`;
+      let url = `/api/user/forCreateManager?order=name`;
 
       if (role == 'User') {
-        url += `?role=User`;
+        url += `&role=User`;
       }
 
       const response = await fetch(url);

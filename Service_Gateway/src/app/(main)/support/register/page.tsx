@@ -66,7 +66,7 @@ export default function SupportRegisterPage() {
 
     const fetchCustomers = async () => {
       try {
-        let url = `/api/customer?page=1&limit=10000`;
+        let url = `/api/customer?page=1&limit=10000&order=name`;
 
         if (role == 'User') {
           url += `&role=User`;
@@ -95,7 +95,7 @@ export default function SupportRegisterPage() {
 
   const fetchBusiness = async (customer_id:string) => {
     try {
-      let url = `/api/business?page=1&limit=10000`;
+      let url = `/api/business?page=1&limit=10000&order=name`;
 
       if (role == 'User') {
         url += `&role=User`;

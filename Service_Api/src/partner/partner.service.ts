@@ -18,53 +18,67 @@ export class PartnerService {
       id?: string;
       name?: string;
       level?: string;
+      order?: string;
     }
   ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
-    // Step 1: ID만 추출
-    const subQuery = this.partnerRepository.createQueryBuilder('partner')
-      .select('partner.id', 'id')
-      .where('partner.removed IS NULL')
-      .orderBy('partner.created', 'DESC');
-
+    const offset = (currentPage - 1) * itemsPerPage;
+  
+    const whereConditions: string[] = ['p.removed IS NULL'];
+    const params: any[] = [];
+  
     if (filters.id) {
-      subQuery.andWhere('partner.id = :id', { id: filters.id });
+      whereConditions.push('p.id = ?');
+      params.push(filters.id);
     }
-
+  
     if (filters.name) {
-      subQuery.andWhere('partner.name LIKE :name', { name: `%${filters.name}%` });
+      whereConditions.push('p.name LIKE ?');
+      params.push(`%${filters.name}%`);
     }
-
+  
     if (filters.level) {
-      subQuery.andWhere('partner.level = :level', { level: filters.level });
+      whereConditions.push('p.level = ?');
+      params.push(filters.level);
     }
+  
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    const totalItems = await subQuery.getCount();
-
-    const ids = await subQuery
-      .skip((currentPage - 1) * itemsPerPage)
-      .take(itemsPerPage)
-      .getRawMany();
-
-    const partnerIds = ids.map(item => item.partner_id || item.id);
-    if (partnerIds.length === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
-    }
-
-    // Step 2: ID 기준 상세 데이터 조회
-    const data = await this.partnerRepository
-      .createQueryBuilder('partner')
-      .select([
-        'partner.id as id',
-        'partner.name as name',
-        'partner.telnum as telnum',
-        'partner.level as level',
-        'partner.created as created',
-      ])
-      .whereInIds(partnerIds)
-      .orderBy('partner.created', 'DESC')
-      .getRawMany();
-
+    // ORDER BY 처리
+    const orderByClause = filters.order ? 'ORDER BY p.name ASC' : 'ORDER BY p.created DESC';
+  
+    const countQuery = `
+      SELECT COUNT(*) AS count
+      FROM partner p
+      ${whereClause}
+    `;
+    const countResult = await this.partnerRepository.query(countQuery, params);
+    const totalItems = Number(countResult[0]?.count || 0);
+  
+    if (totalItems === 0) {
       return {
+        items: [],
+        currentPage,
+        totalItems,
+        totalPages: 0,
+      };
+    }
+  
+    const dataQuery = `
+      SELECT 
+        p.id AS id,
+        p.name AS name,
+        p.telnum AS telnum,
+        p.level AS level,
+        p.created AS created
+      FROM partner p
+      ${whereClause}
+      ${orderByClause}
+      LIMIT ? OFFSET ?
+    `;
+  
+    const data = await this.partnerRepository.query(dataQuery, [...params, itemsPerPage, offset]);
+  
+    return {
       items: data,
       currentPage,
       totalItems,
