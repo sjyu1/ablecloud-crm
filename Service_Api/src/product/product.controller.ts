@@ -17,7 +17,7 @@ export class ProductController {
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('company_id') company_id?: string
-  ): Promise<{ items: Product[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Product[]; pagination: {} }> {
     const filters = {
       name: name || '',
       company_id: company_id || ''
@@ -30,7 +30,7 @@ export class ProductController {
   // @Roles('Admin')
   async findAllCategory(
     @Query('name') name?: string
-  ): Promise<{ items: Product[]; }> {
+  ): Promise<{ data: Product[]; }> {
     const filters = {
       name: name || ''
     };
@@ -40,8 +40,14 @@ export class ProductController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: string): Promise<Product> {
+  async findOne(@Param('id') id: string): Promise<{ data: Product | null }> {
     return this.productService.findOne(parseInt(id, 10));
+  }
+
+  @Get(':id/release')
+  // @Roles('Admin')
+  async findOneRelease(@Param('id') id: string): Promise<{ data: Product | null }> {
+    return this.productService.findOneRelease(parseInt(id, 10));
   }
 
   @Post()
@@ -57,6 +63,15 @@ export class ProductController {
     @Body() updateProductDto: UpdateProductDto
   ): Promise<Product> {
     return this.productService.update(parseInt(id, 10), updateProductDto);
+  }
+
+  @Put(':id/release')
+  // @Roles('Admin')
+  async updateRelease(
+    @Param('id') id: string,
+    @Body('contents') contents: string
+  ): Promise<Product> {
+    return this.productService.updateRelease(parseInt(id, 10), contents);
   }
 
   @Delete(':id')

@@ -21,7 +21,7 @@ export class PartnerController {
     @Query('id') id?: string,
     @Query('level') level?: string,
     @Query('order') order?: string
-  ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Partner[]; pagination: {} }> {
     const filters = {
       id: id || '',
       name: name || '',
@@ -34,7 +34,7 @@ export class PartnerController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: number): Promise<{ data: Partner; }> {
     return this.partnerService.findOne(id);
   }
 

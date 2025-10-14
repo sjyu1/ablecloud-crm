@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { userinfo, userinfo_id } from '@/utils/userinfo';
 import log from '@/utils/logger';
 
 /**
@@ -50,11 +51,30 @@ export async function POST(request: Request) {
       throw new Error(data.error);
     }
 
+    // 사용자 company id 조회
+    const res_user = await fetch(`${process.env.KEYCLOAK_API_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/userinfo`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${data.access_token}`,
+      },
+    });
+
+    const data_user = await res_user.json();
+
+    let company_id = '';
+    const data_userinfo = await userinfo_id(data_user.sub);
+    if (!data_userinfo.error && data_userinfo.attributes.type[0] == 'partner') {
+      company_id = data_userinfo.attributes.company_id[0]
+    }
+
     return NextResponse.json({
       status: 200,
       token: data.access_token,
       user: {
-        username: username
+        username: username,
+        user_id: data_user.sub,
+        company_id: company_id
       } 
     });
   } catch (error) {

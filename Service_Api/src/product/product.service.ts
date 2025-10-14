@@ -24,104 +24,127 @@ export class ProductService {
       status?: string;
       company_id?: string;
     }
-  ): Promise<{ items: Product[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Product[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
-    const whereConditions: string[] = ['p.removed IS NULL'];
+  
+    // 필터 조건
+    const whereConditions: string[] = ['p.removed IS NULL', 'p.enabled = true'];
     const params: any[] = [];
-
-    whereConditions.push('p.enabled = true');
-
+  
     if (filters.name) {
       whereConditions.push('p.name LIKE ?');
       params.push(`%${filters.name}%`);
     }
-
+  
+    // 파트너 회사 ID 기준 product_category 필터
     if (filters.company_id) {
-      whereConditions.push(`FIND_IN_SET(p.category_id, (SELECT 
-        p.product_category AS product_category
-      FROM partner p
-      LEFT JOIN product_category pc 
-		    ON FIND_IN_SET(pc.id, p.product_category)
-      WHERE p.id = ?
-        AND p.removed is null
-      GROUP BY p.id)) > 0`);
+      whereConditions.push(`
+        EXISTS (
+          SELECT 1
+          FROM partner pt
+          WHERE pt.id = ?
+            AND pt.removed IS NULL
+            AND FIND_IN_SET(p.category_id, pt.product_category)
+        )
+      `);
       params.push(filters.company_id);
     }
-
+  
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-
-    // Step 1: total 데이터 조회
+  
+    // Step 1: 전체 개수 조회
     const countQuery = `
-      SELECT COUNT(*) as count
+      SELECT COUNT(*) AS count
       FROM product p
       LEFT JOIN product_category pc ON p.category_id = pc.id
       ${whereClause}
     `;
     const countResult = await this.productRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
-
+  
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return {
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
     }
-
-    // Step 2: 데이터 조회
-    const rawQuery = `
+  
+    // Step 3: 데이터 조회
+    const dataQuery = `
       SELECT 
-        p.id as id,
-        p.category_id as category_id,
-        p.name as name,
-        p.version as version,
-        p.isoFilePath as isoFilePath,
-        p.checksum as checksum,
-        p.enabled as enabled,
-        p.contents as contents,
-        p.created as created,
-        pc.name as category_name
+        p.id AS id,
+        p.category_id AS category_id,
+        p.name AS name,
+        p.version AS version,
+        p.isoFilePath AS isoFilePath,
+        p.checksum AS checksum,
+        p.enabled AS enabled,
+        -- p.contents AS contents,
+        p.created AS created,
+        pc.name AS category_name
       FROM product p
       LEFT JOIN product_category pc ON p.category_id = pc.id
       ${whereClause}
       ORDER BY p.created DESC
       LIMIT ? OFFSET ?
     `;
-
-    const data = await this.productRepository.query(rawQuery, [...params, itemsPerPage, offset]);
-
+  
+    const result = await this.productRepository.query(dataQuery, [...params, itemsPerPage, offset]);
+  
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findOne(id: number): Promise<{ data: Product | null }> {
     const rawQuery = `
       SELECT 
-        p.id as id,
-        p.category_id as category_id,
-        p.name as name,
-        p.version as version,
-        p.isoFilePath as isoFilePath,
-        p.checksum as checksum,
-        p.enabled as enabled,
-        p.contents as contents,
-        p.created as created,
-        pc.name as category_name
+        p.id AS id,
+        p.category_id AS category_id,
+        p.name AS name,
+        p.version AS version,
+        p.isoFilePath AS isoFilePath,
+        p.checksum AS checksum,
+        -- p.contents AS contents,
+        p.enabled AS enabled,
+        p.created AS created,
+        pc.name AS category_name
       FROM product p
       LEFT JOIN product_category pc ON p.category_id = pc.id
-      WHERE p.id = ?
-        AND p.removed IS NULL 
-        AND p.enabled = true
+      WHERE p.removed IS NULL
+        AND p.enabled = TRUE
+        AND p.id = ?
     `;
 
     const [product] = await this.productRepository.query(rawQuery, [id]);
-
-    if (!product) return null;
-
-    return {
-      ...product,
-    };
+  
+    return { data: product || null };
+  }
+  
+  async findOneRelease(id: number): Promise<{ data: Product | null }> {
+    const rawQuery = `
+      SELECT 
+        p.id AS id,
+        p.contents AS contents
+      FROM product p
+      WHERE p.id = ?
+    `;
+  
+    const [product] = await this.productRepository.query(rawQuery, [id]);
+  
+    return { data: product || null };
   }
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -129,76 +152,58 @@ export class ProductService {
     const product = this.productRepository.create(createProductDto);
     return this.productRepository.save(product);
   }
-
+  
   async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
-    const product = await this.findOne(id);
-    const updatedProduct = {
-      ...product,
-      ...updateProductDto,
-    };
+    const { data: existingProduct } = await this.findOne(id);
+  
+    if (!existingProduct) {
+      throw new Error(`Product with ID ${id} not found`);
+    }
+  
+    const updatedProduct = this.productRepository.merge(existingProduct, updateProductDto);
     return this.productRepository.save(updatedProduct);
+  }
+  
+  async updateRelease(id: number, contents: string): Promise<Product> {
+    return this.update(id, { contents }); 
   }
 
   async delete(id: number): Promise<void> {
     await this.productRepository.softDelete(id);
   }
-
+  
   async disabledProduct(id: number): Promise<Product> {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) {
-      throw new Error(`product with ID ${id} not found`);
+      throw new Error(`Product with ID ${id} not found`);
     }
+  
     product.enabled = false;
-
-    const savedProduct = await this.productRepository.save(product);
-    const formattedProduct = {
-      ...savedProduct,
-    };
-
-    return formattedProduct as unknown as Product;
+    return this.productRepository.save(product);
   }
-
+  
   async findAllCategory(
-    filters: {
-      name?: string;
-    }
-  ): Promise<{ items: Product[]; }> {
-    // Step 1: ID만 추출
-    const subQuery = this.product_categoryRepository.createQueryBuilder('product_category')
-      .select('product_category.id', 'id')
-      .andWhere('product_category.enabled = true')
-      .andWhere('product_category.removed is null')
-      .orderBy('product_category.created', 'DESC');
-
-    if (filters.name) {
-      subQuery.andWhere('product_category.name LIKE :name', { name: `%${filters.name}%` });
-    }
-
-    const totalItems = await subQuery.getCount();
-
-    const ids = await subQuery
-      .getRawMany();
-
-    const productIds = ids.map(item => item.product_id || item.id);
-    if (productIds.length === 0) {
-      return { items: [] };
-    }
-
-    // Step 2: ID 기준 상세 데이터 조회
-    const data = await this.product_categoryRepository
+    filters: { name?: string }
+  ): Promise<{ data: Product[] }> {
+    const dataQuery = this.product_categoryRepository
       .createQueryBuilder('product_category')
       .select([
-        'product_category.id as id',
-        'product_category.name as name',
-        'product_category.enabled as enabled',
-        'product_category.created as created',
+        'product_category.id AS id',
+        'product_category.name AS name',
+        'product_category.enabled AS enabled',
+        'product_category.created AS created',
       ])
-      .whereInIds(productIds)
-      // .orderBy('product_category.created', 'DESC')
-      .getRawMany();
-
-    return {
-      items: data
-    };
+      .where('product_category.enabled = true')
+      .andWhere('product_category.removed IS NULL')
+      .orderBy('product_category.created', 'DESC');
+  
+    if (filters.name) {
+      dataQuery.andWhere('product_category.name LIKE :name', {
+        name: `%${filters.name}%`,
+      });
+    }
+  
+    const data = await dataQuery.getRawMany();
+    return { data };
   }
 }

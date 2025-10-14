@@ -5,7 +5,7 @@ import AlertComponent from '../../common/alertComponent';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // onSubmit: (newPassword: string) => void;
+  onSubmit: (newPassword: string) => void;
 }
 
 const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {

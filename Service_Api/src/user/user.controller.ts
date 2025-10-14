@@ -20,16 +20,16 @@ export class UserController {
     @Query('firstName') firstName?: string,
     @Query('company') company?: string,
     @Query('company_id') company_id?: string,
-    @Query('manager_id') manager_id?: string,
+    @Query('manager_company_id') manager_company_id?: string,
     @Query('type') type?: string,
     @Query('level') level?: string
-  ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: User[]; pagination: {} }> {
     const filters = {
       username: username || '',
       firstName: firstName || '',
       company: company || '',
       company_id: company_id || '',
-      manager_id: manager_id || '',
+      manager_company_id: manager_company_id || '',
       type: type || '',
       level: level || ''
     };
@@ -45,8 +45,8 @@ export class UserController {
     @Query('name') name?: string,
     @Query('type') type?: string,
     @Query('company_id') company_id?: string,
-    @Query('order') order?: string
-  ): Promise<{ items: User[]; }> {
+    @Query('order') order?: string,
+  ): Promise<{ data: User[]; }> {
     const filters = {
       name: name || '',
       type: type || '',
@@ -59,7 +59,7 @@ export class UserController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id') id: string): Promise<{ data: User[]; }> {
     return this.userService.findOne(id);
   }
 }

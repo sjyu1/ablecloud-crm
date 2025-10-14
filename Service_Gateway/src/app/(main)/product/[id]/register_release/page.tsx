@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams, redirect } from 'next/navigation';
 import Link from 'next/link';
 import {Editor} from "../../../../../components/ui/editor";
 
@@ -32,18 +32,18 @@ export default function ProductEditPage() {
 
   const fetchProductDetail = async () => {
     try {
-      const response = await fetch(`/api/product/${params.id}`);
+      const response = await fetch(`/api/product/${params.id}/release`);
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(result.message || '릴리즈노트 정보를 불러올 수 없습니다.');
       }
 
-      setFormData(result.data);
+      setFormData(result.data.data);
 
       // Editor 값 세팅
-      if (result.data?.contents) {
-        setValue(result.data.contents);
+      if (result.data.data?.contents) {
+        setValue(result.data.data.contents);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -59,7 +59,7 @@ export default function ProductEditPage() {
 
     try {
       const updateFormData = { ...formData}
-      const response = await fetch(`/api/product/${params.id}`, {
+      const response = await fetch(`/api/product/${params.id}/release`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -69,13 +69,18 @@ export default function ProductEditPage() {
 
       if (response.ok) {
         alert('릴리즈노트가 등록되었습니다.');
+        router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
       } else {
-        throw new Error(response.status == 409? '이미 존재하는 제품버전입니다.' : '릴리즈노트 등록에 실패했습니다.');
+        const data = await response.json();
+        throw new Error(data.message || '릴리즈노트 수정에 실패했습니다.');
       }
 
-      router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
+      const message = err instanceof Error ? err.message : '오류가 발생했습니다.';
+      if (message === 'Failed to fetch user information') {
+        return redirect('/api/logout');
+      }
     } finally {
       setIsLoading(false);
     }

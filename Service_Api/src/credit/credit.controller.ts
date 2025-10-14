@@ -19,7 +19,7 @@ export class CreditController {
     @Query('partner') partner?: string,
     @Query('business') business?: string,
     @Query('company_id') company_id?: string,
-  ): Promise<{ items: Credit[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Credit[]; pagination: {} }> {
     const filters = {
       type: type || '',
       partner: partner || '',
@@ -32,7 +32,7 @@ export class CreditController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: string): Promise<Credit> {
+  async findOne(@Param('id') id: string): Promise<{ data: Credit; }> {
     return this.creditService.findOne(parseInt(id, 10));
   }
 

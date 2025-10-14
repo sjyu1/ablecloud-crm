@@ -1,9 +1,9 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { logoutIfTokenExpired } from '../../../../store/authStore';
-import Link from 'next/link';
+import React from 'react';
+import LicenseEditForm from './licenseEditForm';
+import { fetchWithAuth } from '@/utils/api';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import log from '@/utils/logger';
 
 interface LicenseForm {
   id: number;
@@ -13,211 +13,52 @@ interface LicenseForm {
   business_name: string;
   issued: string;
   expired: string;
-  trial: string;
+  trial: boolean | string;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  version: string;
-  created: string;
+interface LicenseEditPageProps {
+  params: { id: string };
+  searchParams?: {
+    page?: string;
+    trial?: string;
+    searchField?: string;
+    searchValue?: string;
+  };
 }
 
-export default function LicenseEditPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
-  const prevTrial = searchParams.get('trial') || '0';
-  const prevSearchField = searchParams.get('searchField') || 'business_name';
-  const prevSearchValue = searchParams.get('searchValue') || '';
-  const [formData, setFormData] = useState<LicenseForm | null>({
-    id: 0,
-    license_key: '',
-    product_id: '',
-    product_name: '',
-    business_name: '',
-    issued: '',
-    expired: '',
-    trial: ''
-  });
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isChecked, setIsChecked] = useState<boolean>(false);
-  const [isCheckedToTrial, setIsCheckedToTrial] = useState<boolean>(false);
-
-  useEffect(() => {
-    fetchLicenseDetail();
-    fetchProductDetail();
-  }, []);
-
-  const fetchLicenseDetail = async () => {
-    try {
-      const response = await fetch(`/api/license/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '라이선스 정보를 불러올 수 없습니다.');
-      }
-
-      setFormData(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchProductDetail = async () => {
-    try {
-      let url = `/api/product`;
-      const response = await fetch(url);
-      const result = await response.json();
-      
-      if (!result.success) {
-        if (result.message == 'Failed to fetch user information') {
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        } else {
-          // alert(result.message);
-          return;
-        }
-      }
-
-      setProducts(result.data);
-    } catch (error) {
-      alert('제품 목록 조회에 실패했습니다.');
-    }
-  };
-
-  //영구 라이선스 체크
-  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setIsChecked(event.target.checked);
-
-  //   if (event.target.checked) {
-  //     setFormData({
-  //       id: formData?.id?formData?.id:0,
-  //       license_key: formData?.license_key?formData?.license_key:'',
-  //       product_id: formData?.product_id?formData?.product_id:'',
-  //       product_name: formData?.product_name?formData?.product_name:'',
-  //       business_name: formData?.business_name?formData?.business_name:'',
-  //       issued: formData?.issued?formData?.issued:'',
-  //       expired: '9999-12-31',
-  //     });
-  //   } else {
-  //     setFormData({
-  //       id: formData?.id?formData?.id:0,
-  //       license_key: formData?.license_key?formData?.license_key:'',
-  //       product_id: formData?.product_id?formData?.product_id:'',
-  //       product_name: formData?.product_name?formData?.product_name:'',
-  //       business_name: formData?.business_name?formData?.business_name:'',
-  //       issued: formData?.issued?formData?.issued:'',
-  //       expired: formData?.expired?formData?.expired:'',
-
-  //     });
-  //   }
-  // };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    // setIsLoading(true);
-
-    try {
-      if((formData?.issued && formData?.expired) && formData?.issued > formData?.expired){
-        throw new Error('시작일이 종료일보다 클 수 없습니다.');
-      }
-
-      const response = await fetch(`/api/license/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        alert('라이선스가 수정되었습니다.');
-        router.push(`/license/${params.id}?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
-      } else {
-        throw new Error('라이선스 수정에 실패했습니다.');
-      }
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-      
-    setFormData(prev => prev ? {
-      ...prev,
-      [name]: value
-    } : null);
-
-    if (name === 'issued') {
-      setIsChecked(false);  // 영구 라이선스 체크박스 해제
-      setIsCheckedToTrial(false); // Trial 체크박스 해제
-      formData.expired = ''
-    }
-  };
-
-  //영구 라이선스 체크
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
-    setIsCheckedToTrial(false); // Trial 체크박스 해제
-
-    if (event.target.checked) {
-      formData.expired = '9999-12-31'
-      formData.trial = false
-    } else {
-      formData.expired = ''
-      formData.trial = false
-    }
-  };
-  
-  //Trial 라이선스 체크
-  const handleCheckboxTrialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsCheckedToTrial(event.target.checked);
-    setIsChecked(false); // 영구 라이선스 체크박스 해제
-    if (event.target.checked) {
-      if (!formData.issued) {
-        setError('시작일을 선택하세요.');
-      }
-      const newDate = getOneMonthLater(formData.issued);
-      formData.expired = newDate
-      formData.trial = true
-    } else {
-      formData.expired = ''
-      formData.trial = false
-    }
-  };
-
-  // 한 달 후 날짜를 계산하는 함수
-  const getOneMonthLater = (date_string: string | number | Date) => {
-    const date = new Date(date_string); // date_string은 'YYYY-MM-DD' 형식
-    date.setMonth(date.getMonth() + 1);
-
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-4 text-sm">로딩 중...</div>;
+async function fetchLicenseDetail(id: string) {
+  const apiUrl = new URL(`${process.env.API_URL}/license/${id}`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok){
+    throw new Error(data.message || '라이선스 정보를 가져오는 데 실패했습니다.');
   }
+  return data.data;
+}
 
-  // if (error) {
-  //   return <div className="text-center text-red-500 py-4">{error}</div>;
-  // }
+export default async function LicenseEditPage({ params, searchParams: searchParamsPromise }: LicenseEditPageProps) {
+  log.info('API URL ::: PUT /license/'+params.id);
+  const searchParams = await searchParamsPromise;
+  const prevPage = searchParams?.page ?? '1';
+  const prevTrial = searchParams?.trial ?? '0';
+  const prevSearchField = searchParams?.searchField ?? 'business_name';
+  const prevSearchValue = searchParams?.searchValue ?? '';
 
-  if (!formData) {
-    return <div className="text-center py-4 text-sm">라이선스 정보를 찾을 수 없습니다.</div>;
+  // const [license] = await Promise.all([
+  //   fetchLicenseDetail(params.id),
+  // ]);
+
+  let license: LicenseForm | null = null;
+  let errorMessage: string | null = null;
+
+  try {
+    license = await fetchLicenseDetail(params.id);
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : '라이선스 정보를 찾을 수 없습니다.';
+    log.info('PUT /license/'+params.id+' ERROR::: '+errorMessage);
+    if (errorMessage === 'Failed to fetch user information') {
+      return redirect('/api/logout'); // 토큰 만료 시 로그아웃
+    }
   }
 
   return (
@@ -225,117 +66,23 @@ export default function LicenseEditPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">라이선스 수정</h1>
       </div>
-
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                라이선스 키
-              </label>
-              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-gray-900">
-                  {formData.license_key}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품
-              </label>
-              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-gray-900">
-                  {formData.product_name}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업
-              </label>
-              <div className="w-1/2 mt-1 p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-gray-900">
-                  {formData.business_name}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                시작일
-              </label>
-              <input
-                type="date"
-                name="issued"
-                value={formData.issued}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                만료일
-              </label>
-              <input
-                type="date"
-                name="expired"
-                value={formData.expired}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isChecked || isCheckedToTrial}
-                required
-              />
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                checked={isChecked}
-                onChange={handleCheckboxChange}
-                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{marginLeft: '10px'}}
-              />
-              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                영구 라이선스
-              </label>
-              <input
-                type="checkbox"
-                checked={isCheckedToTrial || formData.trial=='1'}
-                onChange={handleCheckboxTrialChange}
-                className="border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{marginLeft: '10px'}}
-                disabled={formData.product_name.includes('Trial 제외')}
-              />
-              <label className="text-sm font-medium text-gray-700" style={{marginLeft: '5px'}}>
-                Trial (Trial 라이선스는 시작일부터 한달 사용가능합니다.)
-              </label>
-            </div>
+        {errorMessage || !license ? (
+          <div className="text-red-600">
+            {errorMessage || '라이선스 정보를 불러올 수 없습니다.'}
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-2">
-            <Link
-              href={`/license/${params.id}?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              취소
-            </Link>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? '처리 중...' : '수정'}
-            </button>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <LicenseEditForm
+              license={license}
+              prevPage={prevPage}
+              prevTrial={prevTrial}
+              prevSearchField={prevSearchField}
+              prevSearchValue={prevSearchValue}
+            />
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
-} 
+}

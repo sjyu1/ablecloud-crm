@@ -14,5 +14,5 @@ export class UpdateProductDto {
   isoFilePath?: string;
   enabled?: boolean;
   contents?: string;
-  checksum: string;
+  checksum?: string;
 }

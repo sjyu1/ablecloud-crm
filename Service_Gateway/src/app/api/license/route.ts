@@ -96,25 +96,16 @@ export async function POST(request: Request) {
   try {
     log.info('API URL ::: POST /license');
     const username = (await cookies()).get('username')?.value;
+    const issued_id = (await cookies()).get('userId')?.value;
+    // const company_id = (await cookies()).get('companyId')?.value;
     const role = (await cookies()).get('role')?.value;
-    let company_id;
-    let issued_id;
-    
-    // company_id 조회한 후 라이선스등록
-    // if (role == 'User'){
-    const data_userinfo = await userinfo();
-    if (!data_userinfo.error) {
-      issued_id = data_userinfo.id;
-      company_id = data_userinfo.attributes.company_id[0];
-    }
-    // }
     
     const body = await request.json();
     const submitData = {
       ...body,
       issued_user: username,
       status: role == 'Admin'? 'active' : 'inactive',
-      company_id: role == 'User'? company_id : null,
+      // company_id: role == 'User'? company_id : null,
       issued_id: issued_id
     }
 

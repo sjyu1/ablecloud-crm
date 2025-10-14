@@ -31,29 +31,7 @@ export class UpdateBusinessDto {
   details: string;
   deposit_use: boolean;
   credit_id: number;
-}
-
-export class CreateBusiness_historyDto {
-  business_id: string;
-  issue: string;
-  solution: string;
-  status: string;
-  manager: string;
-  issued: string;
-  started: string;
-  ended: string;
-  note: string;
-}
-
-export class UpdateBusiness_historyDto {
-  issue: string;
-  solution: string;
-  status: string;
-  manager: string;
-  issued: string;
-  started: string;
-  ended: string;
-  note: string;
+  partner_id: string;
 }
 
 export class CreateCreditDto {

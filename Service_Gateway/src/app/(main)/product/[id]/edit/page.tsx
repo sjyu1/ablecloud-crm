@@ -1,128 +1,77 @@
-'use client';
+import { fetchWithAuth } from '@/utils/api';
+import { redirect } from 'next/navigation';
+import ProductEditClient from './productEditClient';
+import log from '@/utils/logger';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
-import Link from 'next/link';
+interface ProductEditPageProps {
+  params: { id: string };
+  searchParams?: { page?: string; searchValue?: string };
+}
 
 interface ProductForm {
   id: number;
   name: string;
   version: string;
-  level: string;
+  level?: string;
   isoFilePath: string;
   checksum: string;
   category_id: number;
 }
 
-interface Product_category {
+interface ProductCategory {
   id: number;
   name: string;
 }
 
-export default function ProductEditPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
-  const prevSearchValue = searchParams.get('searchValue') || '';
-  const [formData, setFormData] = useState<ProductForm | null>(null);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [product_category, setProduct_category] = useState<Product_category[]>([]);
+async function fetchProductDetail(id: string): Promise<ProductForm> {
+  const apiUrl = new URL(`${process.env.API_URL}/product/${id}`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
 
-  useEffect(() => {
-    fetchProductDetail();
-    fetchProduct_category();
-  }, []);
-
-  const fetchProductDetail = async () => {
-    try {
-      const response = await fetch(`/api/product/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '제품 정보를 불러올 수 없습니다.');
-      }
-
-      setFormData(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchProduct_category = async () => {
-    try {
-      let url = `/api/product/category`;
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (!result.success) {
-        if (result.message == 'Failed to fetch user information') {
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        } else {
-          // alert(result.message);
-          return;
-        }
-      }
-
-      setProduct_category(result.data);
-    } catch (error) {
-      alert('제품 카테고리 목록 조회에 실패했습니다.');
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    // setIsLoading(true);
-
-    try {
-      const updateFormData = { ...formData}
-      const response = await fetch(`/api/product/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateFormData),
-      });
-
-      if (response.ok) {
-        alert('제품이 수정되었습니다.');
-      } else {
-        throw new Error(response.status == 409? '이미 존재하는 제품입니다.' : '제품 수정에 실패했습니다.');
-      }
-
-      router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-      
-    setFormData(prev => prev ? {
-      ...prev,
-      [name]: value
-    } : null);
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-4 text-sm">로딩 중...</div>;
+  if (!res.ok) {
+    throw new Error(data.message || '제품 정보를 가져오는 데 실패했습니다.');
   }
 
-  // if (error) {
-  //   return <div className="text-center text-red-500 py-4">{error}</div>;
-  // }
+  return data.data;
+}
 
-  if (!formData) {
-    return <div className="text-center py-4 text-sm">제품 정보를 찾을 수 없습니다.</div>;
+async function fetchProductCategory(): Promise<ProductCategory[]> {
+  const apiUrl = new URL(`${process.env.API_URL}/product/category`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || '제품 카테고리 정보를 가져오는 데 실패했습니다.');
+  }
+
+  return data.data;
+}
+
+export default async function ProductEditPage({ params, searchParams: searchParamsPromise }: ProductEditPageProps) {
+  log.info('API URL ::: PUT /product/'+params.id);
+  const searchParams = await searchParamsPromise;
+  const prevPage = searchParams?.page ?? '1';
+  const prevSearchValue = searchParams?.searchValue ?? '';
+
+  // const [product, productCategory] = await Promise.all([
+  //   fetchProductDetail(id),
+  //   fetchProductCategory(),
+  // ]);
+
+  // product 조회
+  let product: ProductForm | null = null;
+  let productCategory: ProductCategory[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    product = await fetchProductDetail(params.id);
+    productCategory = await fetchProductCategory();
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : '제품 정보를 찾을 수 없습니다.';
+    log.info('PUT /product/'+params.id+' ERROR ::: '+errorMessage);
+    if (errorMessage == 'Failed to fetch user information') {
+      return redirect('/api/logout'); // 토큰 만료시 로그아웃
+    }
   }
 
   return (
@@ -131,108 +80,20 @@ export default function ProductEditPage() {
         <h1 className="text-2xl font-bold text-gray-800">제품 수정</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 카테고리
-              </label>
-              <select
-                name="category_id"
-                value={formData.category_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">선택하세요</option>
-                {product_category.map(item => (
-                  <option key={item.id} value={item.id.toString()}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품버전
-              </label>
-              <input
-                type="text"
-                name="version"
-                value={formData.version}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 ISO경로
-              </label>
-              <input
-                type="text"
-                name="isoFilePath"
-                value={formData.isoFilePath}
-                onChange={handleChange}
-                placeholder="/v4.3.0/ABLESTACK-Diplo-v4.3.0.iso"
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품 checksum(MD5S)
-              </label>
-              <input
-                type="text"
-                name="checksum"
-                value={formData.checksum}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-2">
-            <Link
-              href={`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              취소
-            </Link>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? '처리 중...' : '수정'}
-            </button>
-          </div>
-        </form>
-      </div>
+      {errorMessage || !product ? (
+        <div className="text-red-600">
+          {errorMessage || '제품 정보를 불러올 수 없습니다.'}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <ProductEditClient
+            product={product}
+            productCategory={productCategory}
+            prevPage={prevPage}
+            prevSearchValue={prevSearchValue}
+          />
+        </div>
+      )}
     </div>
   );
-} 
+}

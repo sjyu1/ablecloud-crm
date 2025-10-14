@@ -19,9 +19,10 @@ export class NoticeService {
       level?: string;
       company_id?: string;
     }
-  ): Promise<{ items: Notice[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Notice[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
+  
+    // 필터 조건
     const whereConditions: string[] = ['n.removed IS NULL'];
     const params: any[] = [];
 
@@ -44,7 +45,7 @@ export class NoticeService {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Step 1: total 데이터 조회
+    // Step 1: 전체 개수 조회
     const countQuery = `
       SELECT COUNT(*) as count
       FROM notice n
@@ -54,11 +55,20 @@ export class NoticeService {
     const countResult = await this.noticeRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
 
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return {
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
     }
 
-    // Step 2: 데이터 조회
+    // Step 3: 데이터 조회
     const rawQuery = `
       SELECT 
         n.id as id,
@@ -74,17 +84,20 @@ export class NoticeService {
       LIMIT ? OFFSET ?
     `;
 
-    const data = await this.noticeRepository.query(rawQuery, [...params, itemsPerPage, offset]);
+    const result = await this.noticeRepository.query(rawQuery, [...params, itemsPerPage, offset]);
 
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: number): Promise<Notice> {
+  async findOne(id: number): Promise<{ data: Notice[]; }> {
     const rawQuery = `
       SELECT 
         n.id as id,
@@ -100,10 +113,8 @@ export class NoticeService {
 
     const [notice] = await this.noticeRepository.query(rawQuery, [id]);
 
-    if (!notice) return null;
-
     return {
-      ...notice,
+      data: notice || null,
     };
   }
 

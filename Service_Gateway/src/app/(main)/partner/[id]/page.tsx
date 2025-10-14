@@ -1,19 +1,14 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { getCookie, logoutIfTokenExpired } from '../../../store/authStore';
-import { format } from 'date-fns';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
+import { cookies } from 'next/headers';
+import { fetchWithAuth } from '@/utils/api';
+import { redirect } from 'next/navigation';
+import PartnerDetailClient from './partnerDetailClient';
+import log from '@/utils/logger';
 
 interface Partner {
   id: number;
   name: string;
   telnum: string;
   level: string;
-  // deposit_use: string;
   deposit: string;
   credit: string;
   created: string;
@@ -21,318 +16,84 @@ interface Partner {
 }
 
 interface User {
-  id: string,
+  id: string;
   username: string;
   email: string;
   firstName: string;
   lastName: string;
-  type: string;
-  telnum:string;
-  role: string;
+  telnum: string;
 }
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+interface PageProps {
+  params: { id: string };
+  searchParams: { page?: string; level?: string; searchValue?: string };
 }
 
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+async function fetchPartner(id: string) {
+  const apiUrl = new URL(`${process.env.API_URL}/partner/${id}`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
-function tabProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
-export default function PartnerDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
-  const prevLevel = searchParams.get('level') || 'PLATINUM';
-  const prevSearchValue = searchParams.get('searchValue') || '';
-  const [partner, setPartner] = useState<Partner | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [users, setUsers] = useState<User[]>([])
-  const [value, setValue] = useState(0);
-  const [isLoggedOut, setIsLoggedOut] = useState(false);
-
-  useEffect(() => {
-    const role = getCookie('role');
-    setRole(role ?? undefined);
-
-    fetchPartnerDetail();
-    fetchPartnerUserDetail();
-  }, []);
-
-  const fetchPartnerDetail = async () => {
-    try {
-      const response = await fetch(`/api/partner/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '파트너 정보를 불러올 수 없습니다.');
-      }
-
-      if (result.data.error) {
-        throw new Error(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-      }
-
-      setPartner(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      // if (err instanceof Error) {
-      //   if (err.message == 'Failed to fetch user information') {
-      //     logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-      //   }
-      // }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchPartnerUserDetail = async () => {
-    try {
-      const response = await fetch(`/api/user/forManager?type=partner&company_id=${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '파트너 담당자 정보를 불러올 수 없습니다.');
-      }
-
-      if (result.data.error) {
-        setError(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-        // alert(result.data.error instanceof Error ? result.data.message : result.data.message || '오류가 발생했습니다.');
-      }
-
-      setUsers(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      if (err instanceof Error) {
-        if (err.message == 'Failed to fetch user information') {
-          setIsLoggedOut(true);
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!confirm('정말 이 파트너를 삭제하시겠습니까?')) {
-      return;
-    }
-
-    if (users.length > 0) {
-      alert('파트너 담당자가 존재합니다. 파트너 담당자를 삭제하세요.');
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/partner/${params.id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        alert('파트너가 삭제되었습니다.');
-        router.push(`/partner?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`);
-      } else {
-        throw new Error('파트너 삭제에 실패했습니다.');
-      }
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    }
-  };
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-sm">
-        <div className="text-gray-500">로딩 중...</div>
-      </div>
-    );
+  if (!res.ok) {
+    throw new Error(data.message || '파트너 정보를 가져오는 데 실패했습니다.');
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
+  return data.data;
+}
+
+async function fetchUser(id: string) {
+  const apiUrl = new URL(`${process.env.API_URL}/user?type=partner&company_id=${id}`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || '파트너 담당자 정보를 가져오는 데 실패했습니다.');
   }
 
-  if (!partner) {
-    return (
-      <div className="flex justify-center items-center h-64 text-sm">
-        {/* <div className="text-gray-500">파트너를 찾을 수 없습니다.</div> */}
-      </div>
-    );
+  return data.data;
+}
+
+export default async function PartnerDetailPage({ params, searchParams: searchParamsPromise }: PageProps) {
+  log.info('API URL ::: GET /partner/'+params.id);
+  const searchParams = await searchParamsPromise;
+  const cookieStore = cookies();
+  const role = (await cookieStore).get('role')?.value;
+
+  // partner 조회
+  // const partner = await fetchPartner(params.id);
+  // user 조회
+  // const user = await fetchUser(params.id);
+
+  let partner: Partner | null = null;
+  let user: User[] | null = null;
+  let errorMessage: string | null = null;
+
+  try {
+    partner = await fetchPartner(params.id);
+    user = await fetchUser(params.id);
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : '파트너 정보를 불러오는 데 실패했습니다.';
+    log.info('GET /partner/'+params.id+' ERROR ::: '+errorMessage);
+    if (errorMessage === 'Failed to fetch user information') {
+      return redirect('/api/logout');
+    }
   }
 
-  if (isLoggedOut) {
-    return null;
+  if (errorMessage) {
+    return (
+      <div className="text-red-600">
+        {errorMessage}
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">파트너 상세정보</h1>
-        <div className="space-x-2">
-          <button
-            onClick={() => router.push(`/partner/${partner.id}/edit?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`)}
-            className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
-          >
-            수정
-          </button>
-          <button
-            onClick={handleDelete}
-            className={role === 'Admin' ? 'bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors' : 'hidden'}
-          >
-            삭제
-          </button>
-          <button
-            onClick={() => router.push(`/partner?page=${prevPage}&level=${prevLevel}&searchValue=${prevSearchValue}`)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-          >
-            목록
-          </button>
-        </div>
-      </div>
-
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="상세정보" {...tabProps(0)} />
-            <Tab label="담당자" {...tabProps(1)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-6 space-y-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">회사</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.name}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">전화번호</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.telnum}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">등급</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.level}
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">사용 제품 카테고리</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.product_category_names}
-                </p>
-              </div>
-              {(partner.deposit || partner.credit) && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">크레딧(구매 | 사용 | 잔여 코어수)</h3>
-                <p className="mt-1 text-lg text-gray-900">
-                {partner.deposit? partner.deposit : '-'} | {partner.credit? partner.credit : '-'} | {' '}
-                  <span className={
-                    Number(partner.deposit)-Number(partner.credit) < 0
-                      ? 'text-red-500 font-bold'
-                      : ''
-                  }>
-                    {Number(partner.deposit)-Number(partner.credit)}
-                  </span>
-                </p>
-              </div>
-              )}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">생성일</h3>
-                <p className="mt-1 text-lg text-gray-900">{partner.created}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-        <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                아이디
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                이메일
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                이름
-              </th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                성
-              </th> */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                전화번호
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {user.username}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.firstName}
-                </td>
-                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.lastName}
-                </td> */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.telnum}
-                </td>
-              </tr>
-            ))}
-            {users.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500 text-sm">
-                  사용자 정보가 없습니다.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        </CustomTabPanel>
-      </Box>
-    </div>
+    <PartnerDetailClient
+      partner={partner}
+      users={user ?? []}
+      role={role}
+      params={params}
+      searchParams={searchParams}
+    />
   );
-} 
+}

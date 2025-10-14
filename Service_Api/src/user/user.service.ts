@@ -18,13 +18,14 @@ export class UserService {
       firstName?: string;
       company?: string;
       company_id?: string;
-      manager_id?: string;
+      manager_company_id?: string;
       type?: string;
       level?: string;
     }
-  ): Promise<{ items: User[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: User[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
+  
+    // 필터 조건
     const whereConditions: string[] = [];
     const params: any[] = [];
 
@@ -52,14 +53,14 @@ export class UserService {
       params.push(filters.type);
     }
 
-    if (filters.company_id && filters.type === 'partner') {
+    if (filters.company_id && filters.type) {
       whereConditions.push(`company_attr.value = ?`);
       params.push(filters.company_id);
     }
 
-    if (filters.company_id && filters.type === 'customer') {
+    if (filters.manager_company_id && filters.type === 'customer') {
       whereConditions.push(`p.manager_company_id = ?`);
-      params.push(filters.company_id);
+      params.push(filters.manager_company_id);
     }
 
     if (filters.level) {
@@ -72,9 +73,7 @@ export class UserService {
       } else {
         levelList.push('ALL');
       }
-      Logger.log('levelList : '+levelList)
       const placeholders = levelList.map(() => '?').join(', ');
-      Logger.log('placeholders : '+placeholders)
       whereConditions.push(`
         (
           CASE 
@@ -91,7 +90,7 @@ export class UserService {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Step 1: total 데이터 조회
+    // Step 1: 전체 개수 조회
     const countQuery = `
       SELECT COUNT(*) AS count
       FROM keycloak.USER_ENTITY u
@@ -109,11 +108,20 @@ export class UserService {
     const countResult = await this.userRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
 
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return {
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
     }
 
-    // Step 2: 실제 데이터 조회
+    // Step 3: 데이터 조회
     // const caseType = filters.type === 'partner' ? 'partner' : 'customer';
     // const companyJoinTable = filters.type === 'partner' ? 'licenses.partner' : 'licenses.customer';
     const rawQuery = `
@@ -156,66 +164,80 @@ export class UserService {
       LIMIT ? OFFSET ?
     `;
 
-    const data = await this.userRepository.query(rawQuery, [...params, itemsPerPage, offset]);
+    const result = await this.userRepository.query(rawQuery, [...params, itemsPerPage, offset]);
 
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string): Promise<{ data: User[]; }> {
     const rawQuery = `
       SELECT 
         u.id AS id,
         u.username AS username,
         u.email AS email,
         u.first_name AS firstName,
+
         type_attr.value AS type,
         telnum_attr.value AS telnum,
         company_attr.value AS company_id,
         r_def.name AS role,
-        CASE 
-          WHEN type_attr.value = 'partner' THEN partner.name
-          WHEN type_attr.value = 'customer' THEN customer.name
-          ELSE 'ABLECLOUD'
-        END AS company
+
+        COALESCE(
+          CASE 
+            WHEN type_attr.value = 'partner' THEN partner.name
+            WHEN type_attr.value = 'customer' THEN customer.name
+          END,
+          'ABLECLOUD'
+        ) AS company
+
       FROM keycloak.USER_ENTITY u
-      LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
-        ON u.id = company_attr.user_id
+
+      -- USER_ATTRIBUTE (telnum, type, company_id)
+      LEFT JOIN keycloak.USER_ATTRIBUTE AS company_attr
+        ON company_attr.user_id = u.id
         AND company_attr.name = 'company_id'
-      LEFT JOIN keycloak.USER_ATTRIBUTE type_attr
-        ON u.id = type_attr.user_id
+
+      LEFT JOIN keycloak.USER_ATTRIBUTE AS type_attr
+        ON type_attr.user_id = u.id
         AND type_attr.name = 'type'
-      LEFT JOIN keycloak.USER_ATTRIBUTE telnum_attr
-        ON u.id = telnum_attr.user_id
+
+      LEFT JOIN keycloak.USER_ATTRIBUTE AS telnum_attr
+        ON telnum_attr.user_id = u.id
         AND telnum_attr.name = 'telnum'
-      INNER JOIN keycloak.USER_ROLE_MAPPING r
-        ON u.id = r.user_id
-      INNER JOIN keycloak.KEYCLOAK_ROLE r_def
-        ON r.role_id = r_def.id
+
+      -- ROLE
+      INNER JOIN keycloak.USER_ROLE_MAPPING AS r
+        ON r.user_id = u.id
+
+      INNER JOIN keycloak.KEYCLOAK_ROLE AS r_def
+        ON r_def.id = r.role_id
         AND r_def.name IN ('Admin', 'User')
-      LEFT JOIN licenses.partner partner
+
+      -- Company Name Resolution
+      LEFT JOIN licenses.partner AS partner
         ON type_attr.value = 'partner'
         AND company_attr.value = CAST(partner.id AS CHAR)
-      LEFT JOIN licenses.customer customer
+
+      LEFT JOIN licenses.customer AS customer
         ON type_attr.value = 'customer'
         AND company_attr.value = CAST(customer.id AS CHAR)
-      WHERE 
-        u.id = ?
+
+      -- Target User
+      WHERE u.id = ?
+
     `;
     
-    const result = await this.userRepository.query(rawQuery, [id]);
-
-    const user = result[0];
-    if (!user) return null;
-
-    return {
-      ...user
-    };
-
+    const [user] = await this.userRepository.query(rawQuery, [id]);
+  
+    return { data: user || null };
   }
 
   async findAllForManager(
@@ -227,7 +249,7 @@ export class UserService {
       company_id?: string;
       order?: string;
     }
-  ): Promise<{ items: User[]; }> {
+  ): Promise<{ data: User[]; }> {
     // ORDER BY 처리
     const orderByClause = filters.order 
     ? `ORDER BY 
@@ -242,7 +264,7 @@ export class UserService {
         u.id AS id,
         u.username AS username,
         company_attr.value AS company_id,
-        type_attr.value AS test,
+        type_attr.value AS type,
         CASE 
           WHEN type_attr.value = 'partner' THEN p.name 
           ELSE 'ABLECLOUD' 
@@ -274,7 +296,7 @@ export class UserService {
     const data = await this.userRepository.query(rawQuery);
 
     return {
-      items: data
+      data: data
     };
   }
 }
