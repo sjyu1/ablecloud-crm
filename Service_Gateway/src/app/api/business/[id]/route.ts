@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { fetchWithAuth } from '@/utils/api';
-import { userinfo_id } from '@/utils/userinfo';
 import log from '@/utils/logger';
 
 /**

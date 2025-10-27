@@ -20,7 +20,7 @@ export class SupportController {
     @Query('manager') manager?: string,
     @Query('status') status?: string,
     @Query('company_id') company_id?: string,
-  ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Support[]; pagination: {} }> {
     const filters = {
       name: name || '',
       type: type || '',
@@ -36,7 +36,7 @@ export class SupportController {
   // @Roles('Admin')
   async findOne(
     @Param('id') id: string, 
-  ): Promise<Support> {
+  ): Promise<{ data: Support[]; }> {
     return this.supportService.findOne(parseInt(id, 10));
   }
 

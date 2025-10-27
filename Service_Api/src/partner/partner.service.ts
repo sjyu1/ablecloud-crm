@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Partner } from './partner.entity';
@@ -18,77 +18,104 @@ export class PartnerService {
       id?: string;
       name?: string;
       level?: string;
+      order?: string;
     }
-  ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
-    // Step 1: ID만 추출
-    const subQuery = this.partnerRepository.createQueryBuilder('partner')
-      .select('partner.id', 'id')
-      .where('partner.removed IS NULL')
-      .orderBy('partner.created', 'DESC');
-
+  ): Promise<{ data: Partner[]; pagination: {}  }> {
+    const offset = (currentPage - 1) * itemsPerPage;
+  
+    // 필터 조건
+    const whereConditions: string[] = ['p.removed IS NULL'];
+    const params: any[] = [];
+  
     if (filters.id) {
-      subQuery.andWhere('partner.id = :id', { id: filters.id });
+      whereConditions.push('p.id = ?');
+      params.push(filters.id);
     }
-
+  
     if (filters.name) {
-      subQuery.andWhere('partner.name LIKE :name', { name: `%${filters.name}%` });
+      whereConditions.push('p.name LIKE ?');
+      params.push(`%${filters.name}%`);
     }
-
+  
     if (filters.level) {
-      subQuery.andWhere('partner.level = :level', { level: filters.level });
+      whereConditions.push('p.level = ?');
+      params.push(filters.level);
     }
+  
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    const totalItems = await subQuery.getCount();
-
-    const ids = await subQuery
-      .skip((currentPage - 1) * itemsPerPage)
-      .take(itemsPerPage)
-      .getRawMany();
-
-    const partnerIds = ids.map(item => item.partner_id || item.id);
-    if (partnerIds.length === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
-    }
-
-    // Step 2: ID 기준 상세 데이터 조회
-    const data = await this.partnerRepository
-      .createQueryBuilder('partner')
-      .select([
-        'partner.id as id',
-        'partner.name as name',
-        'partner.telnum as telnum',
-        'partner.level as level',
-        'partner.created as created',
-      ])
-      .whereInIds(partnerIds)
-      .orderBy('partner.created', 'DESC')
-      .getRawMany();
-
+    // ORDER BY 처리
+    const orderByClause = filters.order ? 'ORDER BY p.name ASC' : 'ORDER BY p.created DESC';
+  
+    // Step 1: 전체 개수 조회
+    const countQuery = `
+      SELECT COUNT(*) AS count
+      FROM partner p
+      ${whereClause}
+    `;
+    const countResult = await this.partnerRepository.query(countQuery, params);
+    const totalItems = Number(countResult[0]?.count || 0);
+  
+    // Step 2: 데이터가 없으면 빈 배열 반환
+    if (totalItems === 0) {
       return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
+    }
+  
+    // Step 3: 실제 데이터 조회
+    const dataQuery = `
+      SELECT
+        p.id AS id,
+        p.name AS name,
+        p.telnum AS telnum,
+        p.level AS level,
+        p.created AS created
+      FROM partner p
+      ${whereClause}
+      ${orderByClause}
+      LIMIT ? OFFSET ?
+    `;
+
+    const result = await this.partnerRepository.query(dataQuery, [...params, itemsPerPage, offset]);
+
+    return {
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: number): Promise<Partner | null> {
+  async findOne(id: number): Promise<{ data: Partner | null }> {
     const rawQuery = `
       SELECT 
-        p.id AS id,
-        p.name AS name,
-        p.level AS level,
-        p.telnum AS telnum,
-        p.created AS created,
-        p.product_category AS product_category,
+        p.id,
+        p.name,
+        p.level,
+        p.telnum,
+        p.created,
+        p.product_category,
         GROUP_CONCAT(pc.name ORDER BY pc.id) AS product_category_names,
-        ANY_VALUE(cr.deposit) AS deposit,
-        ANY_VALUE(cr.credit) AS credit
+        MAX(cr.deposit) AS deposit,
+        MAX(cr.credit) AS credit
       FROM partner p
       LEFT JOIN product_category pc 
         ON FIND_IN_SET(pc.id, p.product_category)
       LEFT JOIN (
-        SELECT partner_id, SUM(deposit) AS deposit, SUM(credit) AS credit
+        SELECT 
+          partner_id, 
+          SUM(deposit) AS deposit, 
+          SUM(credit) AS credit
         FROM credit
         WHERE removed IS NULL
         GROUP BY partner_id
@@ -96,14 +123,13 @@ export class PartnerService {
       WHERE p.id = ?
         AND p.removed IS NULL
       GROUP BY p.id
+      LIMIT 1
     `;
 
     const [partner] = await this.partnerRepository.query(rawQuery, [id]);
 
-    if (!partner) throw new NotFoundException(`파트너 ID ${id}를 찾을 수 없습니다.`);
-
     return {
-      ...partner,
+      data: partner || null,
     };
   }
 

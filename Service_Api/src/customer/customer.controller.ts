@@ -17,12 +17,14 @@ export class CustomerController {
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
     @Query('manager_company') manager_company?: string,
-    @Query('company_id') company_id?: string
-  ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
+    @Query('company_id') company_id?: string,
+    @Query('order') order?: string
+  ): Promise<{ data: Customer[]; pagination: {} }> {
     const filters = {
       name: name || '',
       manager_company: manager_company || '',
-      company_id: company_id || ''
+      company_id: company_id || '',
+      order: order || ''
     };
 
     return this.customerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
@@ -30,7 +32,7 @@ export class CustomerController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: string): Promise<Customer> {
+  async findOne(@Param('id') id: string): Promise<{ data: Customer[]; }> {
     return this.customerService.findOne(parseInt(id, 10));
   }
 

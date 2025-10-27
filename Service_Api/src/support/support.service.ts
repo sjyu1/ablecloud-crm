@@ -21,9 +21,10 @@ export class SupportService {
       status?: string;
       company_id?: string;
     }
-  ): Promise<{ items: Support[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Support[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
+  
+    // 필터 조건
     const whereConditions: string[] = ['s.removed IS NULL'];
     const params: any[] = [];
 
@@ -54,7 +55,7 @@ export class SupportService {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Step 1: total 데이터 조회
+    // Step 1: 전체 개수 조회
     const countQuery = `
       SELECT COUNT(*) as count
       FROM support s
@@ -64,11 +65,20 @@ export class SupportService {
     const countResult = await this.supportRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
 
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return {
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
     }
 
-    // Step 2: 데이터 조회
+    // Step 3: 데이터 조회
     const rawQuery = `
       SELECT 
         s.id AS id,
@@ -86,17 +96,20 @@ export class SupportService {
       LIMIT ? OFFSET ?
     `;
 
-    const data = await this.supportRepository.query(rawQuery, [...params, itemsPerPage, offset]);
+    const result = await this.supportRepository.query(rawQuery, [...params, itemsPerPage, offset]);
 
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: number): Promise<Support | null> {
+  async findOne(id: number): Promise<{ data: Support[]; }> {
     const rawQuery = `
       SELECT 
         s.id AS id,
@@ -126,11 +139,7 @@ export class SupportService {
 
     const [support] = await this.supportRepository.query(rawQuery, [id]);
 
-    if (!support) return null;
-
-    return {
-      ...support,
-    };
+    return { data: support || null };
   }
 
   async create(createSupportDto: CreateSupportDto): Promise<Support> {
@@ -150,16 +159,6 @@ export class SupportService {
   async delete(id: number): Promise<void> {
     await this.supportRepository.softDelete(id);
   }
-
-  // async updateHistory(historyId: number, updateSupportDto: UpdateSupportDto): Promise<Support> {
-  //   const support = await this.findOne(historyId);
-  //   delete (support as any).created;
-  //   const updatedSupport = {
-  //     ...support,
-  //     ...updateSupportDto,
-  //   };
-  //   return this.supportRepository.save(updatedSupport);
-  // }
 
   private removeMicrosecondsFromTimestamp(timestamp: string | Date): string {
     const date = new Date(timestamp)

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './customer.entity';
@@ -18,10 +18,12 @@ export class CustomerService {
       name?: string;
       manager_company?: string;
       company_id?: string;
+      order?: string;
     }
-  ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Customer[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
+  
+    // 필터 조건
     const whereConditions: string[] = ['c.removed IS NULL'];
     const params: any[] = [];
 
@@ -46,7 +48,10 @@ export class CustomerService {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Step 1: total 데이터 조회
+    // ORDER BY 처리
+    const orderByClause = filters.order ? 'ORDER BY c.name ASC' : 'ORDER BY c.created DESC';
+
+    // Step 1: 전체 개수 조회
     const countQuery = `
       SELECT COUNT(*) AS count
       FROM customer c
@@ -66,11 +71,20 @@ export class CustomerService {
     const countResult = await this.customerRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
 
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return { 
+        data: [],
+        pagination: {
+          currentPage: currentPage,
+          totalItems: totalItems,
+          totalPages: 0,
+          itemsPerPage: itemsPerPage,
+        },
+      };
     }
 
-    // Step 2: 실제 데이터 조회
+    // Step 3: 데이터 조회
     const rawQuery = `
       SELECT 
         c.id AS id,
@@ -96,72 +110,24 @@ export class CustomerService {
       LEFT JOIN partner
         ON company_attr.value = CAST(partner.id AS CHAR)
       ${whereClause}
-      ORDER BY c.created DESC
+      ${orderByClause}
       LIMIT ? OFFSET ?
     `;
 
-    const data = await this.customerRepository.query(rawQuery, [...params, itemsPerPage, offset]);
+    const result = await this.customerRepository.query(rawQuery, [...params, itemsPerPage, offset]);
 
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage: currentPage,
+        totalItems: totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage: itemsPerPage,
+      },
     };
   }
 
-  async findAll_QueryBuilder(
-    currentPage: number = 1,
-    itemsPerPage: number = 10,
-    filters: {
-      name?: string;
-    }
-  ): Promise<{ items: Customer[]; currentPage: number; totalItems: number; totalPages: number }> {
-    // Step 1: ID만 추출
-    const subQuery = this.customerRepository.createQueryBuilder('customer')
-      .select('customer.id', 'id')
-      .where('customer.removed IS NULL')
-      .orderBy('customer.created', 'DESC');
-
-    if (filters.name) {
-      subQuery.andWhere('customer.name LIKE :name', { name: `%${filters.name}%` });
-    }
-
-    const totalItems = await subQuery.getCount();
-
-    const ids = await subQuery
-      .skip((currentPage - 1) * itemsPerPage)
-      .take(itemsPerPage)
-      .getRawMany();
-
-    const customerIds = ids.map(item => item.customer_id || item.id);
-    if (customerIds.length === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
-    }
-
-    // Step 2: ID 기준 상세 데이터 조회
-    const data = await this.customerRepository
-      .createQueryBuilder('customer')
-      .select([
-        'customer.id as id',
-        'customer.name as name',
-        'customer.telnum as telnum',
-        'customer.manager_id as manager_id',
-        'customer.created as created',
-      ])
-      .whereInIds(customerIds)
-      .orderBy('customer.created', 'DESC')
-      .getRawMany();
-
-    return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
-    };
-  }
-
-  async findOne(id: number): Promise<Customer | null> {
+  async findOne(id: number): Promise<{ data: Customer[]; }> {
     const rawQuery = `
       SELECT
         c.id AS id,
@@ -169,6 +135,7 @@ export class CustomerService {
         c.telnum AS telnum,
         c.manager_id AS manager_id,
         c.created AS created,
+
         b.id AS business_id,
         b.name AS business_name,
         b.status AS business_status,
@@ -176,98 +143,50 @@ export class CustomerService {
         b.core_cnt AS business_core_cnt,
         b.issued AS business_issued,
         b.expired AS business_expired,
+
         u.username AS manager_name,
+
         CASE 
-          WHEN type_attr.value = 'partner' THEN partner.name 
-          ELSE 'ABLECLOUD' 
+          WHEN type_attr.value = 'partner' THEN partner.name
+          ELSE 'ABLECLOUD'
         END AS manager_company
+
       FROM customer c
-      LEFT JOIN business b ON c.id = b.customer_id
-      LEFT JOIN keycloak.USER_ENTITY u
+
+      -- 관련 사업 정보 (nullable)
+      LEFT JOIN business b 
+        ON c.id = b.customer_id
+
+      -- 고객 담당자 유저 정보
+      LEFT JOIN keycloak.USER_ENTITY u 
         ON c.manager_id = u.id
-      LEFT JOIN keycloak.USER_ATTRIBUTE company_attr
-        ON u.id = company_attr.user_id
+
+      -- 담당자 회사 ID
+      LEFT JOIN keycloak.USER_ATTRIBUTE company_attr 
+        ON u.id = company_attr.user_id 
         AND company_attr.name = 'company_id'
-      LEFT JOIN keycloak.USER_ATTRIBUTE type_attr
-        ON u.id = type_attr.user_id
-        AND type_attr.name = 'type'
+
+      -- 담당자 유형 정보 (partner/vendor 중 하나만)
+      LEFT JOIN keycloak.USER_ATTRIBUTE type_attr 
+        ON u.id = type_attr.user_id 
+        AND type_attr.name = 'type' 
         AND type_attr.value IN ('partner', 'vendor')
-      LEFT JOIN partner
+
+      -- 파트너 정보 (담당자 유형이 partner일 경우)
+      LEFT JOIN partner 
         ON company_attr.value = CAST(partner.id AS CHAR)
+
+      -- 특정 고객 조회
       WHERE c.id = ?
+
     `;
 
-    const result = await this.customerRepository.query(rawQuery, [id]);
-
-    const customer = result[0];
-    if (!customer) return null;
+    const [customer] = await this.customerRepository.query(rawQuery, [id]);
 
     return {
-      ...customer,
-      // business_id: customer.business_id,
-      // business_name: customer.business_name,
-      // business_status: customer.business_status,
-      // business_node_cnt: customer.business_node_cnt,
-      // business_core_cnt: customer.business_core_cnt,
-      // business_issued: customer.business_issued,
-      // business_expired: customer.business_expired,
-    };
-
-  }
-
-  async findOne_QueryBuilder(id: number): Promise<Customer | null> {
-    const query = this.customerRepository.createQueryBuilder('customer')
-      .leftJoin('business', 'business', 'customer.id = business.customer_id')
-      .select([
-        'customer.id as id',
-        'customer.name as name',
-        'customer.telnum as telnum',
-        'customer.manager_id as manager_id',
-        'customer.created as created',
-        'business.id as business_id',
-        'business.name as business_name',
-        'business.status as business_status',
-        'business.node_cnt as business_node_cnt',
-        'business.core_cnt as business_core_cnt',
-        'business.issued as business_issued',
-        'business.expired as business_expired',
-      ])
-      .where('customer.id = :id', { id });
-
-    const customer = await query.getRawOne();
-    if (!customer) return null;
-
-    return {
-      ...customer,
-      business_id: customer.business_id,
-      business_name: customer.business_name,
-      business_status: customer.business_status,
-      business_node_cnt: customer.business_node_cnt,
-      business_core_cnt: customer.business_core_cnt,
-      business_issued: customer.business_issued,
-      business_expired: customer.business_expired,
+      data: customer || null,
     };
   }
-
-  // async findAll_noLimit(
-  // ): Promise<{ items: Customer[]; }> {
-  //   const data = await this.customerRepository
-  //     .createQueryBuilder('customer')
-  //     .select([
-  //       'customer.id as id',
-  //       'customer.name as name',
-  //       'customer.telnum as telnum',
-  //       'customer.manager_id as manager_id',
-  //       'customer.created as created',
-  //     ])
-  //     // .whereInIds(customerIds)
-  //     .orderBy('customer.created', 'DESC')
-  //     .getRawMany();
-
-  //   return {
-  //     items: data
-  //   };
-  // }
 
   async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
     const customer = this.customerRepository.create(createCustomerDto);

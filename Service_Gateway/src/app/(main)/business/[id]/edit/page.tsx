@@ -1,187 +1,97 @@
-'use client';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { fetchWithAuth } from '@/utils/api';
+import BusinessEditForm from './businessEditForm';
+import log from '@/utils/logger';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
-import Link from 'next/link';
-
-interface BusinessForm {
-  id: number;
-  name: string;
-  status: string;
-  node_cnt: number;
-  core_cnt: number;
-  issued: string;
-  expired: string;
-  manager_id: string;
-  product_id: string;
-  details: string;
-  deposit_use: boolean;
-  deposit: string;
-  credit: string;
-  credit_id: string;
+interface BusinessEditPageProps {
+  params: { id: string };
+  searchParams?: { page?: string; searchField?: string; searchValue?: string };
 }
 
-interface Manager {
-  id: number;
-  username: string;
-  company: string;
-}
+async function fetchBusinessDetail(id: string) {
+  const apiUrl = new URL(`${process.env.API_URL}/business/${id}`);
 
-interface Product {
-  id: string;
-  name: string;
-  version: string;
-}
+  const res = await fetchWithAuth(apiUrl.toString(), {cache: 'no-store',});
+  const data = await res.json();
 
-export default function BusinessEditPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
-  const prevSearchField = searchParams.get('searchField') || 'name';
-  const prevSearchValue = searchParams.get('searchValue') || '';
-  const [formData, setFormData] = useState<BusinessForm | null>(null);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [managers, setManagers] = useState<Manager[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [role, setRole] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    const role = getCookie('role');
-    setRole(role ?? undefined);
-
-    fetchBusinessDetail();
-    fetchManagers();
-    fetchProducts();
-  }, []);
-
-  const fetchBusinessDetail = async () => {
-    try {
-      const response = await fetch(`/api/business/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || '사업 정보를 불러올 수 없습니다.');
-      }
-
-      setFormData(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchManagers = async () => {
-    try {
-      let url = `/api/user/forCreateManager`;
-
-      if (role == 'User') {
-        url += `?role=User`;
-      }
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (!result.success) {
-        if (result.message == 'Failed to fetch user information') {
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        } else {
-          // alert(result.message);
-          return;
-        }
-      }
-
-      setManagers(result.data);
-    } catch (error) {
-      alert('사업담당자 목록 조회에 실패했습니다.');
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      let url = `/api/product`;
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (!result.success) {
-        if (result.message == 'Failed to fetch user information') {
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        } else {
-          // alert(result.message);
-          return;
-        }
-      }
-
-      setProducts(result.data);
-    } catch (error) {
-      alert('사업담당자 목록 조회에 실패했습니다.');
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    // setIsLoading(true);
-
-    try {
-      const updateFormData = { ...formData}
-      const response = await fetch(`/api/business/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateFormData),
-      });
-
-      if (response.ok) {
-        alert('사업이 수정되었습니다.');
-      } else {
-        throw new Error(response.status == 409? '이미 존재하는 사업입니다.' : '사업 수정에 실패했습니다.');
-      }
-
-      router.push(`/business/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-      
-    setFormData(prev => prev ? {
-      ...prev,
-      [name]: value
-    } : null);
-  };
-
-  //크레딧 체크
-  const handleCreditCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target;
-    setFormData(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        deposit_use: checked,
-      };
-    });
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-4 text-sm">로딩 중...</div>;
+  if (!res.ok) {
+    throw new Error(data.message || '사업 정보를 가져오는 데 실패했습니다.');
   }
 
-  // if (error) {
-  //   return <div className="text-center text-red-500 py-4">{error}</div>;
-  // }
+  return data.data;
+}
 
-  if (!formData) {
-    return <div className="text-center py-4 text-sm">사업 정보를 찾을 수 없습니다.</div>;
+async function fetchManagers() {
+  const cookieStore = cookies();
+  const role = (await cookieStore).get('role')?.value;
+  const companyId = (await cookieStore).get('companyId')?.value;
+
+  const apiUrl = new URL(`${process.env.API_URL}/user/forCreateManager`);
+  apiUrl.searchParams.set('order', 'name'); // 이름순 정렬
+  if (role === 'User') {  // 파트너일 경우
+    apiUrl.searchParams.set('company_id', companyId ?? '');
+  }
+
+  const res = await fetchWithAuth(apiUrl.toString(), {cache: 'no-store',});
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || '담당자 정보를 가져오는 데 실패했습니다.');
+  }
+  return data.data;
+}
+
+async function fetchProducts() {
+  const cookieStore = cookies();
+  const role = (await cookieStore).get('role')?.value;
+  const companyId = (await cookieStore).get('companyId')?.value;
+
+  const apiUrl = new URL(`${process.env.API_URL}/product`);
+
+  if (role === 'User') {  // 파트너일 경우
+    apiUrl.searchParams.set('company_id', companyId ?? '');
+  }
+
+  const res = await fetchWithAuth(apiUrl.toString(), {cache: 'no-store',});
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || '제품 정보를 가져오는 데 실패했습니다.');
+  }
+
+  return data.data;
+}
+
+export default async function BusinessEditPage({ params, searchParams: searchParamsPromise }: BusinessEditPageProps) {
+  log.info('API URL ::: PUT /business/'+params.id);
+  const searchParams = await searchParamsPromise;
+  const prevPage = searchParams?.page ?? '1';
+  const prevSearchField = searchParams?.searchField ?? 'name';
+  const prevSearchValue = searchParams?.searchValue ?? '';
+
+  // const [business, managers, products] = await Promise.all([
+  //   fetchBusinessDetail(params.id),
+  //   fetchManagers(),
+  //   fetchProducts(),
+  // ]);
+
+  let business = null;
+  let managers: any[] = [];
+  let products: any[] = [];
+  let errorMessage: string | null = null;
+
+  // business 조회
+  try {
+    business = await fetchBusinessDetail(params.id);
+    managers = await fetchManagers();
+    products = await fetchProducts();
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : '사업 정보를 가져오는 데 실패했습니다.';
+    log.info('PUT /business/'+params.id+' ERROR ::: '+errorMessage);
+    if (errorMessage === 'Failed to fetch user information') {
+      return redirect('/api/logout');
+    }
   }
 
   return (
@@ -190,204 +100,22 @@ export default function BusinessEditPage() {
         <h1 className="text-2xl font-bold text-gray-800">사업 수정</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업 담당자
-              </label>
-              <select
-                name="manager_id"
-                value={formData.manager_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">선택하세요</option>
-                {managers.map(item => (
-                  <option key={item.id} value={item.id.toString()}>
-                    {item.username} ({item.company})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업 상태
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="standby">대기 중</option>
-                <option value="meeting">고객 미팅</option>
-                <option value="poc">PoC</option>
-                <option value="bmt">BMT</option>
-                <option value="ordering">발주</option>
-                <option value="proposal">제안</option>
-                <option value="ordersuccess">수주 성공</option>
-                <option value="cancel">취소</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제품
-              </label>
-              <select
-                name="product_id"
-                value={formData.product_id}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">선택하세요</option>
-                {products.map(item => (
-                  <option key={item.id} value={item.id.toString()}>
-                    {item.name} (v{item.version})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                노드수
-              </label>
-              <input
-                type="number"
-                name="node_cnt"
-                min="0"
-                value={formData.node_cnt}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                코어수
-              </label>
-              <input
-                type="number"
-                name="core_cnt"
-                min="0"
-                value={formData.core_cnt}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {formData?.deposit && (
-                <div className="text-sm text-gray-600 space-y-1">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.deposit_use}
-                      onChange={handleCreditCheckboxChange}
-                      className="rounded border-gray-300 focus:ring-2 focus:ring-blue-500"
-                    />
-                    <span>크레딧 사용(구매 | 사용 | 잔여 코어수)</span>
-                    <div>
-                      ({formData.deposit} | {formData.credit} | {' '}
-                      <span className={
-                        Number(formData.deposit)-Number(formData.credit) < 0
-                          ? 'text-red-500 font-bold'
-                          : ''
-                      }>
-                        {Number(formData.deposit)-Number(formData.credit)}
-                      </span>)
-                      {/* (사용 가능 크레딧: {Number(formData.deposit)-Number(formData.credit)} / 크레딧 사용 후 잔여 크레딧:{' '}
-                      <span className={
-                        Number(formData.deposit)-Number(formData.credit) - (formData.deposit_use ? formData.core_cnt : 0) < 0
-                          ? 'text-red-500 font-bold'
-                          : ''
-                      }>
-                        {Number(formData.deposit)-Number(formData.credit) - (formData.deposit_use ? formData.core_cnt : 0)})
-                      </span> */}
-                    </div>
-                  </label>
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업 시작일
-              </label>
-              <input
-                type="date"
-                name="issued"
-                value={formData.issued}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사업 종료일
-              </label>
-              <input
-                type="date"
-                name="expired"
-                value={formData.expired}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                세부사항
-              </label>
-              <textarea
-                id="text-input"
-                name="details"
-                value={formData.details ?? ''}
-                onChange={handleChange}
-                placeholder="내용을 입력하세요"
-                rows={5}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-2">
-            <Link
-              href={`/business/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              취소
-            </Link>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? '처리 중...' : '수정'}
-            </button>
-          </div>
-        </form>
-      </div>
+      {errorMessage || !business ? (
+        <div className="text-red-600">
+          {errorMessage || '사업 정보를 불러올 수 없습니다.'}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <BusinessEditForm
+            business={business}
+            managers={managers}
+            products={products}
+            prevPage={prevPage}
+            prevSearchField={prevSearchField}
+            prevSearchValue={prevSearchValue}
+          />
+        </div>
+      )}
     </div>
   );
 }

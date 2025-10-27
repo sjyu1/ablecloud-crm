@@ -20,9 +20,10 @@ export class CreditService {
       business?: string;
       company_id?: string;
     }
-  ): Promise<{ items: Credit[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Credit[]; pagination: {} }> {
     const offset = (currentPage - 1) * itemsPerPage;
-
+  
+    // 필터 조건
     const whereConditions: string[] = ['c.removed IS NULL'];
     const params: any[] = [];
 
@@ -48,7 +49,7 @@ export class CreditService {
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-    // Step 1: total 데이터 조회
+    // Step 1: 전체 개수 조회
     const countQuery = `
       SELECT COUNT(*) as count
       FROM credit c
@@ -59,11 +60,20 @@ export class CreditService {
     const countResult = await this.creditRepository.query(countQuery, params);
     const totalItems = countResult[0]?.count || 0;
 
+    // Step 2: 데이터가 없으면 빈 배열 반환
     if (totalItems === 0) {
-      return { items: [], currentPage, totalItems, totalPages: 0 };
+      return {
+        data: [],
+        pagination: {
+          currentPage,
+          totalItems,
+          totalPages: 0,
+          itemsPerPage,
+        },
+      };
     }
 
-    // Step 2: 데이터 조회
+    // Step 3: 데이터 조회
     const rawQuery = `
       SELECT 
         c.id as id,
@@ -83,17 +93,20 @@ export class CreditService {
       LIMIT ? OFFSET ?
     `;
 
-    const data = await this.creditRepository.query(rawQuery, [...params, itemsPerPage, offset]);
+    const result = await this.creditRepository.query(rawQuery, [...params, itemsPerPage, offset]);
 
     return {
-      items: data,
-      currentPage,
-      totalItems,
-      totalPages: Math.ceil(totalItems / itemsPerPage),
+      data: result,
+      pagination: {
+        currentPage,
+        totalItems,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        itemsPerPage,
+      },
     };
   }
 
-  async findOne(id: number): Promise<Credit> {
+  async findOne(id: number): Promise<{ data: Credit | null }> {
     const rawQuery = `
       SELECT 
         c.id AS id,
@@ -122,12 +135,8 @@ export class CreditService {
     `;
 
     const [credit] = await this.creditRepository.query(rawQuery, [id]);
-
-    if (!credit) return null;
-
-    return {
-      ...credit,
-    };
+  
+    return { data: credit || null };
   }
 
   async create(createCreditDto: CreateCreditDto): Promise<Credit> {

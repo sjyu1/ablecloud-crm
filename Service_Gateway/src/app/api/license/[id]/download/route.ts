@@ -23,9 +23,12 @@ export async function GET(
 
     // 라이선스 파일 내용 생성
     const licenseContent = JSON.stringify(license, null, 2);
+    const parsedLicense = JSON.parse(licenseContent);
+    const data = parsedLicense.data;
+    const license_str = JSON.stringify(data, null, 2);
 
     // 데이터 암호화
-    const licenseContent_enc = await encryptContent(licenseContent);
+    const licenseContent_enc = await encryptContent(license_str);
     
     // 파일 이름 설정
     // const filename = `license_${license_key}.lic`;

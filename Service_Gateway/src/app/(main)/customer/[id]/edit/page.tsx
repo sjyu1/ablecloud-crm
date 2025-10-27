@@ -1,9 +1,12 @@
-'use client';
+import { fetchWithAuth } from '@/utils/api';
+import { redirect } from 'next/navigation';
+import CustomerEditFormClient from './customerEditFormClient';
+import log from '@/utils/logger';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { getCookie, logoutIfTokenExpired } from '../../../../store/authStore';
-import Link from 'next/link';
+interface CustomerEditPageProps {
+  params: { id: string };
+  searchParams?: { page?: string; searchField?: string; searchValue?: string };
+}
 
 interface CustomerForm {
   id: number;
@@ -11,107 +14,36 @@ interface CustomerForm {
   telnum: string;
 }
 
-export default function CustomerEditPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const prevPage = searchParams.get('page') || '1';
-  const prevSearchField = searchParams.get('searchField') || 'name';
-  const prevSearchValue = searchParams.get('searchValue') || '';
-  const [formData, setFormData] = useState<CustomerForm | null>(null);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+async function fetchCustomerDetail(id: string): Promise<CustomerForm> {
+  const apiUrl = new URL(`${process.env.API_URL}/customer/${id}`);
+  const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
+  const data = await res.json();
 
-  useEffect(() => {
-    fetchCustomerDetail();
-  }, []);
-
-  const fetchCustomerDetail = async () => {
-    try {
-      const response = await fetch(`/api/customer/${params.id}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (result.message == 'Failed to fetch user information') {
-          logoutIfTokenExpired(); // 토큰 만료시 로그아웃
-        } else {
-          // alert(result.message);
-          return;
-        }
-      }
-
-      setFormData(result.data);
-    } catch (err) {
-      // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-      alert('고객 정보를 불러올 수 없습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    // setIsLoading(true);
-
-    try {
-      // 전화번호 밸리데이션
-      if (!validateTelnum(formData?.telnum)) {
-        throw new Error('전화번호 형식이 올바르지 않습니다.');
-      }
-
-      const updateFormData = { ...formData}
-      const response = await fetch(`/api/customer/${params.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateFormData),
-      });
-
-      if (response.ok) {
-        alert('고객이 수정되었습니다.');
-      } else {
-        throw new Error(response.status == 409? '이미 존재하는 회사입니다.' : '고객 수정에 실패했습니다.');
-      }
-
-      router.push(`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-      
-    setFormData(prev => prev ? {
-      ...prev,
-      [name]: value
-    } : null);
-  };
-
-  // 전화번호 유효성 검사 함수
-  const validateTelnum = (telnum?: string) => {
-    if (!telnum) return false;
-    const phoneRegex = /^(\d{2,3})-(\d{3,4})-(\d{4})$/;
-    if (!phoneRegex.test(telnum)) {
-      return false;
-    }
-    return true;
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-4 text-sm">로딩 중...</div>;
+  if (!res.ok) {
+    throw new Error(data.message || '고객 정보를 가져오는 데 실패했습니다.');
   }
 
-  // if (error) {
-  //   return <div className="text-center text-red-500 py-4">{error}</div>;
-  // }
+  return data.data;
+}
 
-  if (!formData) {
-    return <div className="text-center py-4 text-sm">고객 정보를 찾을 수 없습니다.</div>;
+export default async function CustomerEditPage({ params, searchParams: searchParamsPromise }: CustomerEditPageProps) {
+  log.info('API URL ::: PUT /customer/'+params.id);
+  const searchParams = await searchParamsPromise;
+  const prevPage = searchParams?.page ?? '1';
+  const prevSearchField = searchParams?.searchField ?? 'name';
+  const prevSearchValue = searchParams?.searchValue ?? '';
+
+  let customer: CustomerForm | null = null;
+  let errorMessage: string | null = null;
+
+  try {
+    customer = await fetchCustomerDetail(params.id);
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : '고객 정보를 찾을 수 없습니다.';
+    log.info('PUT /customer/'+params.id+' ERROR ::: '+errorMessage);
+    if (errorMessage === 'Failed to fetch user information') {
+      return redirect('/api/logout'); // 토큰 만료 시 로그아웃
+    }
   }
 
   return (
@@ -120,62 +52,22 @@ export default function CustomerEditPage() {
         <h1 className="text-2xl font-bold text-gray-800">고객 수정</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                회사
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                전화번호 (-포함)
-              </label>
-              <input
-                type="text"
-                name="telnum"
-                value={formData.telnum}
-                onChange={handleChange}
-                className="w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-2">
-            <Link
-              href={`/customer/${params.id}?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              취소
-            </Link>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isLoading ? '처리 중...' : '수정'}
-            </button>
-          </div>
-        </form>
-      </div>
+      {errorMessage || !customer ? (
+        <div className="text-red-600">
+          {errorMessage || '고객 정보를 불러올 수 없습니다.'}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <CustomerEditFormClient
+            initialData={customer}
+            searchParams={{
+              page: prevPage,
+              searchField: prevSearchField,
+              searchValue: prevSearchValue,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
-} 
+}

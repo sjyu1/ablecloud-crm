@@ -20,6 +20,7 @@ export async function GET(request: Request) {
     const available = searchParams.get('available');  // 라이선스 없는 사업 조회
     const customer_id = searchParams.get('customer_id');  // 기술지원메뉴 등록에서 고객 선택시 조회
     const role = searchParams.get('role');  // User 회사 정보만 조회
+    const order = searchParams.get('order');  // 이름순 정렬
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/business`);
@@ -32,6 +33,7 @@ export async function GET(request: Request) {
     if (status) apiUrl.searchParams.set('status', status);
     if (available) apiUrl.searchParams.set('available', available);
     if (customer_id) apiUrl.searchParams.set('customer_id', customer_id);
+    if (order) apiUrl.searchParams.set('order', order);
     // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
@@ -95,12 +97,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.items || [],
+      data: data.data || [],
       pagination: {
-        currentPage: data.currentPage,
-        itemsPerPage: data.itemsPerPage,
-        totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0
+        currentPage: data.data.currentPage,
+        itemsPerPage: data.data.itemsPerPage,
+        totalPages: data.data.totalPages || 1,
+        totalItems: data.data.totalItems || 0
       }
     });
   } catch (error) {

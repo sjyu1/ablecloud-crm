@@ -18,7 +18,7 @@ export class NoticeController {
     @Query('title') title?: string,
     @Query('level') level?: string,
     @Query('company_id') company_id?: string
-  ): Promise<{ items: Notice[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: Notice[]; pagination: {} }> {
     const filters = {
       title: title || '',
       level: level || '',
@@ -30,7 +30,7 @@ export class NoticeController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: string): Promise<Notice> {
+  async findOne(@Param('id') id: string): Promise<{ data: Notice[]; }> {
     return this.noticeService.findOne(parseInt(id, 10));
   }
 

@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const type = searchParams.get('type');
     const level = searchParams.get('level');
+    const order = searchParams.get('order');  // 이름순 정렬
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/user`);
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
     if (company) apiUrl.searchParams.set('company', company );
     if (type) apiUrl.searchParams.set('type', type);
     if (level) apiUrl.searchParams.set('level', level);
+    if (order) apiUrl.searchParams.set('level', order);
     // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
@@ -143,12 +145,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.items || [],
+      data: data.data || [],
       pagination: {
-        currentPage: data.currentPage,
-        itemsPerPage: data.itemsPerPage,
-        totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0
+        currentPage: data.data.currentPage,
+        itemsPerPage: data.data.itemsPerPage,
+        totalPages: data.data.totalPages || 1,
+        totalItems: data.data.totalItems || 0
       }
     });
   } catch (error) {

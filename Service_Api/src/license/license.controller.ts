@@ -23,7 +23,7 @@ export class LicenseController {
     @Query('business_name') business_name?: string,
     @Query('license_key') license_key?: string,
     @Query('status') status?: string,
-  ): Promise<{ items: License[]; currentPage: number; totalItems: number; totalPages: number }> {
+  ): Promise<{ data: License[]; pagination: {} }> {
     const filters = {
       productId: productId || '',
       businessType: businessType || '',
@@ -39,7 +39,7 @@ export class LicenseController {
 
   @Get(':id')
   // @Roles('Admin', 'User')
-  async findOne(@Param('id') id: string): Promise<License> {
+  async findOne(@Param('id') id: string): Promise<{ data: License; }> {
     return this.licenseService.findOne(parseInt(id, 10))
   }
 

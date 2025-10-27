@@ -119,4 +119,6 @@ export class Business {
     nullable: true
   })
   removed: Date | null;
+
+  partner_id: string;
 }

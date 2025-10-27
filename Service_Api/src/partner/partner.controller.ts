@@ -20,11 +20,13 @@ export class PartnerController {
     @Query('name') name?: string,
     @Query('id') id?: string,
     @Query('level') level?: string,
-  ): Promise<{ items: Partner[]; currentPage: number; totalItems: number; totalPages: number }> {
+    @Query('order') order?: string
+  ): Promise<{ data: Partner[]; pagination: {} }> {
     const filters = {
       id: id || '',
       name: name || '',
-      level: level || ''
+      level: level || '',
+      order: order || ''
     };
 
     return this.partnerService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
@@ -32,7 +34,7 @@ export class PartnerController {
 
   @Get(':id')
   // @Roles('Admin')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: number): Promise<{ data: Partner; }> {
     return this.partnerService.findOne(id);
   }
 

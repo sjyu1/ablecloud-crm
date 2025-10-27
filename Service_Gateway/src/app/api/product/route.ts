@@ -4,6 +4,7 @@ import { userinfo, userinfo_id } from '@/utils/userinfo';
 import { promises as fs } from 'fs';
 import path from 'path';
 import log from '@/utils/logger';
+import logger from '@/utils/logger';
 
 /**
  * 제품 목록 조회
@@ -51,13 +52,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       success: true,
       status: 200,
-      data: data.items || [],
-      pagination: {
-        currentPage: data.currentPage,
-        itemsPerPage: data.itemsPerPage,
-        totalPages: data.totalPages || 1,
-        totalItems: data.totalItems || 0
-      }
+      data: data.data || [],
+      pagination: data.pagination
     });
   } catch (error) {
     log.info('GET /product ERROR ::: '+error);

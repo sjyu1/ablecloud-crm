@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { Business } from './business.entity';
-import { Business_history } from './business_history.entity';
 import { Partner } from '../partner/partner.entity';
 import { Credit } from '../credit/credit.entity';
 import { BusinessService } from './business.service';
@@ -12,7 +11,7 @@ import { RolesGuard } from '../auth/role/role.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Business, Partner, Business_history, Credit]),
+    TypeOrmModule.forFeature([Business, Partner, Credit]),
     HttpModule,
   ],
   controllers: [BusinessController],
