@@ -105,7 +105,8 @@ export default function BusinessDetailClient({
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('사업 삭제에 실패했습니다.');
+        const errRes = await response.json();
+        throw new Error(errRes.message || '사업 삭제에 실패했습니다.');
       }
       alert('사업이 삭제되었습니다.');
       router.push(

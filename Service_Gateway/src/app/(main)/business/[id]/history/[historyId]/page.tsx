@@ -75,7 +75,8 @@ export default function ProductDetailPage() {
       if (response.ok) {
         alert('사업 히스토리가 삭제 되었습니다.');
       } else {
-        throw new Error('사업 히스토리 삭제를 실패했습니다.');
+        const errRes = await response.json();
+        throw new Error(errRes.message || '사업 히스토리 삭제에 실패했습니다.');
       }
   
       router.push(`/business/${params.id}?tab=history`);
