@@ -47,7 +47,8 @@ export default function UserDetailClient({
         alert('사용자가 삭제되었습니다.');
         router.push(`/user?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
       } else {
-        throw new Error('사용자 삭제에 실패했습니다.');
+        const data = await res.json();
+        throw new Error(data.message || '사용자 삭제에 실패했습니다.');
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');

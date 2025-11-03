@@ -56,7 +56,10 @@ export default function CreditDetailClient({
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('크레딧 삭제에 실패했습니다.');
+      if (!response.ok) {
+        const errRes = await response.json();
+        throw new Error(errRes.message || '크레딧 삭제에 실패했습니다.');
+      }
       alert('크레딧이 삭제되었습니다.');
       router.push(`/credit?page=${prevPage}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {

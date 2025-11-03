@@ -101,8 +101,8 @@ export default function PartnerListClient({
           className="px-2 py-1 text-sm border rounded-md"
         >
           <option value="name">회사명</option>
-          <option value="telnum">전화번호</option>
-          <option value="level">등급</option>
+          {/* <option value="telnum">전화번호</option> */}
+          {/* <option value="level">등급</option> */}
         </select>
 
         {searchType === 'level' ? (

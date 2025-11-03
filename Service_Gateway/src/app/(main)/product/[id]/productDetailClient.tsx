@@ -103,7 +103,7 @@ export default function ProductDetailClient({ product, role, productId, prevPage
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error('제품 릴리즈 정보를 가져오는 데 실패했습니다.');
+        throw new Error(data.message || '제품 릴리즈 정보를 가져오는 데 실패했습니다.');
       }
 
       productMarkdown(data.data.data.contents)
@@ -233,7 +233,8 @@ export default function ProductDetailClient({ product, role, productId, prevPage
         alert('제품이 비활성화 되었습니다.');
         router.push('/product');
       } else {
-        throw new Error('제품 비활성화에 실패했습니다.');
+        const data = await response.json();
+        throw new Error(data.message || '제품 비활성화에 실패했습니다.');
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');
@@ -252,7 +253,8 @@ export default function ProductDetailClient({ product, role, productId, prevPage
         alert('제품이 삭제되었습니다.');
         router.push('/product');
       } else {
-        throw new Error('제품 삭제에 실패했습니다.');
+        const data = await response.json();
+        throw new Error(data.message || '제품 삭제에 실패했습니다.');
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : '오류가 발생했습니다.');

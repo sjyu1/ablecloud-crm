@@ -56,8 +56,10 @@ export default function LicenseDetailClient({
         method: 'PUT',
       });
 
-      if (!response.ok) throw new Error('라이선스 승인에 실패했습니다.');
-
+      if (!response.ok) {
+        const errRes = await response.json();
+        throw new Error(errRes.message || '라이선스 승인에 실패했습니다.');
+      }
       alert('라이선스가 승인되었습니다.');
       router.push(`/license?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);
     } catch (err) {
@@ -76,7 +78,10 @@ export default function LicenseDetailClient({
         method: 'GET',
       });
 
-      if (!response.ok) throw new Error('라이선스 다운로드에 실패했습니다.');
+      if (!response.ok){
+        const errRes = await response.json();
+        throw new Error(errRes.message || '라이선스 다운로드에 실패했습니다.');
+      }
 
       const blob = await response.blob();
       const uniqueId = uuidv4();
@@ -105,7 +110,10 @@ export default function LicenseDetailClient({
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('라이선스 삭제에 실패했습니다.');
+      if (!response.ok) {
+        const errRes = await response.json();
+        throw new Error(errRes.message || '라이선스 삭제에 실패했습니다.');
+      }
 
       alert('라이선스가 삭제되었습니다.');
       router.push(`/license?page=${prevPage}&trial=${prevTrial}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`);

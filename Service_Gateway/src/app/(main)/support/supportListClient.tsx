@@ -60,6 +60,12 @@ export default function SupportListClient({
     router.push(`/support?${params.toString()}`);
   };
 
+  const handleReset = () => {
+    setSearchField('name');
+    setSearchValue('');
+    router.push('/support?page=1');
+  };
+
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
@@ -153,6 +159,12 @@ export default function SupportListClient({
           className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           검색
+        </button>
+        <button
+          onClick={handleReset}
+          className="px-3 py-1 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600"
+        >
+          초기화
         </button>
       </div>
 

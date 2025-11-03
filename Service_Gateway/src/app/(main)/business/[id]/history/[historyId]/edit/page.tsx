@@ -86,7 +86,8 @@ export default function BusinessHistoryEditPage() {
       if (response.ok) {
         alert('사업 히스토리가 수정 되었습니다.');
       } else {
-        throw new Error('사업 히스토리 수정을 실패했습니다.');
+        const errRes = await response.json();
+        throw new Error(errRes.message || '사업 히스토리 수정을 실패했습니다.');
       }
 
       router.push(`/business/${params.id}/history/${params.historyId}?tab=history`);

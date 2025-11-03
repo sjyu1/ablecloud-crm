@@ -64,7 +64,8 @@ const PasswordChangeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         //   onClose();
         // }, 2000);
       } else {
-        throw new Error('사용자 비밀번호 변경에 실패했습니다.');
+        const data = await response.json();
+        throw new Error(data.message || '사용자 비밀번호 변경에 실패했습니다.');
       }
 
     } catch (err) {

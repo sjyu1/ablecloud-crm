@@ -43,7 +43,7 @@ export class UserService {
       if (filters.company == 'ABLECLOUD'){
         whereConditions.push('(type_attr.value IS NULL OR type_attr.value != "partner")');
       } else {
-        whereConditions.push('type_attr.value = "partner" AND partner.name LIKE ?');
+        whereConditions.push('type_attr.value = "partner" AND p.name LIKE ?');
         params.push(`%${filters.company}%`);
       }
     }
