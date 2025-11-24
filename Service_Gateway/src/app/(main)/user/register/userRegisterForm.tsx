@@ -54,7 +54,12 @@ export default function UserRegisterForm({ role }: UserFormProps) {
 
     if (value === 'partner' || value === 'customer') {
       try {
-        const res = await fetch(`/api/${value}?page=1&limit=10000&order=name`);
+        let url = `/api/${value}?page=1&limit=10000&order=name`;
+
+        if (role == 'User') {
+          url += `&role=User`;
+        }
+        const res = await fetch(url);
         const result = await res.json();
 
         if (res.ok) {
