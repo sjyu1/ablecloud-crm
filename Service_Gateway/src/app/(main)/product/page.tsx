@@ -9,6 +9,7 @@ interface Product {
   id: number;
   name: string;
   version: string;
+  enabled: string;
   created: string;
 }
 
@@ -24,6 +25,7 @@ interface ProductPageProps {
     page?: string;
     searchField?: string;
     searchValue?: string;
+    enablelist?: string;
   };
 }
 
@@ -32,11 +34,13 @@ async function fetchProductList(
   searchField: string,
   searchValue: string,
   role?: string,
-  companyId?: string
+  companyId?: string,
+  enablelist?: string
 ): Promise<{ products: Product[]; pagination: Pagination }> {
   const apiUrl = new URL(`${process.env.API_URL}/product`);
   apiUrl.searchParams.set('page', page.toString());
   apiUrl.searchParams.set('limit', '10');
+  apiUrl.searchParams.set('enablelist', enablelist ?? '');
 
   if (searchValue.trim()) {
     apiUrl.searchParams.set(searchField, searchValue.trim());
@@ -45,7 +49,6 @@ async function fetchProductList(
   if (role === 'User') {
     apiUrl.searchParams.set('company_id', companyId ?? '');
   }
-
   const res = await fetchWithAuth(apiUrl.toString(), { cache: 'no-store' });
   const data = await res.json();
 
@@ -74,6 +77,7 @@ export default async function ProductPage({ searchParams: searchParamsPromise }:
   const page = Number(searchParams.page || '1');
   const searchField = searchParams.searchField || 'name';
   const searchValue = searchParams.searchValue || '';
+  const enablelist = searchParams.enablelist || '';
 
   let products: Product[] = [];
   let pagination: Pagination = {
@@ -85,7 +89,7 @@ export default async function ProductPage({ searchParams: searchParamsPromise }:
   let errorMessage: string | null = null;
 
   try {
-    const result = await fetchProductList(page, searchField, searchValue, role, companyId);
+    const result = await fetchProductList(page, searchField, searchValue, role, companyId, enablelist);
     products = result.products;
     pagination = result.pagination;
   } catch (err) {
@@ -117,6 +121,7 @@ export default async function ProductPage({ searchParams: searchParamsPromise }:
           searchField={searchField}
           searchValue={searchValue}
           role={role}
+          enablelist={enablelist}
         />
       )}
     </div>

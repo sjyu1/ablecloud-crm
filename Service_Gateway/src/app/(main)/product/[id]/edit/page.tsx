@@ -5,7 +5,7 @@ import log from '@/utils/logger';
 
 interface ProductEditPageProps {
   params: { id: string };
-  searchParams?: { page?: string; searchValue?: string };
+  searchParams?: { page?: string; searchValue?: string; enablelist?: string };
 }
 
 interface ProductForm {
@@ -52,6 +52,7 @@ export default async function ProductEditPage({ params, searchParams: searchPara
   const searchParams = await searchParamsPromise;
   const prevPage = searchParams?.page ?? '1';
   const prevSearchValue = searchParams?.searchValue ?? '';
+  const prevEnableList = searchParams?.enablelist ?? '';
 
   // const [product, productCategory] = await Promise.all([
   //   fetchProductDetail(id),
@@ -91,6 +92,7 @@ export default async function ProductEditPage({ params, searchParams: searchPara
             productCategory={productCategory}
             prevPage={prevPage}
             prevSearchValue={prevSearchValue}
+            enablelist={prevEnableList}
           />
         </div>
       )}

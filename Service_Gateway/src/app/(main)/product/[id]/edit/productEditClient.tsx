@@ -23,6 +23,7 @@ interface ProductEditClientProps {
   productCategory: ProductCategory[];
   prevPage: string;
   prevSearchValue: string;
+  enablelist: string;
 }
 
 export default function ProductEditClient({
@@ -30,6 +31,7 @@ export default function ProductEditClient({
   productCategory,
   prevPage,
   prevSearchValue,
+  enablelist,
 }: ProductEditClientProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<ProductForm>(product);
@@ -52,7 +54,7 @@ export default function ProductEditClient({
 
       if (response.ok) {
         alert('제품이 수정되었습니다.');
-        router.push(`/product/${product.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
+        router.push(`/product/${product.id}?page=${prevPage}&searchValue=${prevSearchValue}&enablelist=${enablelist}`);
       } else {
         const data = await response.json();
         throw new Error(data.message || '제품 수정에 실패했습니다.');
@@ -160,7 +162,7 @@ export default function ProductEditClient({
           <button
             type="button"
             onClick={() =>
-              router.push(`/product/${product.id}?page=${prevPage}&searchValue=${prevSearchValue}`)
+              router.push(`/product/${product.id}?page=${prevPage}&searchValue=${prevSearchValue}&enablelist=${enablelist}`)
             }
             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
           >

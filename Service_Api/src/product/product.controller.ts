@@ -16,11 +16,13 @@ export class ProductController {
     @Query('page') currentPage = '1',
     @Query('limit') itemsPerPage = '10',
     @Query('name') name?: string,
-    @Query('company_id') company_id?: string
-  ): Promise<{ data: Product[]; pagination: {} }> {
+    @Query('company_id') company_id?: string,
+    @Query('enablelist') enablelist?: string
+  ): Promise<{data: Product[]; pagination: {} }> {
     const filters = {
       name: name || '',
-      company_id: company_id || ''
+      company_id: company_id || '',
+      enablelist: enablelist || ''
     };
 
     return this.productService.findAll(parseInt(currentPage, 10), parseInt(itemsPerPage, 10), filters);
@@ -86,5 +88,13 @@ export class ProductController {
     @Param('id') id: string,
   ): Promise<Product> {
     return this.productService.disabledProduct(parseInt(id, 10));
+  }
+
+  @Put(':id/enabled')
+  // @Roles('Admin')
+  async enabledProduct(
+    @Param('id') id: string,
+  ): Promise<Product> {
+    return this.productService.enabledProduct(parseInt(id, 10));
   }
 }

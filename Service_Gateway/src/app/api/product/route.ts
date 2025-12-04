@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     const name = searchParams.get('name');
     const role = searchParams.get('role');  // User 회사 정보만 조회
     const managerId = searchParams.get('managerId');  // Admin이 사업 담당자(파트너) 선택한 경우, 파트너 사용 가능한 제품 조회
+    const enablelist = searchParams.get('enablelist');
 
     // 페이징 파라미터를 포함한 API 호출
     const apiUrl = new URL(`${process.env.API_URL}/product`);
@@ -26,6 +27,7 @@ export async function GET(request: Request) {
     apiUrl.searchParams.set('limit', limit.toString());
     // 필터 파라미터 적용
     if (name) apiUrl.searchParams.set('name', name);
+    if (enablelist) apiUrl.searchParams.set('enablelist', enablelist);
     // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();

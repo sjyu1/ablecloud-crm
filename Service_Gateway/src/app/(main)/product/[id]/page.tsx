@@ -126,6 +126,10 @@ export default async function ProductDetailPage({ params, searchParams: searchPa
   const prevSearchValue = Array.isArray(searchParams.searchValue)
     ? searchParams.searchValue[0]
     : (searchParams.searchValue ?? '');
+  const prevEnableList = Array.isArray(searchParams.enablelist)
+    ? searchParams.enablelist[0]
+    : (searchParams.enablelist ?? '');
+  
 
   if (errorMessage) {
     return (
@@ -142,6 +146,7 @@ export default async function ProductDetailPage({ params, searchParams: searchPa
       productId={params.id}
       prevPage={prevPage}
       prevSearchValue={prevSearchValue}
+      enablelist={prevEnableList}
     />
   );
 }

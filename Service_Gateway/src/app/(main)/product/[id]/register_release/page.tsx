@@ -20,6 +20,7 @@ export default function ProductEditPage() {
   const searchParams = useSearchParams();
   const prevPage = searchParams.get('page') || '1';
   const prevSearchValue = searchParams.get('searchValue') || '';
+  const prevEnableList = searchParams.get('enablelist') || '';
   const [formData, setFormData] = useState<ProductForm | null>(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -69,12 +70,13 @@ export default function ProductEditPage() {
 
       if (response.ok) {
         alert('릴리즈노트가 등록되었습니다.');
-        router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`);
+        router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}&enablelist=${prevEnableList}`);
       } else {
         const data = await response.json();
         throw new Error(data.message || '릴리즈노트 수정에 실패했습니다.');
       }
 
+      router.push(`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}&enablelist=${prevEnableList}`);
     } catch (err) {
       // setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
       const message = err instanceof Error ? err.message : '오류가 발생했습니다.';
@@ -138,7 +140,7 @@ export default function ProductEditPage() {
 
           <div className="flex justify-end space-x-2">
             <Link
-              href={`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}`}
+              href={`/product/${params.id}?page=${prevPage}&searchValue=${prevSearchValue}&enablelist=${prevEnableList}`}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
             >
               취소
