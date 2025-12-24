@@ -65,17 +65,17 @@ export default function UserDetailClient({
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">사용자 상세정보</h1>
         <div className="space-x-2">
+          <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            비밀번호 변경
+          </button>
+          <button
+            onClick={() => router.push(`/user/${user?.id}/edit?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            수정
+          </button>
           {role === 'Admin' && (
             <>
-              <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                비밀번호 변경
-              </button>
-              <button
-                onClick={() => router.push(`/user/${user?.id}/edit?page=${prevPage}&type=${prevType}&searchField=${prevSearchField}&searchValue=${prevSearchValue}`)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                수정
-              </button>
               <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
                 삭제
               </button>
