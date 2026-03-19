@@ -29,6 +29,8 @@ export class UserService {
     const whereConditions: string[] = [];
     const params: any[] = [];
 
+    let orderByClause = `ORDER BY u.created_timestamp DESC`;
+
     if (filters.username) {
       whereConditions.push('u.username LIKE ?');
       params.push(`%${filters.username}%`);
@@ -86,6 +88,12 @@ export class UserService {
       params.push(...levelList);
 
       whereConditions.push(`u.email IS NOT NULL AND u.email <> ''`);
+
+      orderByClause = `
+        ORDER BY
+          level ASC,
+          u.first_name COLLATE utf8_unicode_ci ASC
+      `;
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
@@ -160,7 +168,7 @@ export class UserService {
       LEFT JOIN licenses.${filters.type === 'partner' ? 'partner' : 'customer'} p
         ON company_attr.value = CAST(p.id AS CHAR)
       ${whereClause}
-      ORDER BY u.created_timestamp DESC
+      ${orderByClause}
       LIMIT ? OFFSET ?
     `;
 

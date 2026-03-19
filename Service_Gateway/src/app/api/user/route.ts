@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     if (company) apiUrl.searchParams.set('company', company );
     if (type) apiUrl.searchParams.set('type', type);
     if (level) apiUrl.searchParams.set('level', level);
-    if (order) apiUrl.searchParams.set('level', order);
+    if (order) apiUrl.searchParams.set('order', order);
     // 유저 역할에 따라 회사 정보 추가(파트너일 경우)
     if (role) {
       const data_userinfo = await userinfo();
