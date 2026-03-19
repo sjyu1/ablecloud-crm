@@ -79,6 +79,9 @@ export default function ProductDetailClient({ product, role, productId, prevPage
   const [templates, setTemplateFiles] = useState<File[]>([]);
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [templateError, setTemplateError] = useState<string | null>(null);
+  const [patch, setPatchFiles] = useState<File[]>([]);
+  const [isPatchLoading, setIsPatchLoading] = useState(false);
+  const [patchError, setPatchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (value === 1 && !isReleaseLoading && product?.id) {
@@ -90,6 +93,9 @@ export default function ProductDetailClient({ product, role, productId, prevPage
     }
     if (value === 3 && !isTemplateLoading && templates.length === 0) {
       fetchTemplate();
+    }
+    if (value === 4 && !isPatchLoading && patch.length === 0) {
+      fetchPatch();
     }
 
   }, [value]);
@@ -218,6 +224,22 @@ export default function ProductDetailClient({ product, role, productId, prevPage
     }
   };
 
+  const fetchPatch = async () => {
+    setIsPatchLoading(true);
+    setPatchError(null);
+    try {
+      const res = await fetch(`/api/product/${productId}/patch`);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      const data = await res.json();
+
+      setPatchFiles(data);
+    } catch (e: any) {
+      setPatchError(e.message);
+    } finally {
+      setIsPatchLoading(false);
+    }
+  };
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -333,6 +355,7 @@ export default function ProductDetailClient({ product, role, productId, prevPage
             <Tab label="릴리즈노트" {...tabProps(1)} />
             <Tab label="AddOn" {...tabProps(2)} />
             <Tab label="Template" {...tabProps(3)} />
+            <Tab label="Patch" {...tabProps(4)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -530,6 +553,56 @@ export default function ProductDetailClient({ product, role, productId, prevPage
                 </tr>
               ))}
               {templates.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
+                    파일 정보가 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={4}>
+        {isTemplateLoading ? (
+          <div className="flex justify-center items-center py-10 text-gray-500 text-sm">
+            로딩 중...
+          </div>
+        ) : patchError ? (
+          <div className="flex justify-center items-center py-10 text-red-500 text-sm">
+            {patchError}
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 border-b border-gray-100">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사이즈</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {patch.map((file) => (
+                <tr key={file.name} className="hover:bg-gray-50 cursor-pointer">
+                  <td className="px-6 py-4 break-all">
+                    <a href={`/api/product/${product?.id}/download?filePath=patch/${file.name}`} download rel="noopener noreferrer"
+                      className="text-gray-900 hover:text-gray-500 transition-colors hover:underline">
+                      {file.name}
+                    </a>
+                    {/* <a
+                      href={file.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm font-medium"
+                    >
+                      {file.name}
+                    </a> */}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.date}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{file.size}</td>
+                </tr>
+              ))}
+              {patch.length === 0 && (
                 <tr>
                   <td colSpan={3} className="px-6 py-4 text-center text-gray-500 text-sm">
                     파일 정보가 없습니다.
