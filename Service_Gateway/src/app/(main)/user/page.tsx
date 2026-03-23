@@ -114,7 +114,7 @@ export default async function UserPage({ searchParams: searchParamsPromise }: Us
         <h1 className="text-2xl font-bold text-gray-800">사용자 관리</h1>
         <Link
           href="/user/register"
-          className={role === 'Admin' ? 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors' : 'hidden'}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
         >
           사용자 등록
         </Link>
