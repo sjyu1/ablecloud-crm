@@ -264,9 +264,9 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .side-nav {
+  /* .side-nav {
     display: none;
-  }
+  } */
 
   .login-panel {
     padding: 28px 22px;
