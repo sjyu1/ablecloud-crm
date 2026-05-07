@@ -44,7 +44,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const request = context.switchToHttp().getRequest();
-      const { authorization } = request.headers;
+      const authorization = this.resolveAuthorization(request);
 
       if (!authorization || authorization.trim() === "") {
         throw new UnauthorizedException("Please provide a valid token");
@@ -64,6 +64,24 @@ export class AuthGuard implements CanActivate {
 
       throw new ForbiddenException("Session expired! Please sign in");
     }
+  }
+
+  private resolveAuthorization(request: any) {
+    const { authorization } = request.headers;
+
+    if (authorization && authorization.trim() !== "") {
+      return authorization;
+    }
+
+    const requestPath = String(request.path || request.originalUrl || "");
+    const allowsQueryToken = request.method === "GET" && requestPath.includes("/download");
+    const accessToken = allowsQueryToken ? request.query?.token : "";
+
+    if (typeof accessToken === "string" && accessToken.trim() !== "") {
+      return `Bearer ${accessToken}`;
+    }
+
+    return "";
   }
 
   private async getUserInfo(accessToken: string): Promise<UserInfoResponse> {

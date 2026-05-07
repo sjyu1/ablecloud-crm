@@ -250,7 +250,10 @@ export function ProductDetailPage() {
     }
   }
 
-  async function handleDownload() {
+  function handleDownload() {
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
     const authToken = getAuthToken();
 
     if (!authToken) {
@@ -270,21 +273,42 @@ export function ProductDetailPage() {
     setError("");
     setIsDownloading(true);
 
-    const anchor = document.createElement("a");
+    try {
+      const downloadUrl =
+        `${apiBaseUrl}/products/${encodeURIComponent(
+          String(id)
+        )}/download?token=${encodeURIComponent(authToken)}`;
 
-    anchor.href = `/api/products/${encodeURIComponent(String(id))}/download`;
-    anchor.download = product.downloadFileName;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+      const anchor = document.createElement("a");
 
-    window.setTimeout(() => {
+      anchor.href = downloadUrl;
+      anchor.download = product.downloadFileName;
+
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    } catch (downloadError) {
+      setError(
+        downloadError instanceof Error
+          ? downloadError.message
+          : "알 수 없는 오류가 발생했습니다."
+      );
+    } finally {
       setIsDownloading(false);
-    }, 1000);
+    }
   }
 
   function handleProductFileDownload(fileType, file) {
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+    const authToken = getAuthToken();
     const label = FILE_TAB_LABELS[fileType] || "파일";
+
+    if (!authToken) {
+      setError("로그인이 필요합니다.");
+      return;
+    }
 
     if (!file?.name) {
       setError(`다운로드할 ${label} 파일이 없습니다.`);
@@ -294,17 +318,59 @@ export function ProductDetailPage() {
     setError("");
     setDownloadingFileKey(`${fileType}:${file.name}`);
 
-    const anchor = document.createElement("a");
+    try {
+      const downloadUrl =
+        `${apiBaseUrl}/products/files/${encodeURIComponent(
+          fileType
+        )}/${encodeURIComponent(file.name)}/download` +
+        `?token=${encodeURIComponent(authToken)}`;
 
-    anchor.href = `/api/products/files/${encodeURIComponent(fileType)}/${encodeURIComponent(file.name)}/download`;
-    anchor.download = file.name;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+      const anchor = document.createElement("a");
 
-    window.setTimeout(() => {
+      anchor.href = downloadUrl;
+      anchor.download = file.name;
+
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    } catch (downloadError) {
+      setError(
+        downloadError instanceof Error
+          ? downloadError.message
+          : "알 수 없는 오류가 발생했습니다."
+      );
+    } finally {
       setDownloadingFileKey("");
-    }, 1000);
+    }
+  }
+
+  async function downloadProductFile(apiBaseUrl, authToken, fileType, filename, label) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/products/files/${encodeURIComponent(fileType)}/${encodeURIComponent(filename)}/download`, {
+        headers: {
+          authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`${label} 파일 다운로드에 실패했습니다.`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : "알 수 없는 오류가 발생했습니다.");
+    } finally {
+      setDownloadingFileKey("");
+    }
   }
 
   return (
