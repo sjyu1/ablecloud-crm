@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { createCipheriv, createHash, randomBytes } from "crypto";
+import { createCipheriv, randomBytes, scryptSync } from "crypto";
 import { getEnv } from "../env";
 import { DatabaseService } from "../database/database.service";
 import { UserService } from "../user/user.service";
@@ -105,30 +105,48 @@ export class LicenseService {
   }
 
   async downloadLicenseFile(id: string, authContext?: AuthContext) {
-    const license = await this.getLicenseDetail(id, authContext);
+    const whereClause = await this.buildDetailWhereClause(id, authContext);
+    const license = await this.fetchLicenseDetail(whereClause);
 
-    if (license.status !== "활성") {
+    if (!license) {
+      throw new NotFoundException("라이선스 정보를 찾을 수 없습니다.");
+    }
+
+    if (license.status !== "active") {
       throw new BadRequestException("활성화된 라이선스만 다운로드할 수 있습니다.");
     }
 
-    const payload = JSON.stringify({
-      id: license.id,
-      key: license.key,
-      product: license.product,
-      status: license.status,
-      project: license.project,
-      startDate: license.startDate,
-      endDate: license.endDate,
-      issuer: license.issuer,
-      trial: license.trial,
-      oem: license.oem,
-      issuerCompany: license.issuerCompany,
-      createdAt: license.createdAt,
-      approver: license.approver,
-      approvedAt: license.approvedAt,
-    });
-
-    console.log("[license-download] plain payload:", payload);
+    const licenseContent = JSON.stringify(
+      {
+        data: {
+          id: license.id,
+          license_key: license.license_key,
+          issued: license.issued,
+          expired: license.expired,
+          status: license.status,
+          company_id: license.company_id,
+          approve_user: license.approve_user,
+          approved: license.approved,
+          business_id: license.business_id,
+          issued_id: license.issued_id,
+          trial: license.trial,
+          oem: license.oem,
+          created: license.created,
+          company_name: license.company_name || "ABLECLOUD",
+          company_telnum: license.company_telnum,
+          company_level: license.company_level,
+          business_name: license.business_name,
+          product_id: license.product_id,
+          product_name: license.product_name,
+          product_version: license.product_version,
+          issued_name: license.issued_name,
+        },
+      },
+      null,
+      2
+    );
+    const parsedLicense = JSON.parse(licenseContent);
+    const payload = JSON.stringify(parsedLicense.data, null, 2);
 
     return {
       filename: this.generateLicenseKey(),
@@ -148,7 +166,7 @@ export class LicenseService {
     }
 
     const business = await this.fetchBusinessForLicenseCreation(businessId, authContext);
-console.log("[createLicense] fetched business:", business);
+
     if (!business) {
       throw new NotFoundException("라이선스를 생성할 수 있는 사업을 찾지 못했습니다.");
     }
@@ -432,7 +450,9 @@ console.log("[createLicense] fetched business:", business);
         'product_version', p.version,
         'issued_name', iu.USERNAME,
         'approved_name', au.USERNAME,
-        'company_name', partner.name,
+        'company_name', IFNULL(partner.name, 'ABLECLOUD'),
+        'company_telnum', partner.telnum,
+        'company_level', partner.level,
         'customer_name', c.name
       ) AS payload
       FROM license l
@@ -627,17 +647,15 @@ console.log("[createLicense] fetched business:", business);
   }
 
   private encryptLicensePayload(payload: string) {
-    const env = getEnv();
-    const iv = randomBytes(12);
-    const key = createHash("sha256").update(env.LICENSE_FILE_SECRET).digest();
-    const cipher = createCipheriv("aes-256-gcm", key, iv);
+    const key = scryptSync("password", "salt", 32);
+    const iv = scryptSync("password", "salt", 16);
+    const cipher = createCipheriv("aes-256-cbc", key, iv);
     const encrypted = Buffer.concat([
       cipher.update(payload, "utf8"),
       cipher.final(),
     ]);
-    const authTag = cipher.getAuthTag();
 
-    return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted.toString("hex")}`;
+    return encrypted.toString("base64");
   }
 
   private mapLicenseStatus(status: string) {

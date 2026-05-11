@@ -182,7 +182,10 @@ export function LicenseDetailPage() {
 
     try {
       const response = await fetch(`${apiBaseUrl}/licenses/${id}/download`, {
+        cache: "no-store",
         headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
           authorization: `Bearer ${authToken}`,
         },
       });
