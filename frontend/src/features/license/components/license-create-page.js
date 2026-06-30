@@ -232,7 +232,7 @@ export function LicenseCreatePage() {
               checked={isTrial}
               onChange={(event) => setIsTrial(event.target.checked)}
             />
-            <span>Trial (Trial 라이선스는 시작일부터 한달 사용가능합니다.)</span>
+            <span>Trial (Trial 라이선스는 시작일부터 3달동안 사용가능합니다.)</span>
           </label>
         </div>
 

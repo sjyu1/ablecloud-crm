@@ -611,7 +611,7 @@ export class LicenseService {
 
     if (isTrial) {
       const date = new Date(`${startDate}T00:00:00Z`);
-      date.setUTCMonth(date.getUTCMonth() + 1);
+      date.setUTCMonth(date.getUTCMonth() + 3);
       return date.toISOString().slice(0, 10);
     }
 

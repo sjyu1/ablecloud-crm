@@ -83,7 +83,7 @@ export function LicenseEditPage() {
     }
 
     const date = new Date(`${nextStartDate}T00:00:00Z`);
-    date.setUTCMonth(date.getUTCMonth() + 1);
+    date.setUTCMonth(date.getUTCMonth() + 3);
     return date.toISOString().slice(0, 10);
   }
 
@@ -228,7 +228,7 @@ export function LicenseEditPage() {
                     }
                   }}
                 />
-                <span>Trial (Trial 라이선스는 시작일부터 한달 사용가능합니다.)</span>
+                <span>Trial (Trial 라이선스는 시작일부터 3달동안 사용가능합니다.)</span>
               </label>
             </div>
           </>
