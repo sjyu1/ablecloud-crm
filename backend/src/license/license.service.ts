@@ -97,7 +97,11 @@ export class LicenseService {
       trialLabel: item.trial ? "o" : "-",
       isPermanent: item.expired === "9999-12-31",
       oem: item.oem ? item.oem : "ABLESTACK",
-      issuerCompany: item.company_name || item.customer_name || "-",
+      issuerCompany:
+        item.issuer_company_name ||
+        item.company_name ||
+        item.customer_name ||
+        "-",
       createdAt: item.created || "-",
       approver: item.approved_name || item.approve_user || "-",
       approvedAt: item.approved || "-",
@@ -179,10 +183,12 @@ export class LicenseService {
       startDate,
     });
     const companyId = Number(business.customer_id);
+    const oem = business.oem || "ABLESTACK";
     const licenseKey = this.generateLicenseKey();
     const escapedLicenseKey = this.databaseService.escapeSqlString(licenseKey);
     const escapedStartDate = this.databaseService.escapeSqlString(startDate);
     const escapedEndDate = this.databaseService.escapeSqlString(endDate);
+    const escapedOem = this.databaseService.escapeSqlString(oem);
     const escapedIssuedId = this.databaseService.escapeSqlString(authContext?.userId || "");
     const status = authContext?.role === "admin" ? "active" : "inactive";
     const escapedStatus = this.databaseService.escapeSqlString(status);
@@ -208,7 +214,7 @@ export class LicenseService {
         '${escapedStartDate}',
         '${escapedEndDate}',
         ${trialValue},
-        'ABLESTACK',
+        '${escapedOem}',
         ${businessId}
       )
     `;
@@ -450,8 +456,9 @@ export class LicenseService {
         'product_version', p.version,
         'issued_name', iu.USERNAME,
         'approved_name', au.USERNAME,
-        'company_name', IFNULL(partner.name, 'ABLECLOUD'),
-        'company_telnum', partner.telnum,
+        'issuer_company_name', COALESCE(NULLIF(issuer_company.name, ''), NULLIF(partner.name, ''), 'ABLECLOUD'),
+        'company_name', COALESCE(NULLIF(issuer_company.name, ''), NULLIF(partner.name, ''), 'ABLECLOUD'),
+        'company_telnum', COALESCE(issuer_company.telnum, partner.telnum),
         'company_level', partner.level,
         'customer_name', c.name
       ) AS payload
@@ -462,6 +469,7 @@ export class LicenseService {
       LEFT JOIN ${env.DB_DATABASE_USER}.USER_ENTITY iu ON l.issued_id = iu.ID
       LEFT JOIN ${env.DB_DATABASE_USER}.USER_ENTITY au
         ON l.approve_user = au.ID OR l.approve_user = au.USERNAME
+      LEFT JOIN customer issuer_company ON l.company_id = issuer_company.id
       LEFT JOIN partner ON l.company_id = partner.id
       LEFT JOIN user_company buc ON b.manager_id = buc.user_id
       ${whereClause}
@@ -488,9 +496,12 @@ export class LicenseService {
     const query = `
       SELECT JSON_OBJECT(
         'id', b.id,
-        'customer_id', b.customer_id
+        'customer_id', b.customer_id,
+        'oem', pc.name
       ) AS payload
       FROM business b
+      LEFT JOIN product p ON b.product_id = p.id
+      LEFT JOIN product_category pc ON p.category_id = pc.id
       WHERE ${conditions.join(" AND ")}
       LIMIT 1
     `;
