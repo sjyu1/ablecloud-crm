@@ -5,7 +5,7 @@ import { ProductTable } from "@/features/product/components/product-table";
 import { getAuthToken, getRole } from "@/lib/auth";
 
 export function ProductManagementPage() {
-  const isAdmin = getRole() === "admin";
+  const [isAdmin, setIsAdmin] = useState(false);
   const [products, setProducts] = useState([]);
   const [includeAll, setIncludeAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +17,10 @@ export function ProductManagementPage() {
     limit: 10,
     total: 0,
   });
+
+  useEffect(() => {
+    setIsAdmin(String(getRole() || "user").toLowerCase() === "admin");
+  }, []);
 
   useEffect(() => {
     void fetchProducts({

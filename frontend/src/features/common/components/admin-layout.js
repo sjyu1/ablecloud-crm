@@ -39,9 +39,9 @@ export function AdminLayout({ title, actions, children, activePath }) {
           <p className="welcome-text">
             <strong>{username}</strong>님 환영합니다
           </p>
-          <Link href="/api/logout" legacyBehavior>
-            <a className="logout-button" onClick={handleLogout}>로그아웃</a>
-          </Link>
+          <a href="/api/logout" className="logout-button" onClick={handleLogout}>
+            로그아웃
+          </a>
         </div>
       </header>
 

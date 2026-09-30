@@ -28,8 +28,13 @@ export function NoticeDetailPage() {
   const [isMailTargetModalOpen, setIsMailTargetModalOpen] = useState(false);
   const [isLoadingMailTargets, setIsLoadingMailTargets] = useState(false);
   const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [mailTargetError, setMailTargetError] = useState("");
   const [selectedTargets, setSelectedTargets] = useState([]);
+
+  useEffect(() => {
+    setIsAdmin(String(getRole() || "user").toLowerCase() === "admin");
+  }, []);
 
   useEffect(() => {
     if (!router.isReady || !id) {
@@ -205,7 +210,7 @@ export function NoticeDetailPage() {
       title="공지사항 상세정보"
       actions={
         <div className="page-actions">
-          {getRole() === "admin" ? (
+          {isAdmin ? (
             <>
               <Link href={id ? `/notices/${id}/edit` : "#"} legacyBehavior>
                 <a className="action-square-button">수정</a>

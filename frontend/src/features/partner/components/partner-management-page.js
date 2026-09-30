@@ -10,6 +10,7 @@ export function PartnerManagementPage() {
   const [partners, setPartners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [activeGrade, setActiveGrade] = useState("PLATINUM");
   const [searchType, setSearchType] = useState("company");
   const [keyword, setKeyword] = useState("");
@@ -20,6 +21,7 @@ export function PartnerManagementPage() {
   });
 
   useEffect(() => {
+    setIsAdmin(String(getRole() || "user").toLowerCase() === "admin");
     void fetchPartners({
       searchType: "company",
       keyword: "",
@@ -131,7 +133,7 @@ export function PartnerManagementPage() {
       activePath="/partner"
       title="파트너 관리"
       actions={
-        getRole() === "admin" ? (
+        isAdmin ? (
           <Link href="/partners/create" legacyBehavior>
             <a className="primary-button">파트너 등록</a>
           </Link>
@@ -169,7 +171,7 @@ export function PartnerManagementPage() {
       </section>
 
 
-      {getRole() === "admin" ? (
+      {isAdmin ? (
       <section className="toolbar">
         <div className="tabs" aria-label="파트너 등급 탭">
           {PARTNER_GRADES.map((grade) => (

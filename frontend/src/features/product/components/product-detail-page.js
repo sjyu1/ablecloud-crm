@@ -48,6 +48,7 @@ export function ProductDetailPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFileKey, setDownloadingFileKey] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("detail");
   const [fileTabs, setFileTabs] = useState({
@@ -55,6 +56,10 @@ export function ProductDetailPage() {
     template: { items: [], isLoading: false, error: "" },
     patch: { items: [], isLoading: false, error: "" },
   });
+
+  useEffect(() => {
+    setIsAdmin(String(getRole() || "user").toLowerCase() === "admin");
+  }, []);
 
   useEffect(() => {
     if (!router.isReady || !id) {
@@ -379,7 +384,7 @@ export function ProductDetailPage() {
       title="제품 상세정보"
       actions={
         <div className="page-actions">
-          {getRole() === "admin" ? (
+          {isAdmin ? (
             <>
               <Link href={id ? `/products/${id}/edit` : "#"} legacyBehavior>
                 <a className="action-square-button">수정</a>
@@ -436,13 +441,13 @@ export function ProductDetailPage() {
                 ) : "-"}
               </p>
             </DetailField>
-            <DetailField label="제품 Checksum(MD5S)" value={product.checksumLabel} />
+            <DetailField label="제품 Checksum(MD5)" value={product.checksumLabel} />
             <DetailField label="생성일" value={formatDateTime(product.createdAt)} />
           </div>
         ) : null}
         {!isLoading && !error && product && activeTab === "release-note" ? (
           <div className="detail-tab-panel">
-            {getRole() === "admin" ? (
+            {isAdmin ? (
               <div className="detail-tab-toolbar">
                 <Link href={id ? `/products/${id}/release-note` : "#"} legacyBehavior>
                   <a className="action-square-button">릴리즈노트 등록 및 수정</a>
