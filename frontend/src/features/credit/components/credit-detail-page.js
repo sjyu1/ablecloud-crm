@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/features/common/components/admin-layout";
 import { formatAmount } from "@/features/credit/format-credit";
-import { getAuthToken } from "@/lib/auth";
+import { getAuthToken, getRole } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format-date";
 
 function DetailField({ label, value, isTextarea = false }) {
@@ -23,9 +23,25 @@ export function CreditDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const [credit, setCredit] = useState(null);
+  const [readOnly, setReadOnly] = useState(false);
+  const [isAccessChecked, setIsAccessChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const token = getAuthToken();
+    if (String(getRole()).toLowerCase() === "user" && token) {
+      fetch(`${apiBaseUrl}/partners?page=1&limit=1`, { headers: { authorization: `Bearer ${token}` } })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => setReadOnly(Number(data?.items?.[0]?.id) === 59))
+        .catch(() => setReadOnly(false))
+        .finally(() => setIsAccessChecked(true));
+    } else {
+      setIsAccessChecked(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!router.isReady || !id) {
@@ -112,6 +128,7 @@ export function CreditDetailPage() {
       title="크레딧 상세정보"
       actions={
         <div className="page-actions">
+          {isAccessChecked && !readOnly ? <>
           <Link href={id ? `/credits/${id}/edit` : "#"} legacyBehavior>
             <a className="action-square-button">수정</a>
           </Link>
@@ -123,6 +140,7 @@ export function CreditDetailPage() {
           >
             {isDeleting ? "삭제 중" : "삭제"}
           </button>
+          </> : null}
           <Link href="/credit" legacyBehavior>
             <a className="action-square-button">목록</a>
           </Link>

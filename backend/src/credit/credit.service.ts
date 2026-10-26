@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { getEnv } from "../env";
 import { DatabaseService } from "../database/database.service";
 import { UserService } from "../user/user.service";
@@ -107,6 +107,7 @@ export class CreditService {
   }
 
   async createCredit(input: CreditInput, authContext?: AuthContext) {
+    await this.ensureWritable(authContext);
     const normalized = this.normalizeInput(input);
     await this.ensurePartnerAccess(normalized.partnerId, authContext);
 
@@ -139,6 +140,7 @@ export class CreditService {
   }
 
   async updateCredit(id: string, input: CreditInput, authContext?: AuthContext) {
+    await this.ensureWritable(authContext);
     const whereClause = await this.buildDetailWhereClause(id, authContext);
     const creditItem = await this.fetchCreditDetail(whereClause);
 
@@ -178,6 +180,7 @@ export class CreditService {
   }
 
   async deleteCredit(id: string, authContext?: AuthContext) {
+    await this.ensureWritable(authContext);
     const whereClause = await this.buildDetailWhereClause(id, authContext);
     const creditItem = await this.fetchCreditDetail(whereClause);
 
@@ -488,6 +491,17 @@ export class CreditService {
 
     if (!output) {
       throw new BadRequestException("파트너를 찾을 수 없습니다.");
+    }
+  }
+
+  private async ensureWritable(authContext?: AuthContext) {
+    if (authContext?.role !== "user") {
+      return;
+    }
+
+    const companyId = await this.userService.fetchUserCompanyId(authContext.userId || "");
+    if (Number(companyId) === 59) {
+      throw new ForbiddenException("파트너 ID 59 사용자는 크레딧 조회만 가능합니다.");
     }
   }
 

@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminLayout } from "@/features/common/components/admin-layout";
 import { CreditTable } from "@/features/credit/components/credit-table";
-import { getAuthToken } from "@/lib/auth";
+import { getAuthToken, getRole } from "@/lib/auth";
 
 export function CreditManagementPage() {
   const [credits, setCredits] = useState([]);
+  const [readOnly, setReadOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchType, setSearchType] = useState("category");
@@ -18,6 +19,14 @@ export function CreditManagementPage() {
   });
 
   useEffect(() => {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const token = getAuthToken();
+    if (String(getRole()).toLowerCase() === "user" && token) {
+      fetch(`${apiBaseUrl}/partners?page=1&limit=1`, { headers: { authorization: `Bearer ${token}` } })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => setReadOnly(Number(data?.items?.[0]?.id) === 59))
+        .catch(() => setReadOnly(false));
+    }
     void fetchCredits({
       searchType: "category",
       keyword: "",
@@ -126,11 +135,11 @@ export function CreditManagementPage() {
     <AdminLayout
       activePath="/credit"
       title="크레딧 관리"
-      actions={
+      actions={readOnly ? null : (
         <Link href="/credits/create" legacyBehavior>
           <a className="primary-button">크레딧 등록</a>
         </Link>
-      }
+      )}
     >
       <section className="toolbar toolbar-business">
         <div className="toolbar-spacer" />
